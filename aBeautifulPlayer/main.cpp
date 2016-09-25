@@ -358,6 +358,105 @@ struct Game{
         return false;
     }
     
+    bool checkRoadPresent (int playerNumber){
+        vector<vector<int>> Graph;
+        vector<int> A;
+        for (int i=0; i<numSquares; i++)
+            Graph.push_back(A);
+
+        for (int r=0; r<boardSize; r++){
+            for (int c=0; c<boardSize; c++){
+                if (board[r][c].size()>0){
+                    if (board[r][c].back().colour == players[playerNumber].colour){
+                        if (board[r][c].back().type != Wall){
+                            if (r > 0)
+                                if (board[r-1][c].size()>0)
+                                    if (board[r-1][c].back().colour == players[playerNumber].colour && board[r-1][c].back().type != Wall){
+                                        Graph[get1DIndex(c, r)].push_back(get1DIndex(c, r-1));
+                                        Graph[get1DIndex(c, r-1)].push_back(get1DIndex(c, r));
+                                    }
+                            if (r < boardSize-1)
+                                if (board[r+1][c].size()>0)
+                                    if (board[r+1][c].back().colour == players[playerNumber].colour && board[r+1][c].back().type != Wall){
+                                        Graph[get1DIndex(c, r)].push_back(get1DIndex(c, r+1));
+                                        Graph[get1DIndex(c, r+1)].push_back(get1DIndex(c, r));
+                                    }
+                            if (c > 0)
+                                if (board[r][c-1].size()>0)
+                                    if (board[r][c-1].back().colour == players[playerNumber].colour && board[r][c-1].back().type != Wall){
+                                        Graph[get1DIndex(c, r)].push_back(get1DIndex(c-1, r));
+                                        Graph[get1DIndex(c-1, r)].push_back(get1DIndex(c, r));
+                                    }
+                            if (c < boardSize-1)
+                                if (board[r][c+1].size()>0)
+                                    if (board[r][c+1].back().colour == players[playerNumber].colour && board[r][c+1].back().type != Wall){
+                                        Graph[get1DIndex(c, r)].push_back(get1DIndex(c+1, r));
+                                        Graph[get1DIndex(c+1, r)].push_back(get1DIndex(c, r));
+                                    }
+                        }
+                    }
+                }
+            }
+        }
+
+        bool roadFound = false;
+        for (int r=0; r<boardSize and !roadFound; r++){
+            unordered_set<int> explored;
+            DFS(Graph, get1DIndex(0, r), explored);
+            for (int r2=0; r2<boardSize; r2++)
+                if (explored.find(get1DIndex(boardSize-1, r2))!=explored.end()){
+                    roadFound = true;
+                    break;
+                }
+        }
+        for (int c=0; c<boardSize and !roadFound; c++){
+            unordered_set<int> explored;
+            DFS(Graph, get1DIndex(c, 0), explored);
+            for (int c2=0; c2<boardSize; c2++)
+                if (explored.find(get1DIndex(c2, boardSize-1))!=explored.end()){
+                    roadFound = true;
+                    break;
+                }
+        }
+        
+        return roadFound;
+    }
+    
+    void DFS (vector<vector<int>> Graph, int node, unordered_set<int> &explored){
+        explored.insert(node);
+        for (int i=0; i<Graph[node].size(); i++){
+            if (explored.find(Graph[node][i])==explored.end()){
+                DFS(Graph, Graph[node][i], explored);
+            }
+        }
+    }
+    
+    int isFinishState(){
+        // Return winner player number if finish state
+        // Return -1 if not finish state
+        // Return 2 for tie
+        
+        if (checkRoadPresent(1-currentPlayer))
+            return 1-currentPlayer;
+        
+        if ((emptySquares.size()==0)||(players[0].numCaps+players[0].numFlats==0)||(players[1].numFlats+players[1].numCaps==0)){
+            int countFlats[2] = {};
+            for (int i=0; i<boardSize; i++)
+                for (int j=0; j<boardSize; j++)
+                    if (board[i][j].size()>0)
+                        if (board[i][j].back().type==Flat)
+                            countFlats[board[i][j].back().colour]++;
+            if (countFlats[0]>countFlats[1])
+                return 0;
+            else if (countFlats[1]>countFlats[0])
+                return 1;
+            else
+                return 2;
+        }
+        
+        return -1;
+    }
+    
     void printGameState(){
         for (int i=boardSize-1; i>-1; i--){
             for (int j=0; j<boardSize; j++){
@@ -398,7 +497,7 @@ struct RandomAgent{
         myGame->applyMove(move);
         cout << move << endl;
 
-        if (myPlayerNumber == 0){
+        if (myPlayerNumber != 2){
             cin >> move;
             myGame->applyMove(move);
         }
@@ -415,17 +514,106 @@ struct RandomAgent{
 
         while(true){
             vector<string> allMoves = myGame->generateAllMoves();
-            cerr << "Possible Moves : " << allMoves.size() << endl;
             move = allMoves[rand()%allMoves.size()];
             myGame->applyMove(move);
             cout << move << endl;
-
+            cerr << "I Played : " << move << endl;
+            
             cin >> move;
             myGame->applyMove(move);
         }
     }
     
 };
+
+struct DFSAgent{
+    
+    Game* myGame;
+    int myPlayerNumber;
+    int boardSize;
+    int timeLimit;
+    
+    DFSAgent (int playerNum, int n, int t){
+        myPlayerNumber = playerNum;
+        boardSize = n;
+        timeLimit = t;
+        myGame = new Game(boardSize);
+    }
+    
+    void playFirstMove(){
+        string move;
+        if (myPlayerNumber == 2){
+            cin >> move;
+            myGame->applyMove(move);
+        }
+        
+        vector<string> allMoves = myGame->generateFirstMove();
+        move = allMoves[rand()%allMoves.size()];
+        myGame->applyMove(move);
+        cout << move << endl;
+        
+        if (myPlayerNumber != 2){
+            cin >> move;
+            myGame->applyMove(move);
+        }
+        myGame->currentPlayer = 0;
+    }
+    
+    void play(){
+        string move;
+        
+        if (myPlayerNumber == 2){
+            cin >> move;
+            myGame->applyMove(move);
+        }
+        
+        while(true){
+            move = getDFSMove();
+            myGame->applyMove(move);
+            cout << move << endl;
+            
+            cin >> move;
+            myGame->applyMove(move);
+        }
+    }
+    
+    string getDFSMove(){
+
+        vector<string> allMoves = myGame->generateAllMoves();
+        for (int i=0; i<allMoves.size(); i++){
+            Game nextState = *myGame;
+            nextState.applyMove(allMoves[i]);
+            if (DFS(nextState)){
+                return allMoves[i];
+            }
+        }
+
+        return "";
+    }
+    
+    bool DFS (Game gameState){
+        
+        int winner = gameState.isFinishState();
+        if (winner!=-1){
+            if (winner==0)
+                return true;
+            return false;
+        }
+        
+        vector<string> allMoves = gameState.generateAllMoves();
+        for (int i=0; i<allMoves.size(); i++){
+            Game nextState = gameState;
+            nextState.applyMove(allMoves[i]);
+            if (DFS(nextState)){
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+};
+
 
 int main(int argc, const char * argv[]) {
 
@@ -434,6 +622,24 @@ int main(int argc, const char * argv[]) {
     RandomAgent player(p, n, t);
     player.playFirstMove();
     player.play();
-
+/*
+    Game game(5);
+    game.applyMove("Fa1");
+    game.applyMove("Fb1");
+    game.currentPlayer = 0;
+    game.applyMove("Fb2");
+    game.applyMove("Fa2");
+    game.applyMove("Fb3");
+    game.applyMove("Fa3");
+    game.applyMove("Fb4");
+    game.applyMove("Fa4");
+    game.applyMove("Fc5");
+    game.applyMove("Fd4");
+    game.applyMove("Fc4");
+    game.printGameState();
+    cout << "----------------\n";
+    game.currentPlayer = 0;
+    cout << game.checkRoadPresent() << endl;
+*/
     return 0;
 }
