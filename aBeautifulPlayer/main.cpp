@@ -467,6 +467,22 @@ struct Game{
         return -1;
     }
     
+    int getStateValue(){
+        if (checkRoadPresent(0))
+            return 100;
+        if (checkRoadPresent(1))
+            return -100;
+        
+        int countFlats[2] = {};
+        for (int i=0; i<boardSize; i++)
+            for (int j=0; j<boardSize; j++)
+                if (board[i][j].size()>0)
+                    if (board[i][j].back().type!=Wall)
+                        countFlats[board[i][j].back().colour]++;
+
+        return countFlats[players[0].colour] - players[0].numFlats - countFlats[players[1].colour] + players[1].numFlats;
+    }
+    
     void printGameState(){
         for (int i=boardSize-1; i>-1; i--){
             for (int j=0; j<boardSize; j++){
@@ -532,8 +548,6 @@ struct RandomAgent{
 
         while(true){
             vector<string> allMoves = myGame->generateAllMoves();
-            if (rand()%100<20)
-                allMoves.clear();
             move = allMoves[rand()%allMoves.size()];
             myGame->applyMove(move);
             cout << move << endl;
@@ -599,14 +613,10 @@ struct DFSAgent{
         while(true){
             move = getDFSMove();
             myGame->applyMove(move);
-            myGame->printGameState();
-            cerr << "Sending move : " << move << endl;
             cout << move << endl;
             
             cin >> move;
-            cerr << "I AM GETTING THIS IN : " << move << endl;
             myGame->applyMove(move);
-            myGame->printGameState();
         }
     }
     
@@ -660,14 +670,151 @@ struct DFSAgent{
     
 };
 
+struct MiniMaxAgent{
+    
+    Game* myGame;
+    int myPlayerNumber;
+    int boardSize;
+    int timeLimit;
+    
+    MiniMaxAgent (int playerNum, int n, int t){
+        myPlayerNumber = playerNum;
+        boardSize = n;
+        timeLimit = t;
+        myGame = new Game(boardSize);
+    }
+    
+    void playFirstMove(){
+        string move;
+        if (myPlayerNumber == 2){
+            cin >> move;
+            myGame->currentPlayer = 1;
+            myGame->applyMoveOnOpponent(move);
+            
+            vector<string> allMoves = myGame->generateFirstMove();
+            move = allMoves[rand()%allMoves.size()];
+            myGame->applyMoveOnOpponent(move);
+            cout << move << endl;
+            
+        }
+        
+        if (myPlayerNumber == 1){
+            
+            vector<string> allMoves = myGame->generateFirstMove();
+            move = allMoves[rand()%allMoves.size()];
+            myGame->currentPlayer = 0;
+            myGame->applyMoveOnOpponent(move);
+            cout << move << endl;
+            
+            cin >> move;
+            myGame->applyMoveOnOpponent(move);
+        }
+    }
+    
+    void play(){
+        string move;
+        
+        if (myPlayerNumber == 2){
+            cin >> move;
+            myGame->applyMove(move);
+        }
+        
+        
+        while(true){
+            move = getMiniMaxMove();
+            myGame->applyMove(move);
+            cout << move << endl;
+            
+            cin >> move;
+            myGame->applyMove(move);
+        }
+    }
+    
+    string getMiniMaxMove(){
+        
+        vector<string> allMoves = myGame->generateAllMoves();
+        int maxStateValue = -200;
+        int alpha = -1000, beta = 1000;
+        string bestMove;
+        
+        for (int i=0; i<allMoves.size(); i++){
+            Game nextState = *myGame;
+            nextState.applyMove(allMoves[i]);
+            
+            int value = MiniMaxSearch(nextState, false, 1, alpha, beta);
+            if (value > maxStateValue){
+                maxStateValue = value;
+                bestMove = allMoves[i];
+            }
+            alpha = max(alpha, maxStateValue);
+            
+            if (beta <= alpha)
+                break;
+        }
+        
+        return bestMove;
+    }
+    
+    int MiniMaxSearch (Game gameState, bool maximize, int depth, int alpha, int beta){
+        
+        int winner = gameState.isFinishState();
+        if ((winner!=-1)||(depth>2))
+            return gameState.getStateValue();
+        
+        vector<string> allMoves = gameState.generateAllMoves();
+        int bestValue = 0;
+        if (maximize)
+            bestValue = -200;
+        else
+            bestValue = 200;
+        
+        for (int i=0; i<allMoves.size(); i++){
+            Game nextState = gameState;
+            nextState.applyMove(allMoves[i]);
+            int value = MiniMaxSearch(nextState, !maximize, depth+1, alpha, beta);
+            if (maximize){
+                bestValue = max(bestValue, value);
+                alpha = max(alpha, bestValue);
+                if (beta <= alpha)
+                    break;
+            }
+            else {
+                bestValue = min(bestValue, value);
+                beta = min(beta, bestValue);
+                if (beta < alpha)
+                    break;
+            }
+        }
+
+        return bestValue;
+    }
+    
+};
+
 
 int main(int argc, const char * argv[]) {
 
     int p, n, t;
     cin >> p >> n >> t;
-    RandomAgent player(p, n, t);
-    player.playFirstMove();
-    player.play();
+    RandomAgent player1(p, n, t);
+    DFSAgent player2(p, n, t);
+    MiniMaxAgent player3(p, n, t);
+    
+    if (argc == 2){
+        if (argv[1][0] == '0'){
+            cerr << "Random Player" << endl;
+            player1.playFirstMove();
+            player1.play();
+        } else if (argv[1][0] == '1'){
+            cerr << "DFS Player" << endl;
+            player2.playFirstMove();
+            player2.play();
+        } else if (argv[1][0] == '2'){
+            cerr << "MiniMax Player" << endl;
+            player3.playFirstMove();
+            player3.play();
+        }
+    }
 /*
     Game game(5);
     game.applyMove("Sa3");
