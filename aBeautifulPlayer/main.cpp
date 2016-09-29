@@ -13,6 +13,7 @@
 #include <sstream>
 #include <stdio.h>
 #include <unistd.h>
+#include <stack>
 
 using namespace std;
 
@@ -374,9 +375,11 @@ struct Game{
     vector<string> generateFirstMove(){
         vector<string> moves;
         for (int r = 0 ; r < boardSize ; r++){
-            for (int c = 0 ; c <boardSize  && !OccupiedBoard[r][c]; c++ ){
+            for (int c = 0 ; c <boardSize ; c++ ){
+                if (!OccupiedBoard[r][c]){
                 string pos = getStringIndex(c,r);
                 moves.push_back("F" + pos);
+                }
             }
         }
         return moves;
@@ -426,7 +429,21 @@ struct Game{
         return false;
     }
     
-    bool checkRoadPresent (int playerNumber){
+    void DFS(int r, int c, int ComponentNumber[][MAX_BOARD_SIZE],int number,bool myArray[][MAX_BOARD_SIZE]){
+        if ( r < 0 || r >= boardSize || c < 0 || c >= boardSize)
+            return;
+        
+        if (ComponentNumber[r][c] != 0 || myArray[r][c] == 0)
+            return;
+        
+        ComponentNumber[r][c] = number;
+        DFS(r+1,c,ComponentNumber,number,myArray);
+        DFS(r-1,c,ComponentNumber,number, myArray);
+        DFS(r,c+1,ComponentNumber,number , myArray);
+        DFS(r,c-1,ComponentNumber,number, myArray);
+    }
+    
+    bool checkRoadPresent2 (int playerNumber){
         vector<vector<int> > Graph;
         vector<int> A;
         for (int i=0; i<numSquares; i++)
@@ -480,6 +497,60 @@ struct Game{
         }
         
         return roadFound;
+    }
+    
+    bool checkRoadPresent (int playerNumber, bool flag =false){
+        int ComponentNumber[MAX_BOARD_SIZE][MAX_BOARD_SIZE] = {};
+        int current = 1;
+        if (playerNumber == 0){
+            for (int r=0; r<boardSize; r++)
+                for (int c=0; c<boardSize; c++)
+                    if (ComponentNumber[r][c] == 0 && myPieces[r][c])
+                    DFS(r,c,ComponentNumber,current++, myPieces);
+        }
+        else {
+            for (int r=0; r<boardSize; r++)
+                for (int c=0; c<boardSize; c++)
+                    if (ComponentNumber[r][c] == 0 && opponentPieces[r][c])
+                        DFS(r,c,ComponentNumber,current++, opponentPieces);
+        }
+        
+        
+        if ( flag){
+        printGameState();
+        for (int r=0; r<boardSize; r++){
+            for (int c=0; c<boardSize ; c++)
+                cerr << ComponentNumber[r][c] << "\t";
+            cerr << endl;
+        }
+            for (int r=0; r<boardSize; r++){
+                for (int c=0; c<boardSize ; c++)
+                    cerr << myPieces[r][c] << "\t";
+                cerr << endl;
+            }
+                    exit(0);
+        }
+        
+        bool CheckedComponents[MAX_BOARD_SIZE*MAX_BOARD_SIZE] = {};
+        
+        for (int r = 0 ; r < boardSize; r++)
+            if (ComponentNumber[r][0] != 0)
+                CheckedComponents[ComponentNumber[r][0]] = 1;
+        
+        for (int r = 0 ; r < boardSize; r++)
+            if (CheckedComponents[ComponentNumber[r][boardSize-1]] && ComponentNumber[r][boardSize-1] != 0)
+                return true;
+        
+         bool CheckedComponents2[MAX_BOARD_SIZE*MAX_BOARD_SIZE] = {};
+        for (int r = 0 ; r < boardSize; r++)
+            if (ComponentNumber[0][r] != 0)
+                CheckedComponents2[ComponentNumber[0][r]] = 1;
+        
+        for (int r = 0 ; r < boardSize; r++)
+            if (ComponentNumber[boardSize-1][r] != 0 && CheckedComponents2[ComponentNumber[boardSize-1][r]])
+                return true;
+        
+        return false;
     }
     
     void DFS (vector<vector<int> > Graph, int node, unordered_set<int> &explored){
@@ -808,7 +879,7 @@ struct MiniMaxAgent{
         //cout << depth<< endl;
         //  count1++;
         int winner = gameState.isFinishState();
-        if ((winner!=-1)||(depth>2))
+        if ((winner!=-1)||(depth>3))
             return gameState.getStateValue();
         
         vector<string> allMoves = gameState.generateAllMoves();
@@ -847,6 +918,23 @@ int main(int argc, const char * argv[]) {
     
     int p, n, t;
     cin >> p >> n >> t;
+//    
+//    Game game(5,1);
+//    game.applyMove("Fa1");
+//    game.applyMove("Fb1");
+//    game.applyMove("Fc1");
+//    game.applyMove("Fd1");
+//    game.applyMove("Fe1");
+//    game.applyMove("Fa2");
+//    game.applyMove("Fe5");
+//    game.applyMove("Fc2");
+//    
+//    game.printGameState();
+//    cout << "----------------\n";
+//    
+//    MiniMaxAgent player(1,5,200);
+//    player.myGame = &game;
+//    cout << "My Move : " << player.getMiniMaxMove() << endl;
     
     RandomAgent player1(p, n, t);
     DFSAgent player2(p,n,t);
