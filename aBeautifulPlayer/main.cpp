@@ -66,7 +66,7 @@ struct Player{
 };
 
 struct Game{
-
+    
     vector<Piece> board[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
     bool myPieces[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
     bool opponentPieces[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
@@ -99,7 +99,7 @@ struct Game{
                 maxCaps = 1;
                 break;
         }
-
+        
         // Initialise Players
         Player p1(maxFlats, maxCaps, White), p2(maxFlats, maxCaps, Black);
         if (myPlayerNumber == 1){
@@ -158,7 +158,7 @@ struct Game{
                 FlatsOnTop[1] += 1;
             }
         }
-
+        
         
         int dr = 0;
         int dc = 0;
@@ -179,7 +179,7 @@ struct Game{
             c += dc;
             if (pickupStack.back().type == Cap)
                 if (board[r][c].size()>0 && board[r][c].back().type == Wall)
-                        board[r][c].back().type = Flat;
+                    board[r][c].back().type = Flat;
             for (int j=0; j<drops[i]; j++){
                 place(pickupStack.back(),c,r);
                 pickupStack.pop_back();
@@ -210,7 +210,7 @@ struct Game{
         } else if (isnumber(move[0])) {
             Direction dir = Up;
             vector<int> drops;
-
+            
             switch (move[3]){
                 case '-': dir = Up;
                     break;
@@ -246,7 +246,7 @@ struct Game{
             players[1-currentPlayer].numCaps--;
         else
             players[1-currentPlayer].numFlats--;
-
+        
         currentPlayer ^= 1;
     }
     
@@ -259,30 +259,30 @@ struct Game{
     int get1DIndex (string s){
         return boardSize * (s[0]-'a') + (s[1]-'1');
     }
-
+    
     pair<int,int> get2DIndex (int index){
         pair<int, int> A(index/boardSize,index%boardSize);
         return A;
     }
-
+    
     pair<int,int> get2DIndex (string s){
         return get2DIndex(get1DIndex(s));
     }
-
+    
     string getStringIndex (int index){
         string s;
         s += ('a' + index/boardSize);
         s += ('1' + index%boardSize);
         return s;
     }
-
+    
     string getStringIndex (int c, int r){
         return getStringIndex(get1DIndex(c, r));
     }
     
     vector<vector<int> > getSplits (int num){
         vector<vector<int> > splits;
-
+        
         if (num==0){
             vector<int> split;
             splits.push_back(split);
@@ -322,7 +322,7 @@ struct Game{
         return move;
     }
     //////////////////////////////////////////////////////
-
+    
     vector<string> generateAllMoves(){
         vector<string> moves;
         
@@ -350,7 +350,7 @@ struct Game{
                 }
             }
         }
-
+        
         // Stack Moves
         for (int r = 0 ; r < boardSize ; r++){
             for (int c = 0 ; c <boardSize  && OccupiedBoard[r][c]; c++ ){
@@ -360,8 +360,8 @@ struct Game{
                         
                         for (int j=0; j<splits.size(); j++){
                             for (int dir = 0 ; dir < 4 ; dir++){
-                            if (isValidStackMove(numPieces, c, r, dir, splits[j]))
-                                moves.push_back(getMoveString(numPieces, c, r, dir, splits[j]));
+                                if (isValidStackMove(numPieces, c, r, dir, splits[j]))
+                                    moves.push_back(getMoveString(numPieces, c, r, dir, splits[j]));
                             }
                         }
                     }
@@ -407,7 +407,7 @@ struct Game{
         while(wallInWay<drops.size()){
             r += dr;
             c += dc;
-           
+            
             if (board[r][c].size() != 0)
                 if (board[r][c].back().type != Flat)
                     break;
@@ -422,7 +422,7 @@ struct Game{
                 if (board[rr][cc].back().type == Cap)
                     if (board[r][c].back().type != Cap)
                         return true;
-
+        
         return false;
     }
     
@@ -431,7 +431,7 @@ struct Game{
         vector<int> A;
         for (int i=0; i<numSquares; i++)
             Graph.push_back(A);
-
+        
         for (int r=0; r<boardSize; r++){
             for (int c=0; c<boardSize; c++){
                 if (board[r][c].size()>0){
@@ -458,7 +458,7 @@ struct Game{
                 }
             }
         }
-
+        
         bool roadFound = false;
         for (int r=0; r<boardSize and !roadFound; r++){
             unordered_set<int> explored;
@@ -525,7 +525,7 @@ struct Game{
                 if (board[i][j].size()>0)
                     if (board[i][j].back().type!=Wall)
                         countFlats[board[i][j].back().colour]++;
-
+        
         return countFlats[players[0].colour] - players[0].numFlats - countFlats[players[1].colour] + players[1].numFlats;
     }
     
@@ -549,7 +549,7 @@ struct RandomAgent{
     int myPlayerNumber;
     int boardSize;
     int timeLimit;
-
+    
     RandomAgent (int playerNum, int n, int t){
         myPlayerNumber = playerNum;
         boardSize = n;
@@ -586,12 +586,12 @@ struct RandomAgent{
     
     void play(){
         string move;
-
+        
         if (myPlayerNumber == 2){
             cin >> move;
             myGame->applyMove(move);
         }
-
+        
         while(true){
             vector<string> allMoves = myGame->generateAllMoves();
             move = allMoves[rand()%allMoves.size()];
@@ -626,7 +626,7 @@ struct DFSAgent{
             input >> move;
             myGame->currentPlayer = 1;
             myGame->applyMoveOnOpponent(move);
-
+            
             vector<string> allMoves = myGame->generateFirstMove();
             move = allMoves[rand()%allMoves.size()];
             myGame->applyMoveOnOpponent(move);
@@ -635,13 +635,13 @@ struct DFSAgent{
         }
         
         if (myPlayerNumber == 1){
-
+            
             vector<string> allMoves = myGame->generateFirstMove();
             move = allMoves[rand()%allMoves.size()];
             myGame->currentPlayer = 0;
             myGame->applyMoveOnOpponent(move);
             output << move << endl;
-
+            
             input >> move;
             myGame->applyMoveOnOpponent(move);
         }
@@ -655,7 +655,7 @@ struct DFSAgent{
             myGame->applyMove(move);
         }
         
-
+        
         while(true){
             move = getDFSMove();
             myGame->applyMove(move);
@@ -667,7 +667,7 @@ struct DFSAgent{
     }
     
     string getDFSMove(){
-
+        
         vector<string> allMoves = myGame->generateAllMoves();
         
         int maxDepth = 1;
@@ -805,14 +805,14 @@ struct MiniMaxAgent{
     }
     
     int MiniMaxSearch (Game gameState, bool maximize, int depth, int alpha, int beta){
-       //cout << depth<< endl;
-      //  count1++;
+        //cout << depth<< endl;
+        //  count1++;
         int winner = gameState.isFinishState();
         if ((winner!=-1)||(depth>2))
             return gameState.getStateValue();
         
         vector<string> allMoves = gameState.generateAllMoves();
-       // cout << allMoves.size() << endl;
+        // cout << allMoves.size() << endl;
         int bestValue = 0;
         if (maximize)
             bestValue = -200;
@@ -836,7 +836,7 @@ struct MiniMaxAgent{
                     break;
             }
         }
-
+        
         return bestValue;
     }
     
@@ -844,67 +844,31 @@ struct MiniMaxAgent{
 
 
 int main(int argc, const char * argv[]) {
-
+    
     int p, n, t;
     cin >> p >> n >> t;
-//    p = 2;
-//    n = 5;
-//    t= 120;
-//  //  RandomAgent player1(p, n, t);
-//    Game game(5,p);
-
-    MiniMaxAgent player2(p, n, t);
-   // player2.myGame = &game;
-
     
-//    game.applyMove("Fd5");
-//    game.applyMove("Sd4");
-//    game.applyMove("Fe5");
-//    game.applyMove("Sc3");
-//    game.printGameState();
-//    
-//    player2.play();
-//    
-//    cout << "Count : " << count1 << endl;
+    RandomAgent player1(p, n, t);
+    DFSAgent player2(p,n,t);
+    MiniMaxAgent player3(p, n, t);
     
-//    if (fork() == 0){
-//
-//        player2.play();
-//    }
-//    else{
-         MiniMaxAgent player3(p, n, t);
-//        player3.playFirstMove();
-//        player3.play();
-//    }
     if (argc == 2){
-        if (argv[1][0] == '1'){
+        if (argv[1][0] == '0'){
+            cerr << "Random Player" << endl;
+            player1.playFirstMove();
+            player1.play();
+        }
+        else if (argv[1][0] == '1'){
             cerr << "DFS Player" << endl;
             player2.playFirstMove();
             player2.play();
-        } else if (argv[1][0] == '2'){
+        }
+        else if (argv[1][0] == '2'){
             cerr << "MiniMax Player" << endl;
             player3.playFirstMove();
             player3.play();
         }
     }
-/*
-    game.applyMove("Sa3");
-    game.applyMove("Fc4");
-    game.currentPlayer = 0;
     
-    game.applyMove("Fd3");
-    game.applyMove("Fe3");
-    game.applyMove("Fe4");
-    game.applyMove("Fc1");
-    game.applyMove("Fe1");
-    game.applyMove("Cb1");
-    game.applyMove("Fe2");
-    game.applyMove("1a3+1");
-    game.printGameState();
-    cout << "----------------\n";
-
-    DFSAgent player(1,5,200);
-    cout << "My Move : " << player.getDFSMove() << endl;
-*/
     return 0;
 }
