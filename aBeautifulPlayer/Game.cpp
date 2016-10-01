@@ -6,9 +6,9 @@
 //  Copyright © 2016 Shantanu Kumar. All rights reserved.
 //
 
-#include "Game.hpp"
 #include <string.h>
 #include <iostream>
+#include <vector>
 #define BLACK 0
 #define WHITE 1
 #define MAX_SIZE 7
@@ -16,9 +16,7 @@
 using namespace std;
 typedef unsigned long long uint64;
 
-enum MoveType { PlaceFlat = 0,
-                PlaceStanding,
-                PlaceCapstone,
+enum MoveType { Place = 0,
                 SlideLeft,
                 SlideRight,
                 SlideUp,
@@ -47,8 +45,19 @@ public :
     Piece piece;
     short int row;
     short int column;
-    short int Drops[MAX_SIZE] = {};
+    short int *Drops;
     short int dropLength;
+    
+    Move(){
+        
+    }
+    
+    Move(int r, int c, Piece p){
+        row = r;
+        column = c;
+        piece = p;
+        Movetype = Place;
+    }
 };
 
 
@@ -108,6 +117,10 @@ public :
 
 class Game{
 public :
+
+    short int flats[2];
+    short int capstones[2];
+    
     uint64 WhitePieces;
     uint64 BlackPieces;
     uint64 CapStones;
@@ -130,6 +143,11 @@ public :
         gameConfig = new Config(BoardSize);
         memset(Stacks, 0 , MAX_SIZE_SQUARE*sizeof(uint64));
         memset(Heights, 0 , MAX_SIZE_SQUARE*sizeof(uint64));
+        
+        flats[0] = gameConfig->Pieces;
+        flats[1] = gameConfig->Pieces;
+        capstones[0] = gameConfig->Capstones;
+        capstones[1] = gameConfig->Capstones;
     }
     
     Game(Game &current){
@@ -219,7 +237,6 @@ public :
         return;
     }
     
-    
     int checkIfRoadExists(){
         // -1 : False
         // 0 : Black
@@ -255,12 +272,12 @@ public :
             for (int j = 0 ; j < gameConfig->BoardSize; j++){
                 int r = i*gameConfig->BoardSize + j;
                 if (X & ( 1ULL << r))
-                    cout << "1 ";
+                    cerr << "1 ";
                 else
-                    cout << "0 ";
+                    cerr << "0 ";
                 
             }
-            cout << endl;
+            cerr << endl;
         }
     }
     
@@ -356,6 +373,47 @@ public :
             Standing |= (1ULL << i);
             Standing &= ~(1ULL << i_or);
         }
+    }
+    
+    void applyMove(Move move){
+        if (move.Movetype < 1){
+            PlaceMove(move);
+            if (move.piece.type == FlatStone)
+                flats[move.piece.color]--;
+            else
+                capstones[move.piece.color]--;
+        } else {
+            slideMove(move);
+        }
+        currentPlayer ^= 1;
+    }
+    
+    vector<Move> generateAllMoves(){
+        vector<Move> allMoves;
+        
+        // Place Moves
+        Piece piece;
+        piece.color = (Color)currentPlayer;
+        uint64 emptyPositions = ~(WhitePieces | BlackPieces);
+        for (int i=0; i<gameConfig->BoardSize; i++){
+            if ((emptyPositions>>i & 1)!=0){
+                Move move(i/gameConfig->BoardSize, i%gameConfig->BoardSize, piece);
+                if (flats[currentPlayer]>0){
+                    move.piece.type = FlatStone;
+                    allMoves.push_back(move);
+                    move.piece.type = StandingStone;
+                    allMoves.push_back(move);
+                }
+                if (capstones[currentPlayer]>0)
+                    move.piece.type = Capstone;
+                    allMoves.push_back(move);
+            }
+        }
+        
+        // Slide Moves
+        
+    
+        return allMoves;
     }
 
 };
