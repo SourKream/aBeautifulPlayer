@@ -16,6 +16,8 @@
 using namespace std;
 typedef unsigned long long uint64;
 
+extern vector<vector<vector<int>>> Slides;
+
 enum MoveType { Place = 0,
                 SlideLeft,
                 SlideRight,
@@ -37,6 +39,8 @@ class Piece{
     PieceType type;
     Color color;
 };
+
+
 
 
 class Move{
@@ -75,7 +79,6 @@ public :
     uint64 BoardMask;
     
     Config(int boardSize){
-        
         BoardSize = boardSize;
         switch(BoardSize){
             case 5:
@@ -200,7 +203,7 @@ public :
     
     void FindComponents(){
         size_cw = 0;
-        uint64 whitePieces = WhitePieces;
+        uint64 whitePieces = WhitePieces&(~Standing);
         uint64 seen = 0;
         uint64 current;
         uint64 bit;
@@ -209,7 +212,7 @@ public :
             current = whitePieces & (whitePieces-1);
             bit = whitePieces & ~current;
             if ( (bit & seen) == 0){
-                uint64 comp = Expand(bit,WhitePieces);
+                uint64 comp = Expand(bit,WhitePieces&(~Standing));
                 if ( comp != bit){
                     WhiteComponents[size_cw++] = comp;
                 }
@@ -219,14 +222,14 @@ public :
         }
         
         size_cb = 0;
-        uint64 blackPieces = BlackPieces;
+        uint64 blackPieces = BlackPieces&(~Standing);
         seen = 0;
         
         while ( blackPieces){
             current = blackPieces & (blackPieces-1);
             bit = blackPieces & ~current;
             if ( (bit & seen) == 0){
-                uint64 comp = Expand(bit,BlackPieces);
+                uint64 comp = Expand(bit,BlackPieces&(~Standing));
                 if ( comp != bit){
                     BlackComponents[size_cb++] = comp;
                 }
@@ -295,6 +298,7 @@ public :
         to_ret.column = move[1]-'a';
         to_ret.row = move[2]-'1';
         return to_ret;
+        
     }
     
     void slideMove(Move move){
@@ -415,5 +419,4 @@ public :
     
         return allMoves;
     }
-
 };
