@@ -687,6 +687,9 @@ class Game{
         piece.color = (Color)(!currentPlayer);
         piece.type = FlatStone;
         uint64 emptyPositions = ((~(WhitePieces | BlackPieces))&gameConfig->BoardMask);
+        uint64 mask = (1ULL) | (1ULL << (gameConfig->BoardSize -1)) | (1ULL << (gameConfig->BoardSize*(gameConfig->BoardSize -1))) | (1ULL << (gameConfig->BoardSize*(gameConfig->BoardSize) -1));
+        cerr << bitset<25> (mask) << endl;
+        emptyPositions &= mask;
         uint64 bits = 0;
         uint64 bit_set = 0;
         int i = 0;
@@ -727,19 +730,57 @@ class Game{
     }
     
     int getStateValue(){
+        int FlatScore = 6;
+        int StandingStoneScore = 2;
+        int CapStoneScore = 2;
+        int CenterScore = 2;
+        int StackHeightScore = 3;
+        int GroupSizeScore = 3;
         int winner = checkIfRoadExists();
         if (winner != -1){
             if (winner == myPlayerNumber)
-                return 100;
-            return -100;
+                return 1000;
+            return -1000;
         }
-        int score = Popcount(WhitePieces & ~(Standing|CapStones))*4;
-        score -= Popcount(BlackPieces & ~(Standing|CapStones))*4;
-        score += Popcount(WhitePieces & (Standing|CapStones))*1;
-        score -= Popcount(BlackPieces & (Standing|CapStones))*1;
-        score += Popcount(WhitePieces & ~(gameConfig->Edge))*2;
-        score -= Popcount(BlackPieces & ~(gameConfig->Edge))*2;
+        //Normal Scores
+        int score = Popcount(WhitePieces & ~(Standing|CapStones))*FlatScore;
+        score -= Popcount(BlackPieces & ~(Standing|CapStones))*FlatScore;
+        score += Popcount(WhitePieces & (CapStones))*CapStoneScore;
+        score -= Popcount(BlackPieces & (CapStones))*CapStoneScore;
+        score += Popcount(WhitePieces & (Standing))*StandingStoneScore;
+        score -= Popcount(BlackPieces & (Standing))*StandingStoneScore;
+        score += Popcount(WhitePieces & ~(gameConfig->Edge))*CenterScore;
+        score -= Popcount(BlackPieces & ~(gameConfig->Edge))*CenterScore;
         
+        uint64 filledPieces = WhitePieces;
+        uint64 bit_set;
+        // Captured Stack Scores
+        short i;
+        while (filledPieces != 0){
+            bit_set = filledPieces & ~(filledPieces & (filledPieces -1));
+            i = __builtin_ctzl(bit_set);
+            score += Heights[i]*StackHeightScore;
+            filledPieces = filledPieces & (filledPieces -1);
+        }
+        
+        filledPieces = BlackPieces;
+            
+        while (filledPieces != 0){
+            bit_set = filledPieces & ~(filledPieces & (filledPieces -1));
+            i = __builtin_ctzl(bit_set);
+            score -= Heights[i]*StackHeightScore;
+            filledPieces = filledPieces & (filledPieces -1);
+        }
+        
+        // Group Connected Component Scores
+        for (i =0 ; i < size_cw ; i++){
+            score += Popcount(WhiteComponents[i])*GroupSizeScore;
+        }
+        
+        for (i =0 ; i < size_cb ; i++){
+            score -= Popcount(BlackComponents[i])*GroupSizeScore;
+        }
+
         return (myPlayerNumber==1)?score:-score;
         
     }

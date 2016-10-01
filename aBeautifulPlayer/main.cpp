@@ -160,12 +160,13 @@ int main(){
     //    player.myGame = &myGame;
     //    cout << "My Move : " << player.getMiniMaxMove() << endl;
     
-        int p, n, t;
-        cin >> p >> n >> t;
-        MiniMaxAgent player3(p, n, t);
-        cerr << "MiniMax Player" << endl;
-        player3.playFirstMove();
-        player3.play();
+    srand(time(NULL));
+    int p, n, t;
+    cin >> p >> n >> t;
+    MiniMaxAgent player3(p, n, t);
+    cerr << "MiniMax Player With Bits" << endl;
+    player3.playFirstMove();
+    player3.play();
     
     return 0;
 }
