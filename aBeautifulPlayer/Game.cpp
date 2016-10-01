@@ -142,9 +142,11 @@ class Game{
     short int size_cb;
     Config *gameConfig;
     unsigned long moves;
-    bool currentPlayer = 0;
     
-    Game(int BoardSize){
+    bool currentPlayer = 1;
+    bool myPlayerNumber;
+    
+    Game(int BoardSize, int playerNumber){
         WhitePieces = 0;
         BlackPieces = 0;
         CapStones = 0;
@@ -157,18 +159,33 @@ class Game{
         flats[1] = gameConfig->Pieces;
         capstones[0] = gameConfig->Capstones;
         capstones[1] = gameConfig->Capstones;
+        
+        myPlayerNumber = playerNumber % 2;
     }
     
     Game(Game &current){
+        
         WhitePieces = current.WhitePieces;
         BlackPieces = current.BlackPieces;
         CapStones = current.CapStones;
         Standing = current.Standing;
+        
         memcpy(Stacks, current.Stacks, MAX_SIZE_SQUARE*sizeof(uint64));
-        memcpy(Heights, current.Heights, MAX_SIZE_SQUARE*sizeof(uint64));
+        memcpy(Heights, current.Heights, MAX_SIZE_SQUARE*sizeof(int));
+        memcpy(WhiteComponents, current.WhiteComponents, MAX_SIZE_SQUARE*sizeof(uint64));
+        memcpy(BlackComponents, current.BlackComponents, MAX_SIZE_SQUARE*sizeof(uint64));
+        
         gameConfig = current.gameConfig;
         currentPlayer = current.currentPlayer;
         moves = current.moves;
+        
+        size_cb = current.size_cb;
+        size_cw = current.size_cw;
+        
+        myPlayerNumber = current.myPlayerNumber;
+        
+        memcpy(flats, current.flats, 2*sizeof(short int));
+        memcpy(capstones, current.capstones, 2*sizeof(short int));
     }
     
     void PlaceMove(Move move){
@@ -290,21 +307,86 @@ class Game{
         }
     }
     
-    Move makeMove(string move,int colour){
-        Move to_ret;
-        switch(move[0]){
-            case 'F': to_ret.piece.type = FlatStone;
+    Move makeMove(string move, bool onOpponent = false){
+        
+        Move moveOut;
+        if (isalpha(move[0])){
+            moveOut.Movetype = Place;
+            moveOut.piece.color = (Color)(onOpponent ^ currentPlayer);
+            switch(move[0]){
+                case 'F': moveOut.piece.type = FlatStone;
+                    break;
+                case 'S': moveOut.piece.type = StandingStone;
+                    break;
+                case 'C': moveOut.piece.type = Capstone;
+                    break;
+            }
+            moveOut.column = move[1]-'a';
+            moveOut.row = move[2]-'1';
+        } else if (isnumber(move[0])) {
+            short drops[10];
+            int k=0;
+            
+            switch (move[3]){
+                case '-': moveOut.Movetype = SlideUp;
+                    break;
+                case '+': moveOut.Movetype = SlideDown;
+                    break;
+                case '>': moveOut.Movetype = SlideRight;
+                    break;
+                case '<': moveOut.Movetype = SlideLeft;
+                    break;
+            }
+            int sum = 0;
+            for (int i=4; i<move.size(); i++){
+                drops[k++] = move[i]-'0';
+                sum += drops[k-1];
+            }
+            drops[k] = sum;
+            moveOut.column = move[1]-'a';
+            moveOut.row = move[2]-'1';
+            moveOut.Drops = &drops[0];
+            moveOut.dropLength = k;
+        }
+        
+        return moveOut;
+    }
+    
+    
+    string getMoveString (Move moveIn){
+        if (moveIn.Movetype<1){
+            string move;
+            switch (moveIn.piece.type){
+                case FlatStone: move = 'F';
+                    break;
+                case StandingStone: move = 'S';
+                    break;
+                case Capstone: move = 'C';
+                    break;
+            }
+            move += (moveIn.column + 'a');
+            move += (moveIn.row + '1');
+            return move;
+        }
+        
+        string move;
+        move = (moveIn.Drops[moveIn.dropLength]+'0');
+        move += (moveIn.column + 'a');
+        move += (moveIn.row + '1');
+        switch (moveIn.Movetype){
+            case SlideUp: move += '-';
                 break;
-            case 'S': to_ret.piece.type = StandingStone;
+            case SlideDown: move += '+';
                 break;
-            case 'C': to_ret.piece.type = Capstone;
+            case SlideRight: move += '>';
+                break;
+            case SlideLeft: move += '<';
                 break;
         }
-        to_ret.piece.color = (Color) colour;
-        to_ret.column = move[1]-'a';
-        to_ret.row = move[2]-'1';
-        return to_ret;
+        for (int i=0; i<moveIn.dropLength; i++)
+            move += (moveIn.Drops[i] + '0');
         
+        return move;
     }
     
     void slideMove(Move move){
@@ -392,6 +474,7 @@ class Game{
         } else {
             slideMove(move);
         }
+        FindComponents();
         currentPlayer ^= 1;
     }
     
@@ -551,4 +634,65 @@ class Game{
         
         return allMoves;
     }
+    
+    vector<Move> generateFirstMove(){
+        vector<Move> moves;
+        Piece piece;
+        piece.color = (Color)(!currentPlayer);
+        piece.type = FlatStone;
+        uint64 emptyPositions = ((~(WhitePieces | BlackPieces))&gameConfig->BoardMask);
+        uint64 bits = 0;
+        uint64 bit_set = 0;
+        int i = 0;
+
+        while (emptyPositions != 0){
+            bits = emptyPositions & (emptyPositions -1);
+            bit_set = emptyPositions & ~bits;
+            i = __builtin_ctzl(bit_set);
+            Move move(i/gameConfig->BoardSize, i%gameConfig->BoardSize, piece);
+            moves.push_back(move);
+            emptyPositions = bits;
+        }
+
+        return moves;
+    }
+    
+    int isFinishState(){
+        // Return winner player number if finish state
+        // Return -1 if not finish state
+        
+        int winner = checkIfRoadExists();
+        if (winner!=-1)
+            return winner;
+
+        if ((flats[0]==0)||(flats[1]==0)){
+            int whiteFlats = __builtin_popcount(WhitePieces & ~(Standing | Capstone));
+            int blackFlats = __builtin_popcount(BlackPieces & ~(Standing | Capstone));
+            
+            if (blackFlats > whiteFlats)
+                return 0;
+            else if (blackFlats < whiteFlats)
+                return 1;
+            else
+                return (flats[0]>0)?0:1;
+        }
+        
+        return -1;
+    }
+    
+    int getStateValue(){
+        int winner = checkIfRoadExists();
+        if (winner != -1){
+            if (winner == myPlayerNumber)
+                return 100;
+            return -100;
+        }
+        
+        int whiteFlats = __builtin_popcount(WhitePieces & ~(Standing));
+        int blackFlats = __builtin_popcount(BlackPieces & ~(Standing));
+        
+        int score = whiteFlats - flats[1] - blackFlats + flats[0];
+        return (myPlayerNumber==1)?score:-score;
+    }
+
 };

@@ -24,27 +24,35 @@ struct MiniMaxAgent{
     }
     
     void playFirstMove(){
-        string move;
+        string moveString;
+        Move move;
+
         if (myPlayerNumber == 2){
-            cin >> move;
-            myGame->applyMoveOnOpponent(move);
+            cin >> moveString;
+            myGame->applyMove(myGame->makeMove(moveString, true));
             
-            vector<string> allMoves = myGame->generateFirstMove();
+            vector<Move> allMoves = myGame->generateFirstMove();
             move = allMoves[rand()%allMoves.size()];
-            myGame->applyMoveOnOpponent(move);
-            cout << move << endl;
+            moveString = myGame->getMoveString(move);
+
+            myGame->applyMove(move);
+            cerr << "My Move : " << moveString << endl;
+            cout << moveString << endl;
             
         }
         
         if (myPlayerNumber == 1){
             
-            vector<string> allMoves = myGame->generateFirstMove();
+            vector<Move> allMoves = myGame->generateFirstMove();
             move = allMoves[rand()%allMoves.size()];
-            myGame->applyMoveOnOpponent(move);
-            cout << move << endl;
+            moveString = myGame->getMoveString(move);
+
+            myGame->applyMove(move);
+            cerr << "My Move : " << moveString << endl;
+            cout << moveString << endl;
             
-            cin >> move;
-            myGame->applyMoveOnOpponent(move);
+            cin >> moveString;
+            myGame->applyMove(myGame->makeMove(moveString, true));
         }
     }
     
@@ -60,7 +68,7 @@ struct MiniMaxAgent{
         while(true){
             move = getMiniMaxMove();
             myGame->applyMove(myGame->makeMove(move));
-            cerr << "I am playing : " << move << endl;
+            cerr << "My Move : " << move << endl;
             cout << move << endl;
             
             cin >> move;
@@ -94,14 +102,14 @@ struct MiniMaxAgent{
         return myGame->getMoveString(bestMove);
     }
     
-    int MiniMaxSearch (Game gameState, bool maximize, int depth, int alpha, int beta){
+    int MiniMaxSearch (Game &gameState, bool maximize, int depth, int alpha, int beta){
         //cout << depth<< endl;
-        //  count1++;
+
         int winner = gameState.isFinishState();
         if ((winner!=-1)||(depth>3))
             return gameState.getStateValue();
         
-        vector<string> allMoves = gameState.generateAllMoves();
+        vector<Move> allMoves = gameState.generateAllMoves();
         // cout << allMoves.size() << endl;
         int bestValue = 0;
         if (maximize)

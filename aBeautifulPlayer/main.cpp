@@ -7,7 +7,7 @@
 //
 
 #include <stdio.h>
-#include "Game.cpp"
+#include "MiniMaxAgent.cpp"
 #include <bitset>
 #include <vector>
 using namespace std;
@@ -72,7 +72,8 @@ vector<vector<vector<short>>> Slides;
 
 int main(){
     Slides = GenerateAllSlides(5);
-    
+
+///// Slide Test
 //    uint64 Z = ((1ULL << 63) | ( 1ULL << 31));
 //    
 //    cout << __builtin_clzl(Z) << endl;
@@ -88,19 +89,23 @@ int main(){
 //    GetSlides y;
 //    cerr << &x.Slides << endl;
 //    cerr << &y.Slides << endl;
-//
-    Game myGame(5);
+//////
+
+//    Game myGame(5, 1);
+//    
+//    myGame.applyMove(myGame.makeMove("Fa1"));
+//    myGame.applyMove(myGame.makeMove("Fb1"));
+//    myGame.applyMove(myGame.makeMove("Fc1"));
+//    myGame.applyMove(myGame.makeMove("Fd1"));
+//    myGame.applyMove(myGame.makeMove("Fe1"));
+//    myGame.applyMove(myGame.makeMove("Fa2"));
+//    myGame.applyMove(myGame.makeMove("Fe5"));
+//    myGame.applyMove(myGame.makeMove("Fc2"));
+//    myGame.applyMove(myGame.makeMove("Fa3"));
+//    
+//    printGameState(myGame);
     
-    myGame.PlaceMove(myGame.makeMove("Fc3",0));
-    myGame.PlaceMove(myGame.makeMove("Fc3",0));
-//    myGame.PlaceMove(myGame.makeMove("Fa3",1));
-//    myGame.PlaceMove(myGame.makeMove("Fa3",0));
-//    myGame.PlaceMove(myGame.makeMove("Fa3",1));
-//    myGame.PlaceMove(myGame.makeMove("Fa3",0));
-//    myGame.PlaceMove(myGame.makeMove("Fc5",1));
-    
-    printGameState(myGame);
-    
+///// Game State Test
 //    myGame.printState(myGame.WhitePieces);
 //    cout << endl;
 //    myGame.printState(myGame.BlackPieces);
@@ -109,12 +114,20 @@ int main(){
 //    cout << endl;
 //    myGame.printState(myGame.Standing);
 //    cout << endl;
-    
+/////
 //    myGame.FindComponents();
+/////
     
-    vector<Move> allMoves = myGame.generateAllMoves();
+//    MiniMaxAgent player(1,5,200);
+//    player.myGame = &myGame;
+//    cout << "My Move : " << player.getMiniMaxMove() << endl;
     
-//    cout << bitset<64>(myGame.WhiteComponents[0]) << endl;
-//
-//    cout << sizeof(unsigned long long) << endl;
+    int p, n, t;
+    cin >> p >> n >> t;
+    MiniMaxAgent player3(p, n, t);
+    cerr << "MiniMax Player" << endl;
+    player3.playFirstMove();
+    player3.play();
+
+    return 0;
 }
