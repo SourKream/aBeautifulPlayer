@@ -27,18 +27,18 @@ void printGameState(Game g){
     }
 }
 
-vector<vector<int> > getSplits (int num){
-    vector<vector<int> > splits;
+vector<vector<short> > getSplits (short num){
+    vector<vector<short> > splits;
     
     if (num==0){
-        vector<int> split;
+        vector<short> split;
         splits.push_back(split);
         return splits;
     }
     
     int i = 1;
     while (i<=num){
-        vector<vector<int> > A = getSplits(num-i);
+        vector<vector<short> > A = getSplits(num-i);
         for (int j=0; j<A.size(); j++){
             A[j].push_back(i);
             splits.push_back(A[j]);
@@ -48,11 +48,11 @@ vector<vector<int> > getSplits (int num){
     return splits;
 }
 
-vector<vector<vector<int>>> GenerateAllSlides(int K) {
-    vector<vector<vector<int>>> slides(8);
-    vector<vector<vector<int>>> slides1(8);
+vector<vector<vector<short>>> GenerateAllSlides(short K) {
+    vector<vector<vector<short>>> slides(8);
+    vector<vector<vector<short>>> slides1(8);
     
-    for (int s = 1; s <= K; s++ ){
+    for (short s = 1; s <= K; s++ ){
         slides[s] = getSplits(s);
         for (int i = 0; i < slides[s].size(); i++)
             slides[s][i].push_back(s);
@@ -67,14 +67,16 @@ vector<vector<vector<int>>> GenerateAllSlides(int K) {
     return slides1;
 }
 
-vector<vector<vector<int>>> Slides;
-
-
-
+vector<vector<vector<short>>> Slides;
 
 
 int main(){
     Slides = GenerateAllSlides(5);
+    
+    uint64 Z = ((1ULL << 63) | ( 1ULL << 31));
+    
+    cout << __builtin_clzl(Z) << endl;
+//    cerr << __builtin_ctzl(1<<12) << endl;
 //    for (int s = 1; s <= 7; s++ ){
 //        for (int j = 0; j < Slides[s].size(); j++){
 //            cerr << Slides[s][j].back() << " ";
@@ -89,11 +91,16 @@ int main(){
 //
     Game myGame(5);
     
-    myGame.PlaceMove(myGame.makeMove("Fa1",1));
-    myGame.PlaceMove(myGame.makeMove("Fb1",0));
-    myGame.PlaceMove(myGame.makeMove("Wc1",1));
-    myGame.PlaceMove(myGame.makeMove("Fd1",0));
-    myGame.PlaceMove(myGame.makeMove("Fa2",1));
+    myGame.PlaceMove(myGame.makeMove("Fc3",1));
+    myGame.PlaceMove(myGame.makeMove("Fa3",0));
+    myGame.PlaceMove(myGame.makeMove("Fa3",0));
+    myGame.PlaceMove(myGame.makeMove("Fa3",0));
+    myGame.PlaceMove(myGame.makeMove("Fa3",0));
+    myGame.PlaceMove(myGame.makeMove("Fa3",1));
+    myGame.PlaceMove(myGame.makeMove("Fc5",0));
+    //myGame.PlaceMove(myGame.makeMove("Sd3",1));
+    //myGame.PlaceMove(myGame.makeMove("Sa3",1));
+    myGame.PlaceMove(myGame.makeMove("Sc1",1));
     myGame.PlaceMove(myGame.makeMove("Ce5",0));
 
     myGame.printState(myGame.WhitePieces);
@@ -106,6 +113,8 @@ int main(){
     cout << endl;
     
     myGame.FindComponents();
+    
+    myGame.generateAllMoves();
     cout << bitset<64>(myGame.WhiteComponents[0]) << endl;
 
     cout << sizeof(unsigned long long) << endl;
