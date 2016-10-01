@@ -16,7 +16,7 @@
 using namespace std;
 typedef unsigned long long uint64;
 
-extern vector<vector<vector<short>>> Slides;
+extern vector<vector<vector<short> > > Slides;
 
 enum MoveType { Place = 0,
     SlideUp,
@@ -25,6 +25,9 @@ enum MoveType { Place = 0,
     SlideRight
     
 };
+
+
+
 
 enum PieceType {    FlatStone = 0,
     StandingStone,
@@ -50,7 +53,7 @@ class Move{
     Piece piece;
     short int row;
     short int column;
-    short int *Drops;
+    short int Drops[8];
     short int dropLength;
     
     Move(){
@@ -192,6 +195,21 @@ class Game{
         memcpy(capstones, current.capstones, 2*sizeof(short int));
     }
     
+    void printGameState(){
+        for (int r=gameConfig->BoardSize-1; r>-1; r--){
+            for (int c=0; c<gameConfig->BoardSize; c++){
+                cerr << "[";
+                for (int k =Heights[gameConfig->BoardSize*r + c]-1; k>-1; k--)
+                    if ((Stacks[gameConfig->BoardSize*r + c] & (1<<k)) != 0)
+                        cerr << "W";
+                    else
+                        cerr << "B";
+                cerr << "]\t";
+            }
+            cerr << endl;
+        }
+    }
+    
     void PlaceMove(Move move){
         int i = move.row*gameConfig->BoardSize + move.column;
         Heights[i] += 1;
@@ -211,6 +229,8 @@ class Game{
                 break;
             case StandingStone :
                 Standing |= (1ULL << i);
+                break;
+            case FlatStone :
                 break;
         }
     }
@@ -273,6 +293,7 @@ class Game{
         // 1 : White
         // 2 : Both
         bool white = false;
+        
         for (int i =0 ; i <size_cw; i++){
             if ( ((WhiteComponents[i] & gameConfig->Left) != 0 && (WhiteComponents[i] & gameConfig->Right) != 0) || ((WhiteComponents[i] & gameConfig->Top) != 0 && (WhiteComponents[i] & gameConfig->Bottom) !=0)){
                 white = true;
@@ -298,7 +319,7 @@ class Game{
     }
     
     void printState(uint64 X){
-        for (int i = 0 ; i < gameConfig->BoardSize ; i++){
+        for (int i = gameConfig->BoardSize -1 ; i >=0  ; i--){
             for (int j = 0 ; j < gameConfig->BoardSize; j++){
                 int r = i*gameConfig->BoardSize + j;
                 if (X & ( 1ULL << r))
@@ -328,7 +349,6 @@ class Game{
             moveOut.column = move[1]-'a';
             moveOut.row = move[2]-'1';
         } else if (isnumber(move[0])) {
-            short drops[10];
             int k=0;
             
             switch (move[3]){
@@ -343,13 +363,13 @@ class Game{
             }
             int sum = 0;
             for (int i=4; i<move.size(); i++){
-                drops[k++] = move[i]-'0';
-                sum += drops[k-1];
+                moveOut.Drops[k++] = move[i]-'0';
+                sum += moveOut.Drops[k-1];
             }
-            drops[k] = sum;
+            moveOut.Drops[k] = sum;
             moveOut.column = move[1]-'a';
             moveOut.row = move[2]-'1';
-            moveOut.Drops = &drops[0];
+            //moveOut.Drops = &drops[0];
             moveOut.dropLength = k;
         }
         
@@ -372,6 +392,7 @@ class Game{
             move += (moveIn.row + '1');
             return move;
         }
+        else{
         
         string move;
         move = (moveIn.Drops[moveIn.dropLength]+'0');
@@ -391,6 +412,7 @@ class Game{
             move += (moveIn.Drops[i] + '0');
         
         return move;
+        }
     }
     
     void slideMove(Move move){
@@ -398,8 +420,9 @@ class Game{
         int c = move.column;
         int i = r * gameConfig->BoardSize + c;
         uint64 pickupStack = Stacks[i];
-        
+
         int numPieces = move.Drops[move.dropLength];
+
         
         if (numPieces == Heights[i]){
             WhitePieces &= ~(1ULL << i);
@@ -417,20 +440,23 @@ class Game{
         Stacks[i] >>= numPieces;
         Heights[i] -= numPieces;
         
-        
+
+
         int dr = 0;
         int dc = 0;
-        switch(move.Movetype){
-            case SlideUp: dr = 1;
-                break;
-            case SlideDown: dr = -1;
-                break;
-            case SlideLeft: dc = -1;
-                break;
-            case SlideRight: dc = 1;
-                break;
+        if (move.Movetype == SlideUp)
+            dr = 1;
+        else if ( move.Movetype == SlideDown)
+            dr = -1;
+        else if (move.Movetype == SlideRight)
+            dc = 1;
+        else if (move.Movetype == SlideLeft)
+            dc = -1;
+        else{
+            cerr << "SOMETHING HAPPENED 2" << endl;
+            exit(0);
         }
-        
+
         int j = 0;
         int piecesToDropHere = 0;
         while (numPieces>0){
@@ -538,7 +564,8 @@ class Game{
     }
     
     vector<Move> generateAllMoves(){
-        vector<Move> allMoves;
+        vector<Move> allMoves(1000);
+        int K = 0;
         
         // Place Moves
         Piece piece;
@@ -554,13 +581,16 @@ class Game{
             Move move(i/gameConfig->BoardSize, i%gameConfig->BoardSize, piece);
             if (flats[currentPlayer]>0){
                 move.piece.type = FlatStone;
-                allMoves.push_back(move);
+                allMoves[K++] = move;
+               // allMoves.push_back(move);
                 move.piece.type = StandingStone;
-                allMoves.push_back(move);
+                allMoves[K++] = move;
+               // allMoves.push_back(move);
             }
             if (capstones[currentPlayer]>0){
                 move.piece.type = Capstone;
-                allMoves.push_back(move);
+                allMoves[K++] = move;
+               // allMoves.push_back(move);
             }
             emptyPositions = bits;
         }
@@ -583,8 +613,10 @@ class Game{
                             break;
                         move.dropLength = u;
                         move.Movetype = (MoveType)(1+dir);
-                        move.Drops = &Slides[u][t][0];
-                        allMoves.push_back(move);
+                        memcpy(&move.Drops[0],&Slides[u][t][0], 8*sizeof(short) );
+                       // move.Drops = &Slides[u][t][0];
+                       // allMoves.push_back(move);
+                        allMoves[K++] = move;
                     }
                 }
             }
@@ -626,8 +658,9 @@ class Game{
                             break;
                         move.dropLength = u;
                         move.Movetype = (MoveType)(1+dir);
-                        move.Drops = &Slides[u][t][0];
-                        allMoves.push_back(move);
+                        memcpy(&move.Drops[0],&Slides[u][t][0], 8*sizeof(short) );
+                       // allMoves.push_back(move);
+                        allMoves[K++] = move;
                     }
                 }
                 
@@ -636,7 +669,7 @@ class Game{
         }
 
         
-        return allMoves;
+        return {allMoves.begin(),allMoves.begin() + K};
     }
     
     vector<Move> generateFirstMove(){

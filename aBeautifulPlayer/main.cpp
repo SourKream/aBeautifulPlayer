@@ -48,9 +48,9 @@ vector<vector<short> > getSplits (short num){
     return splits;
 }
 
-vector<vector<vector<short>>> GenerateAllSlides(short K) {
-    vector<vector<vector<short>>> slides(8);
-    vector<vector<vector<short>>> slides1(8);
+vector<vector<vector<short> > > GenerateAllSlides(short K) {
+    vector<vector<vector<short> > > slides(8);
+    vector<vector<vector<short> > > slides1(8);
     
     for (short s = 1; s <= K; s++ ){
         slides[s] = getSplits(s);
@@ -67,7 +67,7 @@ vector<vector<vector<short>>> GenerateAllSlides(short K) {
     return slides1;
 }
 
-vector<vector<vector<short>>> Slides;
+vector<vector<vector<short> > > Slides;
 
 /*
 int main(){
@@ -95,10 +95,15 @@ int main(){
 //    myGame.applyMove(myGame.makeMove("Fc2",true));
 //    myGame.applyMove(myGame.makeMove("Fd2",true));
 //    myGame.applyMove(myGame.makeMove("Fa1"));
+//
 //    myGame.applyMove(myGame.makeMove("Fb1"));
+//
 //    myGame.applyMove(myGame.makeMove("Fc1"));
+//
 //    myGame.applyMove(myGame.makeMove("Fd1"));
+//
 //    myGame.applyMove(myGame.makeMove("Fe1"));
+//
 //    myGame.applyMove(myGame.makeMove("Fa2"));
 //    myGame.applyMove(myGame.makeMove("Fb2"));
 //    myGame.applyMove(myGame.makeMove("Fe2"));
