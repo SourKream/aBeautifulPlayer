@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include "Game.cpp"
 #include <bitset>
+#include <vector>
 using namespace std;
 
 void printGameState(Game g){
@@ -26,8 +27,66 @@ void printGameState(Game g){
     }
 }
 
+vector<vector<int> > getSplits (int num){
+    vector<vector<int> > splits;
+    
+    if (num==0){
+        vector<int> split;
+        splits.push_back(split);
+        return splits;
+    }
+    
+    int i = 1;
+    while (i<=num){
+        vector<vector<int> > A = getSplits(num-i);
+        for (int j=0; j<A.size(); j++){
+            A[j].push_back(i);
+            splits.push_back(A[j]);
+        }
+        i++;
+    }
+    return splits;
+}
+
+vector<vector<vector<int>>> GenerateAllSlides(int K) {
+    vector<vector<vector<int>>> slides(8);
+    vector<vector<vector<int>>> slides1(8);
+    
+    for (int s = 1; s <= K; s++ ){
+        slides[s] = getSplits(s);
+        for (int i = 0; i < slides[s].size(); i++)
+            slides[s][i].push_back(s);
+    }
+    
+    for (int s = 1; s <= 7; s++ ){
+        for (int j = 0; j < slides[s].size(); j++){
+            slides1[slides[s][j].size()-1].push_back(slides[s][j]);
+        }
+    }
+    
+    return slides1;
+}
+
+vector<vector<vector<int>>> Slides;
+
+
+
+
 
 int main(){
+    Slides = GenerateAllSlides(5);
+//    for (int s = 1; s <= 7; s++ ){
+//        for (int j = 0; j < Slides[s].size(); j++){
+//            cerr << Slides[s][j].back() << " ";
+//        }
+//        cerr << endl;
+//    }
+//    
+//    GetSlides x;
+//    GetSlides y;
+//    cerr << &x.Slides << endl;
+//    cerr << &y.Slides << endl;
+//
     Game myGame(5);
     
     myGame.PlaceMove(myGame.makeMove("Fa1",1));

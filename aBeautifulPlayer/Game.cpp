@@ -6,15 +6,27 @@
 //  Copyright © 2016 Shantanu Kumar. All rights reserved.
 //
 
-#include "Game.hpp"
 #include <string.h>
 #include <iostream>
+#include <vector>
+
 #define BLACK 0
 #define WHITE 1
 #define MAX_SIZE 7
 #define MAX_SIZE_SQUARE MAX_SIZE*MAX_SIZE
 using namespace std;
 typedef unsigned long long uint64;
+
+
+
+extern vector<vector<vector<int>>> Slides;
+
+    
+//    GetSlides(){
+//        Slides = GenerateAllSlides();
+//    }
+    
+
 
 enum MoveType { PlaceFlat = 0,
                 PlaceStanding,
@@ -39,6 +51,8 @@ class Piece{
     PieceType type;
     Color color;
 };
+
+
 
 
 class Move{
@@ -66,7 +80,6 @@ public :
     uint64 BoardMask;
     
     Config(int boardSize){
-        
         BoardSize = boardSize;
         switch(BoardSize){
             case 5:
@@ -182,7 +195,7 @@ public :
     
     void FindComponents(){
         size_cw = 0;
-        uint64 whitePieces = WhitePieces;
+        uint64 whitePieces = WhitePieces&(~Standing);
         uint64 seen = 0;
         uint64 current;
         uint64 bit;
@@ -191,7 +204,7 @@ public :
             current = whitePieces & (whitePieces-1);
             bit = whitePieces & ~current;
             if ( (bit & seen) == 0){
-                uint64 comp = Expand(bit,WhitePieces);
+                uint64 comp = Expand(bit,WhitePieces&(~Standing));
                 if ( comp != bit){
                     WhiteComponents[size_cw++] = comp;
                 }
@@ -201,14 +214,14 @@ public :
         }
         
         size_cb = 0;
-        uint64 blackPieces = BlackPieces;
+        uint64 blackPieces = BlackPieces&(~Standing);
         seen = 0;
         
         while ( blackPieces){
             current = blackPieces & (blackPieces-1);
             bit = blackPieces & ~current;
             if ( (bit & seen) == 0){
-                uint64 comp = Expand(bit,BlackPieces);
+                uint64 comp = Expand(bit,BlackPieces&(~Standing));
                 if ( comp != bit){
                     BlackComponents[size_cb++] = comp;
                 }
@@ -255,12 +268,12 @@ public :
             for (int j = 0 ; j < gameConfig->BoardSize; j++){
                 int r = i*gameConfig->BoardSize + j;
                 if (X & ( 1ULL << r))
-                    cout << "1 ";
+                    cerr << "1 ";
                 else
-                    cout << "0 ";
+                    cerr << "0 ";
                 
             }
-            cout << endl;
+            cerr << endl;
         }
     }
     
@@ -278,6 +291,7 @@ public :
         to_ret.column = move[1]-'a';
         to_ret.row = move[2]-'1';
         return to_ret;
+        
     }
     
     void slideMove(Move move){
@@ -357,5 +371,7 @@ public :
             Standing &= ~(1ULL << i_or);
         }
     }
+    
+    
 
 };
