@@ -170,10 +170,14 @@ class Game{
         CapStones = current.CapStones;
         Standing = current.Standing;
         
-        memcpy(Stacks, current.Stacks, MAX_SIZE_SQUARE*sizeof(uint64));
-        memcpy(Heights, current.Heights, MAX_SIZE_SQUARE*sizeof(int));
-        memcpy(WhiteComponents, current.WhiteComponents, MAX_SIZE_SQUARE*sizeof(uint64));
-        memcpy(BlackComponents, current.BlackComponents, MAX_SIZE_SQUARE*sizeof(uint64));
+//        memcpy(Stacks, current.Stacks, MAX_SIZE_SQUARE*sizeof(uint64));
+//        memcpy(Heights, current.Heights, MAX_SIZE_SQUARE*sizeof(int));
+//        memcpy(WhiteComponents, current.WhiteComponents, MAX_SIZE_SQUARE*sizeof(uint64));
+//        memcpy(BlackComponents, current.BlackComponents, MAX_SIZE_SQUARE*sizeof(uint64));
+        copy(begin(current.Stacks), end(current.Stacks), begin(Stacks));
+        copy(begin(current.Heights), end(current.Heights), begin(Heights));
+        copy(begin(current.WhiteComponents), end(current.WhiteComponents), begin(WhiteComponents));
+        copy(begin(current.BlackComponents), end(current.BlackComponents), begin(BlackComponents));
         
         gameConfig = current.gameConfig;
         currentPlayer = current.currentPlayer;
@@ -215,8 +219,8 @@ class Game{
         uint64 next = current;
         do {
             current = next;
-            next |= (current << 1);
-            next |= (current >> 1);
+            next |= (current << 1) & ~(gameConfig->Left);
+            next |= (current >> 1) & ~(gameConfig->Right);
             next |= (current >> gameConfig->BoardSize);
             next |= (current << gameConfig->BoardSize);
             next &= mask;
@@ -270,7 +274,7 @@ class Game{
         // 2 : Both
         bool white = false;
         for (int i =0 ; i <size_cw; i++){
-            if ( ((WhiteComponents[i] & gameConfig->Left) & (WhiteComponents[i] & gameConfig->Right)) != 0 || ((WhiteComponents[i] & gameConfig->Top) & (WhiteComponents[i] & gameConfig->Bottom)) != 0){
+            if ( ((WhiteComponents[i] & gameConfig->Left) != 0 && (WhiteComponents[i] & gameConfig->Right) != 0) || ((WhiteComponents[i] & gameConfig->Top) != 0 && (WhiteComponents[i] & gameConfig->Bottom) !=0)){
                 white = true;
                 break;
             }
@@ -278,7 +282,7 @@ class Game{
         
         bool black = false;
         for (int i =0 ; i <size_cb; i++){
-            if ( ((BlackComponents[i] & gameConfig->Left) & (BlackComponents[i] & gameConfig->Right)) != 0 || ((BlackComponents[i] & gameConfig->Top) & (BlackComponents[i] & gameConfig->Bottom)) != 0){
+            if ( ((BlackComponents[i] & gameConfig->Left) != 0 && (BlackComponents[i] & gameConfig->Right) != 0) || ((BlackComponents[i] & gameConfig->Top) != 0 && (BlackComponents[i] & gameConfig->Bottom) != 0) ){
                 black = true;
                 break;
             }
@@ -328,9 +332,9 @@ class Game{
             int k=0;
             
             switch (move[3]){
-                case '-': moveOut.Movetype = SlideUp;
+                case '+': moveOut.Movetype = SlideUp;
                     break;
-                case '+': moveOut.Movetype = SlideDown;
+                case '-': moveOut.Movetype = SlideDown;
                     break;
                 case '>': moveOut.Movetype = SlideRight;
                     break;
@@ -374,9 +378,9 @@ class Game{
         move += (moveIn.column + 'a');
         move += (moveIn.row + '1');
         switch (moveIn.Movetype){
-            case SlideUp: move += '-';
+            case SlideUp: move += '+';
                 break;
-            case SlideDown: move += '+';
+            case SlideDown: move += '-';
                 break;
             case SlideRight: move += '>';
                 break;
@@ -488,7 +492,7 @@ class Game{
         
         //SlideUp
         int PossSteps = min(gameConfig->BoardSize - r -1, PossSteps_);
-        uint64 Z = (gameConfig->Left << c) & (Standing | Capstone);
+        uint64 Z = (gameConfig->Left << c) & (Standing | CapStones);
         Z &= ~((bit_set << 1) - 1);
         
         if ( Z != 0){
@@ -500,7 +504,7 @@ class Game{
         
         //SlideDown
         PossSteps = min(r, PossSteps_);
-        Z = (gameConfig->Left << c) & (Standing | Capstone);
+        Z = (gameConfig->Left << c) & (Standing | CapStones);
         Z &= (bit_set - 1);
         if ( Z != 0){
             int j =  63 - __builtin_clzl(Z);
@@ -511,7 +515,7 @@ class Game{
         
         //SlideLeft
         PossSteps = min(c, PossSteps_);
-        Z = (gameConfig->Top << (r*gameConfig->BoardSize)) & (Standing | Capstone);
+        Z = (gameConfig->Top << (r*gameConfig->BoardSize)) & (Standing | CapStones);
         Z &= (bit_set - 1);
         if ( Z != 0){
             int j =  63 - __builtin_clzl(Z);
@@ -521,7 +525,7 @@ class Game{
         
         // SlideRight
         PossSteps = min(gameConfig->BoardSize - c -1, PossSteps_);
-        Z = (gameConfig->Top << (r*gameConfig->BoardSize)) & (Standing | Capstone);
+        Z = (gameConfig->Top << (r*gameConfig->BoardSize)) & (Standing | CapStones);
         Z &= ~((bit_set << 1) - 1);
         
         if ( Z != 0){
@@ -666,9 +670,9 @@ class Game{
             return winner;
 
         if ((flats[0]==0)||(flats[1]==0)){
-            int whiteFlats = __builtin_popcount(WhitePieces & ~(Standing | Capstone));
-            int blackFlats = __builtin_popcount(BlackPieces & ~(Standing | Capstone));
-            
+            int whiteFlats = __builtin_popcount(WhitePieces & ~(Standing | CapStones));
+            int blackFlats = __builtin_popcount(BlackPieces & ~(Standing | CapStones));
+
             if (blackFlats > whiteFlats)
                 return 0;
             else if (blackFlats < whiteFlats)
@@ -693,6 +697,18 @@ class Game{
         
         int score = whiteFlats - flats[1] - blackFlats + flats[0];
         return (myPlayerNumber==1)?score:-score;
+        
+        
+//        score += int64(bitboard.Popcount(p.White&^(p.Caps|p.Standing)) * flat)
+//        score -= int64(bitboard.Popcount(p.Black&^(p.Caps|p.Standing)) * flat)
+//        score += int64(bitboard.Popcount(p.White&p.Standing) * w.Standing)
+//        score -= int64(bitboard.Popcount(p.Black&p.Standing) * w.Standing)
+//        score += int64(bitboard.Popcount(p.White&p.Caps) * w.Capstone)
+//        score -= int64(bitboard.Popcount(p.Black&p.Caps) * w.Capstone)
+//        
+//        score += int64(bitboard.Popcount(p.White&^c.Edge) * w.Center)
+//        score -= int64(bitboard.Popcount(p.Black&^c.Edge) * w.Center)
+        
     }
 
 };

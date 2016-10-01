@@ -81,7 +81,7 @@ struct MiniMaxAgent{
         
         vector<Move> allMoves = myGame->generateAllMoves();
         int maxStateValue = -2000;
-        int alpha = -1000, beta = 1000;
+        int alpha = -2000, beta = 2000;
         Move bestMove;
         
         for (int i=0; i<allMoves.size(); i++){
@@ -99,6 +99,7 @@ struct MiniMaxAgent{
                 break;
         }
         
+        cerr << "Max State Value was  : " << maxStateValue << endl;
         return myGame->getMoveString(bestMove);
     }
     
@@ -106,19 +107,19 @@ struct MiniMaxAgent{
         //cout << depth<< endl;
 
         int winner = gameState.isFinishState();
-        if ((winner!=-1)||(depth>3))
+        if ((winner!=-1)||(depth>4))
             return gameState.getStateValue();
         
         vector<Move> allMoves = gameState.generateAllMoves();
         // cout << allMoves.size() << endl;
         int bestValue = 0;
         if (maximize)
-            bestValue = -200;
+            bestValue = -2000;
         else
-            bestValue = 200;
+            bestValue = 2000;
         
         for (int i=0; i<allMoves.size(); i++){
-            Game nextState = gameState;
+            Game nextState(gameState);
             nextState.applyMove(allMoves[i]);
             int value = MiniMaxSearch(nextState, !maximize, depth+1, alpha, beta);
             if (maximize){

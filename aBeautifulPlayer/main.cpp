@@ -69,7 +69,7 @@ vector<vector<vector<short>>> GenerateAllSlides(short K) {
 
 vector<vector<vector<short>>> Slides;
 
-
+/*
 int main(){
     Slides = GenerateAllSlides(5);
 
@@ -91,18 +91,35 @@ int main(){
 //    cerr << &y.Slides << endl;
 //////
 
-//    Game myGame(5, 1);
-//    
+//    Game myGame(5, 2);
+//    myGame.applyMove(myGame.makeMove("Fc2",true));
+//    myGame.applyMove(myGame.makeMove("Fd2",true));
 //    myGame.applyMove(myGame.makeMove("Fa1"));
 //    myGame.applyMove(myGame.makeMove("Fb1"));
 //    myGame.applyMove(myGame.makeMove("Fc1"));
 //    myGame.applyMove(myGame.makeMove("Fd1"));
 //    myGame.applyMove(myGame.makeMove("Fe1"));
 //    myGame.applyMove(myGame.makeMove("Fa2"));
-//    myGame.applyMove(myGame.makeMove("Fe5"));
-//    myGame.applyMove(myGame.makeMove("Fc2"));
+//    myGame.applyMove(myGame.makeMove("Fb2"));
+//    myGame.applyMove(myGame.makeMove("Fe2"));
 //    myGame.applyMove(myGame.makeMove("Fa3"));
-//    
+//    myGame.applyMove(myGame.makeMove("Fb3"));
+//    myGame.applyMove(myGame.makeMove("Fc3"));
+//    myGame.applyMove(myGame.makeMove("Fd3"));
+//    myGame.applyMove(myGame.makeMove("Fe3"));
+//    myGame.applyMove(myGame.makeMove("Fa4"));
+//    myGame.applyMove(myGame.makeMove("Fb4"));
+//    myGame.applyMove(myGame.makeMove("Fc4"));
+//    myGame.applyMove(myGame.makeMove("Fd4"));
+//    myGame.applyMove(myGame.makeMove("Fe4"));
+//    myGame.applyMove(myGame.makeMove("Fa5"));
+//    myGame.applyMove(myGame.makeMove("Fb5"));
+//    myGame.applyMove(myGame.makeMove("Fc5"));
+//    myGame.applyMove(myGame.makeMove("Fd5"));
+//    myGame.applyMove(myGame.makeMove("Fe5"));
+//    myGame.applyMove(myGame.makeMove("1b1+1"));
+//    myGame.applyMove(myGame.makeMove("1d2<1"));
+//
 //    printGameState(myGame);
     
 ///// Game State Test
@@ -117,8 +134,10 @@ int main(){
 /////
 //    myGame.FindComponents();
 /////
-    
-//    MiniMaxAgent player(1,5,200);
+
+//    vector<Move> allMoves = myGame.generateAllMoves();
+//    allMoves.size();
+//    MiniMaxAgent player(2,5,150);
 //    player.myGame = &myGame;
 //    cout << "My Move : " << player.getMiniMaxMove() << endl;
     
@@ -130,4 +149,70 @@ int main(){
     player3.play();
 
     return 0;
+}
+*/
+int main(){
+    Slides = GenerateAllSlides(5);
+    
+    Game myGame(5, 1);
+    printGameState(myGame);
+    cerr << endl;
+    myGame.applyMove(myGame.makeMove("Fa1"));
+    printGameState(myGame);
+    cerr << endl;
+    myGame.applyMove(myGame.makeMove("Fb1"));
+    printGameState(myGame);
+    cerr << endl;
+    myGame.applyMove(myGame.makeMove("Fc1"));
+    printGameState(myGame);
+    cerr << endl;
+    myGame.applyMove(myGame.makeMove("Fd1"));
+    printGameState(myGame);
+    cerr << endl;
+    myGame.applyMove(myGame.makeMove("Fe1"));
+    printGameState(myGame);
+    cerr << endl;
+    myGame.applyMove(myGame.makeMove("Fa2"));
+    printGameState(myGame);
+    cerr << endl;
+    myGame.applyMove(myGame.makeMove("Fb2"));
+    printGameState(myGame);
+    cerr << endl;
+    myGame.applyMove(myGame.makeMove("Fc2"));
+    printGameState(myGame);
+    cerr << endl;
+    myGame.applyMove(myGame.makeMove("Fd2"));
+    printGameState(myGame);
+    cerr << endl;
+    myGame.applyMove(myGame.makeMove("Fe2"));
+    printGameState(myGame);
+    cerr << endl;
+    myGame.applyMove(myGame.makeMove("Fa3"));
+    printGameState(myGame);
+    cerr << endl;
+    myGame.applyMove(myGame.makeMove("Fb3"));
+    printGameState(myGame);
+    cerr << endl;
+    myGame.applyMove(myGame.makeMove("Fc3"));
+    printGameState(myGame);
+    cerr << endl;
+    myGame.applyMove(myGame.makeMove("Fd3"));
+    myGame.applyMove(myGame.makeMove("Fe3"));
+    myGame.applyMove(myGame.makeMove("Fa4"));
+    myGame.applyMove(myGame.makeMove("Fb4"));
+    myGame.applyMove(myGame.makeMove("Fc4"));
+    myGame.applyMove(myGame.makeMove("Fd4"));
+    myGame.applyMove(myGame.makeMove("Fe4"));
+    myGame.applyMove(myGame.makeMove("Fa5"));
+    printGameState(myGame);
+    cerr << endl;
+    myGame.applyMove(myGame.makeMove("Fb5"));
+    myGame.applyMove(myGame.makeMove("Fc5"));
+    myGame.applyMove(myGame.makeMove("Fd5"));
+    myGame.applyMove(myGame.makeMove("Fe5"));
+    printGameState(myGame);
+    cerr << endl;
+    myGame.applyMove(myGame.makeMove("1b1+1"));
+        printGameState(myGame);
+        cerr << endl;
 }
