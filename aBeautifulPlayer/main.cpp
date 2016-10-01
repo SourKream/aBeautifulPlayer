@@ -48,9 +48,9 @@ vector<vector<short> > getSplits (short num){
     return splits;
 }
 
-vector<vector<vector<short>>> GenerateAllSlides(short K) {
-    vector<vector<vector<short>>> slides(8);
-    vector<vector<vector<short>>> slides1(8);
+vector<vector<vector<short> > > GenerateAllSlides(short K) {
+    vector<vector<vector<short> > > slides(8);
+    vector<vector<vector<short> > > slides1(8);
     
     for (short s = 1; s <= K; s++ ){
         slides[s] = getSplits(s);
@@ -67,61 +67,93 @@ vector<vector<vector<short>>> GenerateAllSlides(short K) {
     return slides1;
 }
 
-vector<vector<vector<short>>> Slides;
+vector<vector<vector<short> > > Slides;
 
 
 int main(){
     Slides = GenerateAllSlides(5);
 
-///// Slide Test
-//    uint64 Z = ((1ULL << 63) | ( 1ULL << 31));
-//    
-//    cout << __builtin_clzl(Z) << endl;
-//    cerr << __builtin_ctzl(1<<12) << endl;
-//    for (int s = 1; s <= 7; s++ ){
-//        for (int j = 0; j < Slides[s].size(); j++){
-//            cerr << Slides[s][j].back() << " ";
-//        }
-//        cerr << endl;
-//    }
-//    
-//    GetSlides x;
-//    GetSlides y;
-//    cerr << &x.Slides << endl;
-//    cerr << &y.Slides << endl;
-//////
-
 //    Game myGame(5, 1);
-//    
+//
 //    myGame.applyMove(myGame.makeMove("Fa1"));
+//
 //    myGame.applyMove(myGame.makeMove("Fb1"));
+//
 //    myGame.applyMove(myGame.makeMove("Fc1"));
+//
 //    myGame.applyMove(myGame.makeMove("Fd1"));
+//
 //    myGame.applyMove(myGame.makeMove("Fe1"));
+//
 //    myGame.applyMove(myGame.makeMove("Fa2"));
-//    myGame.applyMove(myGame.makeMove("Fe5"));
+//
+//    myGame.applyMove(myGame.makeMove("Fb2"));
+//
 //    myGame.applyMove(myGame.makeMove("Fc2"));
+//
+//    myGame.applyMove(myGame.makeMove("Fd2"));
+//
+//    myGame.applyMove(myGame.makeMove("Fe2"));
+//
 //    myGame.applyMove(myGame.makeMove("Fa3"));
-//    
-//    printGameState(myGame);
-    
-///// Game State Test
-//    myGame.printState(myGame.WhitePieces);
-//    cout << endl;
-//    myGame.printState(myGame.BlackPieces);
-//    cout << endl;
-//    myGame.printState(myGame.CapStones);
-//    cout << endl;
-//    myGame.printState(myGame.Standing);
-//    cout << endl;
-/////
-//    myGame.FindComponents();
-/////
-    
-//    MiniMaxAgent player(1,5,200);
-//    player.myGame = &myGame;
-//    cout << "My Move : " << player.getMiniMaxMove() << endl;
-    
+//
+//    myGame.applyMove(myGame.makeMove("Fb3"));
+//
+//    myGame.applyMove(myGame.makeMove("Fc3"));
+//
+//    myGame.applyMove(myGame.makeMove("Fd3"));
+//    myGame.applyMove(myGame.makeMove("Fe3"));
+//    myGame.applyMove(myGame.makeMove("Fa4"));
+//    myGame.applyMove(myGame.makeMove("Fb4"));
+//    myGame.applyMove(myGame.makeMove("Fc4"));
+//    myGame.applyMove(myGame.makeMove("Fd4"));
+//    myGame.applyMove(myGame.makeMove("Fe4"));
+//    myGame.applyMove(myGame.makeMove("Fa5"));
+//
+//    myGame.applyMove(myGame.makeMove("Fb5"));
+//    myGame.applyMove(myGame.makeMove("Fc5"));
+//    myGame.applyMove(myGame.makeMove("Fd5"));
+//    myGame.applyMove(myGame.makeMove("Fe5"));
+//
+//    Move x = myGame.makeMove("1b1+1");
+//        printGameState(myGame);
+//        cerr << endl;
+//    myGame.applyMove(x);
+////    printGameState(myGame);
+////    cerr << endl;
+//
+////    myGame.applyMove(myGame.makeMove("1a1+1"));
+////    myGame.applyMove(myGame.makeMove("1d1+1"));
+////    myGame.applyMove(myGame.makeMove("1c1+1"));
+////    myGame.applyMove(myGame.makeMove("1e2+1"));
+////    myGame.applyMove(myGame.makeMove("1a3+1"));
+////
+////  //  myGame.applyMove(myGame.makeMove("1e4+1"));
+//////    myGame.applyMove(myGame.makeMove("Fd5"));
+//////myGame.applyMove(myGame.makeMove("Fd4"));
+////    //myGame.applyMove(myGame.makeMove("Fe5"));
+////    
+//// //   printGameState(myGame);
+//////    myGame.FindComponents();
+//////    cout <<  myGame.checkIfRoadExists() << endl;
+////// //   auto X = myGame.;
+/////////// Game State Test
+////////    myGame.printState(myGame.WhitePieces);
+////////    cout << endl;
+////////    myGame.printState(myGame.BlackPieces);
+////////    cout << endl;
+////////    myGame.printState(myGame.CapStones);
+////////    cout << endl;
+////////    myGame.printState(myGame.Standing);
+////////    cout << endl;
+///////////
+////////    myGame.FindComponents();
+///////////
+//////    
+////    MiniMaxAgent player(1,5,200);
+////    player.myGame = &myGame;
+////    cout << "My Move : " << player.getMiniMaxMove() << endl;
+//////
     int p, n, t;
     cin >> p >> n >> t;
     MiniMaxAgent player3(p, n, t);

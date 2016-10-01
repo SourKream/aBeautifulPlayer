@@ -106,7 +106,7 @@ struct MiniMaxAgent{
         //cout << depth<< endl;
 
         int winner = gameState.isFinishState();
-        if ((winner!=-1)||(depth>3))
+        if ((winner!=-1)||(depth>4))
             return gameState.getStateValue();
         
         vector<Move> allMoves = gameState.generateAllMoves();
