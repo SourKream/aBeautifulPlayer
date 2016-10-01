@@ -7,7 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A6FCA30F1D95A93700539D3B /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A6FCA30E1D95A93700539D3B /* main.cpp */; };
+		9FF79FEF1D9F8A49000DF66D /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9FF79FEE1D9F8A49000DF66D /* main.cpp */; };
+		9FF79FF51D9F8AFF000DF66D /* Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9FF79FF31D9F8AFF000DF66D /* Game.cpp */; };
+		9FF79FF71D9F90FB000DF66D /* main2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9FF79FF61D9F90FB000DF66D /* main2.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -23,8 +25,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		9FF79FEE1D9F8A49000DF66D /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		9FF79FF31D9F8AFF000DF66D /* Game.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Game.cpp; sourceTree = "<group>"; };
+		9FF79FF41D9F8AFF000DF66D /* Game.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Game.hpp; sourceTree = "<group>"; };
+		9FF79FF61D9F90FB000DF66D /* main2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main2.cpp; sourceTree = "<group>"; };
 		A6FCA30B1D95A93700539D3B /* aBeautifulPlayer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = aBeautifulPlayer; sourceTree = BUILT_PRODUCTS_DIR; };
-		A6FCA30E1D95A93700539D3B /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,7 +62,10 @@
 		A6FCA30D1D95A93700539D3B /* aBeautifulPlayer */ = {
 			isa = PBXGroup;
 			children = (
-				A6FCA30E1D95A93700539D3B /* main.cpp */,
+				9FF79FEE1D9F8A49000DF66D /* main.cpp */,
+				9FF79FF31D9F8AFF000DF66D /* Game.cpp */,
+				9FF79FF41D9F8AFF000DF66D /* Game.hpp */,
+				9FF79FF61D9F90FB000DF66D /* main2.cpp */,
 			);
 			path = aBeautifulPlayer;
 			sourceTree = "<group>";
@@ -118,7 +126,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A6FCA30F1D95A93700539D3B /* main.cpp in Sources */,
+				9FF79FF71D9F90FB000DF66D /* main2.cpp in Sources */,
+				9FF79FEF1D9F8A49000DF66D /* main.cpp in Sources */,
+				9FF79FF51D9F8AFF000DF66D /* Game.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -239,6 +249,7 @@
 				A6FCA3141D95A93700539D3B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
