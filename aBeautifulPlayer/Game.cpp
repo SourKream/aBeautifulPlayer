@@ -404,7 +404,7 @@ class Game{
         int PossSteps_ = min(gameConfig->BoardSize - 1, Heights[i]);
         
         //SlideUp
-        int PossSteps = min(gameConfig->BoardSize - r, PossSteps_);
+        int PossSteps = min(gameConfig->BoardSize - r -1, PossSteps_);
         uint64 Z = (gameConfig->Left << c) & (Standing | Capstone);
         Z &= ~((bit_set << 1) - 1);
         
@@ -437,7 +437,7 @@ class Game{
         array[2] = PossSteps;
         
         // SlideRight
-        PossSteps = min(gameConfig->BoardSize - c, PossSteps_);
+        PossSteps = min(gameConfig->BoardSize - c -1, PossSteps_);
         Z = (gameConfig->Top << (r*gameConfig->BoardSize)) & (Standing | Capstone);
         Z &= ~((bit_set << 1) - 1);
         
@@ -513,7 +513,7 @@ class Game{
             int PossStepsInDir[4];
             Move move = GetPossSteps(filledPieces, PossStepsInDir);
             for (int dir = 0; dir < 4; dir++){
-                int u = PossStepsInDir[dir];
+                int u = PossStepsInDir[dir] + 1;
                 
                 uint64 final_position = 0;
                 uint64 bit_set = filledPieces & ~(filledPieces & (filledPieces -1));
@@ -522,9 +522,11 @@ class Game{
                         break;
                     case 1 : final_position = ((bit_set >> gameConfig->BoardSize * u) & Standing);
                         break;
-                    case 2 : final_position = ((bit_set >> u) & Standing);
+                    case 2 : if (u<move.column)
+                                final_position = ((bit_set >> u) & Standing);
                         break;
-                    case 3 : final_position = ((bit_set << u) & Standing);
+                    case 3 : if (u<gameConfig->BoardSize-move.column-1)
+                                final_position = ((bit_set << u) & Standing);
                         break;
                 }
                 
