@@ -73,9 +73,9 @@ vector<vector<vector<short>>> Slides;
 int main(){
     Slides = GenerateAllSlides(5);
     
-    uint64 Z = ((1ULL << 63) | ( 1ULL << 31));
-    
-    cout << __builtin_clzl(Z) << endl;
+//    uint64 Z = ((1ULL << 63) | ( 1ULL << 31));
+//    
+//    cout << __builtin_clzl(Z) << endl;
 //    cerr << __builtin_ctzl(1<<12) << endl;
 //    for (int s = 1; s <= 7; s++ ){
 //        for (int j = 0; j < Slides[s].size(); j++){
@@ -91,31 +91,30 @@ int main(){
 //
     Game myGame(5);
     
-    myGame.PlaceMove(myGame.makeMove("Fc3",1));
-    myGame.PlaceMove(myGame.makeMove("Fa3",0));
-    myGame.PlaceMove(myGame.makeMove("Fa3",0));
-    myGame.PlaceMove(myGame.makeMove("Fa3",0));
-    myGame.PlaceMove(myGame.makeMove("Fa3",0));
-    myGame.PlaceMove(myGame.makeMove("Fa3",1));
-    myGame.PlaceMove(myGame.makeMove("Fc5",0));
-    //myGame.PlaceMove(myGame.makeMove("Sd3",1));
-    //myGame.PlaceMove(myGame.makeMove("Sa3",1));
-    myGame.PlaceMove(myGame.makeMove("Sc1",1));
-    myGame.PlaceMove(myGame.makeMove("Ce5",0));
-
-    myGame.printState(myGame.WhitePieces);
-    cout << endl;
-    myGame.printState(myGame.BlackPieces);
-    cout << endl;
-    myGame.printState(myGame.CapStones);
-    cout << endl;
-    myGame.printState(myGame.Standing);
-    cout << endl;
+    myGame.PlaceMove(myGame.makeMove("Fc3",0));
+    myGame.PlaceMove(myGame.makeMove("Fc3",0));
+//    myGame.PlaceMove(myGame.makeMove("Fa3",1));
+//    myGame.PlaceMove(myGame.makeMove("Fa3",0));
+//    myGame.PlaceMove(myGame.makeMove("Fa3",1));
+//    myGame.PlaceMove(myGame.makeMove("Fa3",0));
+//    myGame.PlaceMove(myGame.makeMove("Fc5",1));
     
-    myGame.FindComponents();
+    printGameState(myGame);
     
-    myGame.generateAllMoves();
-    cout << bitset<64>(myGame.WhiteComponents[0]) << endl;
-
-    cout << sizeof(unsigned long long) << endl;
+//    myGame.printState(myGame.WhitePieces);
+//    cout << endl;
+//    myGame.printState(myGame.BlackPieces);
+//    cout << endl;
+//    myGame.printState(myGame.CapStones);
+//    cout << endl;
+//    myGame.printState(myGame.Standing);
+//    cout << endl;
+    
+//    myGame.FindComponents();
+    
+    vector<Move> allMoves = myGame.generateAllMoves();
+    
+//    cout << bitset<64>(myGame.WhiteComponents[0]) << endl;
+//
+//    cout << sizeof(unsigned long long) << endl;
 }

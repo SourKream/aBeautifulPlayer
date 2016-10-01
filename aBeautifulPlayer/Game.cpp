@@ -313,10 +313,7 @@ class Game{
         int i = r * gameConfig->BoardSize + c;
         uint64 pickupStack = Stacks[i];
         
-        int numPieces = 0;
-        for (int j=0; j<move.dropLength; j++){
-            numPieces += move.Drops[j];
-        }
+        int numPieces = move.Drops[move.dropLength];
         
         if (numPieces == Heights[i]){
             WhitePieces &= ~(1ULL << i);
@@ -459,7 +456,7 @@ class Game{
         // Place Moves
         Piece piece;
         piece.color = (Color)currentPlayer;
-        uint64 emptyPositions = ~(WhitePieces | BlackPieces);
+        uint64 emptyPositions = ((~(WhitePieces | BlackPieces))&gameConfig->BoardMask);
         uint64 bits = 0;
         uint64 bit_set = 0;
         int i = 0;
@@ -482,7 +479,6 @@ class Game{
         }
         
         // Slide Moves
-        
         uint64 filledPieces = BlackPieces;
         if (currentPlayer)
             filledPieces = WhitePieces;
@@ -490,6 +486,7 @@ class Game{
         while (filledPieces != 0){
             int PossStepsInDir[4];
             Move move = GetPossSteps(filledPieces, PossStepsInDir);
+            int i = move.row * gameConfig->BoardSize + move.column;
             filledPieces &= (filledPieces-1);
             for (int dir = 0; dir < 4; dir++){
                 int PossSteps = PossStepsInDir[dir];
@@ -505,6 +502,51 @@ class Game{
                 }
             }
         }
+        
+        // Capstone Moves
+        filledPieces = BlackPieces;
+        if (currentPlayer)
+            filledPieces = WhitePieces;
+        filledPieces &= CapStones;
+        
+        while (filledPieces != 0){
+            int PossStepsInDir[4];
+            Move move = GetPossSteps(filledPieces, PossStepsInDir);
+            for (int dir = 0; dir < 4; dir++){
+                int u = PossStepsInDir[dir];
+                
+                uint64 final_position = 0;
+                uint64 bit_set = filledPieces & ~(filledPieces & (filledPieces -1));
+                switch (dir){
+                    case 0 : final_position = ((bit_set << gameConfig->BoardSize * u) & Standing);
+                        break;
+                    case 1 : final_position = ((bit_set >> gameConfig->BoardSize * u) & Standing);
+                        break;
+                    case 2 : final_position = ((bit_set >> u) & Standing);
+                        break;
+                    case 3 : final_position = ((bit_set << u) & Standing);
+                        break;
+                }
+                
+                int i = move.row * gameConfig->BoardSize + move.column;
+                if (final_position != 0){
+                    for (int t = 0 ; t < Slides[u].size(); t++){
+                        if (Slides[u][t][u-1]!=1)
+                            continue;
+                        if ( Slides[u][t][u] > Heights[i])
+                            break;
+                        move.dropLength = u;
+                        move.Movetype = (MoveType)(1+dir);
+                        move.Drops = &Slides[u][t][0];
+                        allMoves.push_back(move);
+                    }
+                }
+                
+            }
+            filledPieces &= (filledPieces-1);
+        }
+
+        
         return allMoves;
     }
 };
