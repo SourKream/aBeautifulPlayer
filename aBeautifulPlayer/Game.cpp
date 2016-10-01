@@ -27,8 +27,6 @@ enum MoveType { Place = 0,
 };
 
 
-
-
 enum PieceType {    FlatStone = 0,
     StandingStone,
     Capstone
@@ -43,9 +41,6 @@ class Piece{
     PieceType type;
     Color color;
 };
-
-
-
 
 class Move{
     public :
@@ -173,14 +168,10 @@ class Game{
         CapStones = current.CapStones;
         Standing = current.Standing;
         
-//        memcpy(Stacks, current.Stacks, MAX_SIZE_SQUARE*sizeof(uint64));
-//        memcpy(Heights, current.Heights, MAX_SIZE_SQUARE*sizeof(int));
-//        memcpy(WhiteComponents, current.WhiteComponents, MAX_SIZE_SQUARE*sizeof(uint64));
-//        memcpy(BlackComponents, current.BlackComponents, MAX_SIZE_SQUARE*sizeof(uint64));
-        copy(begin(current.Stacks), end(current.Stacks), begin(Stacks));
-        copy(begin(current.Heights), end(current.Heights), begin(Heights));
-        copy(begin(current.WhiteComponents), end(current.WhiteComponents), begin(WhiteComponents));
-        copy(begin(current.BlackComponents), end(current.BlackComponents), begin(BlackComponents));
+        memcpy(Stacks, current.Stacks, MAX_SIZE_SQUARE*sizeof(uint64));
+        memcpy(Heights, current.Heights, MAX_SIZE_SQUARE*sizeof(int));
+        memcpy(WhiteComponents, current.WhiteComponents, MAX_SIZE_SQUARE*sizeof(uint64));
+        memcpy(BlackComponents, current.BlackComponents, MAX_SIZE_SQUARE*sizeof(uint64));
         
         gameConfig = current.gameConfig;
         currentPlayer = current.currentPlayer;
@@ -348,7 +339,7 @@ class Game{
             }
             moveOut.column = move[1]-'a';
             moveOut.row = move[2]-'1';
-        } else if (isnumber(move[0])) {
+        } else if (isdigit(move[0])) {
             int k=0;
             
             switch (move[3]){
@@ -398,15 +389,17 @@ class Game{
         move = (moveIn.Drops[moveIn.dropLength]+'0');
         move += (moveIn.column + 'a');
         move += (moveIn.row + '1');
-        switch (moveIn.Movetype){
-            case SlideUp: move += '+';
-                break;
-            case SlideDown: move += '-';
-                break;
-            case SlideRight: move += '>';
-                break;
-            case SlideLeft: move += '<';
-                break;
+        if (moveIn.Movetype == SlideUp)
+            move += '+';
+        else if ( moveIn.Movetype == SlideDown)
+             move += '-';
+        else if (moveIn.Movetype == SlideRight)
+            move += '>';
+        else if (moveIn.Movetype == SlideLeft)
+            move += '<';
+        else{
+            cerr << "SOMETHING HAPPENED" << endl;
+            exit(0);
         }
         for (int i=0; i<moveIn.dropLength; i++)
             move += (moveIn.Drops[i] + '0');
@@ -705,7 +698,7 @@ class Game{
         if ((flats[0]==0)||(flats[1]==0)){
             int whiteFlats = __builtin_popcount(WhitePieces & ~(Standing | CapStones));
             int blackFlats = __builtin_popcount(BlackPieces & ~(Standing | CapStones));
-
+            
             if (blackFlats > whiteFlats)
                 return 0;
             else if (blackFlats < whiteFlats)
@@ -730,17 +723,6 @@ class Game{
         
         int score = whiteFlats - flats[1] - blackFlats + flats[0];
         return (myPlayerNumber==1)?score:-score;
-        
-        
-//        score += int64(bitboard.Popcount(p.White&^(p.Caps|p.Standing)) * flat)
-//        score -= int64(bitboard.Popcount(p.Black&^(p.Caps|p.Standing)) * flat)
-//        score += int64(bitboard.Popcount(p.White&p.Standing) * w.Standing)
-//        score -= int64(bitboard.Popcount(p.Black&p.Standing) * w.Standing)
-//        score += int64(bitboard.Popcount(p.White&p.Caps) * w.Capstone)
-//        score -= int64(bitboard.Popcount(p.Black&p.Caps) * w.Capstone)
-//        
-//        score += int64(bitboard.Popcount(p.White&^c.Edge) * w.Center)
-//        score -= int64(bitboard.Popcount(p.Black&^c.Edge) * w.Center)
         
     }
 
