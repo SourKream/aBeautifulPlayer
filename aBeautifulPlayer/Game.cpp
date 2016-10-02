@@ -847,11 +847,7 @@ class Game{
         for (i =0 ; i < size_cb ; i++){
             to_Ret[0][6]  += Popcount(BlackComponents[i]);
         }
-
-
-        
         return to_Ret;
-        
     }
     
 };
