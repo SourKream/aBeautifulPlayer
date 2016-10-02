@@ -30,7 +30,7 @@ enum MoveType { Place = 0,
 
 enum PieceType {    FlatStone = 0,
     StandingStone,
-    Capstone
+    CapStonePiece
 };
 
 enum Color {    Black = 0,
@@ -73,7 +73,7 @@ class Config{
     public :
     int BoardSize;
     int Pieces;
-    int Capstones;
+    int CapStonesAllowed;
     
     uint64 Left;
     uint64 Right;
@@ -110,15 +110,15 @@ class Config{
         switch(BoardSize){
             case 5:
                 Pieces = 21;
-                Capstones = 1;
+                CapStonesAllowed = 1;
                 break;
             case 6:
                 Pieces = 30;
-                Capstones = 1;
+                CapStonesAllowed = 1;
                 break;
             case 7:
                 Pieces = 40;
-                Capstones = 1;
+                CapStonesAllowed = 1;
                 break;
         }
         Left = 0;
@@ -186,8 +186,8 @@ class Game{
         memset(Heights, 0 , MAX_SIZE_SQUARE*sizeof(uint64));
         flats[0] = gameConfig->Pieces;
         flats[1] = gameConfig->Pieces;
-        capstones[0] = gameConfig->Capstones;
-        capstones[1] = gameConfig->Capstones;
+        capstones[0] = gameConfig->CapStonesAllowed;
+        capstones[1] = gameConfig->CapStonesAllowed;
         
         myPlayerNumber = playerNumber % 2;
     }
@@ -257,7 +257,7 @@ class Game{
                     break;
                 case 'S': moveOut.piece.type = StandingStone;
                     break;
-                case 'C': moveOut.piece.type = Capstone;
+                case 'C': moveOut.piece.type = CapStonePiece;
                     break;
             }
             moveOut.column = move[1]-'a';
@@ -298,7 +298,7 @@ class Game{
                     break;
                 case StandingStone: move = 'S';
                     break;
-                case Capstone: move = 'C';
+                case CapStonePiece: move = 'C';
                     break;
             }
             move += (moveIn.column + 'a');
@@ -423,7 +423,7 @@ class Game{
                 break;
         }
         switch (move.piece.type) {
-            case Capstone :
+            case CapStonePiece :
                 CapStones |= (1ULL << i);
                 break;
             case StandingStone :
@@ -437,7 +437,7 @@ class Game{
     void applyMove(Move move){
         if (move.Movetype < 1){
             PlaceMove(move);
-            if (move.piece.type != Capstone)
+            if (move.piece.type != CapStonePiece)
                 flats[move.piece.color]--;
             else
                 capstones[move.piece.color]--;
@@ -528,7 +528,7 @@ class Game{
                 // allMoves.push_back(move);
             }
             if (capstones[currentPlayer]>0){
-                move.piece.type = Capstone;
+                move.piece.type = CapStonePiece;
                 allMoves[K++] = move;
                 // allMoves.push_back(move);
             }
