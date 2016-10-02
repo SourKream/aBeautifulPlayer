@@ -141,7 +141,7 @@ class GameManager{
         int moves = 2;
         bool currentPlayer = 1;
         int r;
-        while (moves < 200){
+        while (moves < 400){
             moves ++;
             if (currentPlayer) {
                 move = player1->PlayMove();
@@ -186,62 +186,97 @@ class GameManager{
         }
         return 0;
     }
+    
+    vector<vector<int>> AnalyseBoard(){
+        auto x = myGame->AnalyzeBoard();
+        return x;
+    }
 };
 
 
 void doReinforcementLearning( int trials){
+    //    double FlatScore = 6;
+    //    double StandingStoneScore = 1;
+    //    double CapStoneScore = 2;
+    //    double CenterScore = 2;
+    //    double StackHeightScore = 2;
+    //    double InfluenceScore = 3;
+    //    double GroupSizeScore = 0;
+
     double ScoresForPlayer2[] = {10,10,10,10,10,10,10};
     double ScoresForPlayer1[] = {1,1,1,1,1,1,1};
+    double Initial2[] = {10,10,10,10,10,10,10};
+    double Initial1[] = {1,1,1,1,1,1,1};
     for (int i =0 ; i < 7; i++){
         ScoresForPlayer1[i] = rand()%11;
+        Initial1[i] = ScoresForPlayer1[i];
         ScoresForPlayer2[i] = rand()%11;
+        Initial2[i] = ScoresForPlayer2[i];
     }
-    int DepthWhite = 2;
+    int DepthWhite = 3;
     int DepthBlack = 3;
     double* Win;
     double* Lose;
+    int* WinAnalysis;
+    int* LoseAnalysis;
     int BlackWins = 0;
     int WhiteWins = 0;
-    double LearningRate;
+    vector<vector<int>> BoardAnalysis;
     for (int i =0 ; i < trials; i++){
+            double LearningRate = 5.0;
         cout << endl << "Iteration " << i + 1 << endl;
         
         GameManager Player(ScoresForPlayer1,DepthWhite, ScoresForPlayer2, DepthBlack);
         int ret = Player.Play();
+        BoardAnalysis = Player.AnalyseBoard();
         if ( ret < 0){
             BlackWins++;
-            LearningRate = 1.0/ret;
+            LearningRate *= 1.0/ret;
             LearningRate = -LearningRate;
             Win = ScoresForPlayer2;
             Lose = ScoresForPlayer1;
+            WinAnalysis = &BoardAnalysis[0][0];
+            LoseAnalysis = &BoardAnalysis[1][0];
         }
         else if ( ret > 0){
             WhiteWins++;
-            LearningRate = 1.0/ret;
+            LearningRate *= 1.0/ret;
             Win = ScoresForPlayer1;
             Lose = ScoresForPlayer2;
+            WinAnalysis = &BoardAnalysis[1][0];
+            LoseAnalysis = &BoardAnalysis[0][0];
         }
         else{
-            return;
+            cout << "Tie Game" << endl;
+           // cout << "Black Wins " << BlackWins << " White Wins " << WhiteWins << endl;
+            LearningRate = 0.5;
+            Win = ScoresForPlayer1;
+            Lose = ScoresForPlayer2;
+            WinAnalysis = &BoardAnalysis[1][0];
+            LoseAnalysis = &BoardAnalysis[0][0];
+           // PrintScores(ScoresForPlayer1, ScoresForPlayer2);
+           // return;
         }
         for (int j =0 ;j < 7;j++){
-            double grad = (Win[j] - Lose[j])*LearningRate + LearningRate;
-            Win[j] += grad;
+            double grad = (WinAnalysis[j] - LoseAnalysis[j])*LearningRate + LearningRate;
+           // Win[j] += grad;
             Lose[j] += grad;
-            Win[j] =  max(0.0,min(10.0,Win[j]));
+           // Win[j] =  max(0.0,min(10.0,Win[j]));
             Lose[j] = max(0.0,min(10.0,Lose[j]));
         }
     }
-    cout << "Black Wins " << BlackWins << " White Wins " << WhiteWins << endl;
+    cout << endl;
+    PrintScores(Initial1, Initial2);
+    cout << endl << "Black Wins " << BlackWins << " White Wins " << WhiteWins << endl;
     PrintScores(ScoresForPlayer1, ScoresForPlayer2);
 }
 
 int main(int argc, char** argv){
     srand(time(NULL));
+    
     Slides = GenerateAllSlides(5);
     //doReinforcementLearning(stoi(argv[1]));
-    doReinforcementLearning(3);
-
+    doReinforcementLearning(10);
 //    Game myGame(5, 2);
 //    myGame.applyMove(myGame.makeMove("Fe4",true));
 //    myGame.applyMove(myGame.makeMove("Fe1",true));

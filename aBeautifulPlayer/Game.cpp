@@ -45,7 +45,7 @@ class Piece{
 
 class Move{
     public :
-    MoveType Movetype;
+    MoveType Movetype = Place;
     Piece piece;
     short int row;
     short int column;
@@ -441,7 +441,7 @@ class Game{
     void applyMove(Move move){
         if (move.Movetype < 1){
             PlaceMove(move);
-            if (move.piece.type == FlatStone)
+            if (move.piece.type != Capstone)
                 flats[move.piece.color]--;
             else
                 capstones[move.piece.color]--;
@@ -612,8 +612,8 @@ class Game{
             filledPieces &= (filledPieces-1);
         }
         
-        
-        return {allMoves.begin(),allMoves.begin() + K};
+        random_shuffle(allMoves.begin(),allMoves.begin() + K -1);
+        return {allMoves.begin(),allMoves.begin() + K - 1};
     }
     
     vector<Move> generateFirstMove(){
@@ -797,6 +797,64 @@ class Game{
         }
         int Integer_Score = (int) score;
         return (myPlayerNumber==1)?Integer_Score:-Integer_Score;
+        
+    }
+    
+    vector<vector<int>> AnalyzeBoard(){
+        FindComponents();
+        vector<vector<int>> to_Ret(2,vector<int>(7));
+
+
+        to_Ret[1][0] = Popcount(WhitePieces & ~(Standing|CapStones));
+        to_Ret[0][0] = Popcount(BlackPieces & ~(Standing|CapStones));
+        
+        to_Ret[1][1] = Popcount(WhitePieces & (Standing));
+        to_Ret[0][1] = Popcount(BlackPieces & (Standing));
+        
+        to_Ret[1][2] = Popcount(WhitePieces & (CapStones));
+        to_Ret[0][2] = Popcount(WhitePieces & (CapStones));
+
+        to_Ret[1][3] = Popcount(WhitePieces & ~(gameConfig->Edge));
+        to_Ret[0][3] = Popcount(BlackPieces & ~(gameConfig->Edge));
+        
+        uint64 filledPieces = WhitePieces;
+        uint64 bit_set;
+        // Captured Stack Scores
+        to_Ret[1][4] = 0;
+        to_Ret[1][5] = 0;
+        short i;
+        while (filledPieces != 0){
+            bit_set = filledPieces & ~(filledPieces & (filledPieces -1));
+            i = __builtin_ctzl(bit_set);
+            to_Ret[1][4] += (Heights[i] - Popcount(Stacks[i]));
+            to_Ret[1][5] += Popcount(WhitePieces & gameConfig->InfluenceMasks[i]);
+            filledPieces = filledPieces & (filledPieces -1);
+        }
+        
+        filledPieces = BlackPieces;
+        to_Ret[0][4] = 0;
+        to_Ret[0][5] = 0;
+        while (filledPieces != 0){
+            bit_set = filledPieces & ~(filledPieces & (filledPieces -1));
+            i = __builtin_ctzl(bit_set);
+            to_Ret[0][4] += Popcount(Stacks[i]);
+            to_Ret[0][5] += Popcount(BlackPieces & gameConfig->InfluenceMasks[i]);
+            filledPieces = filledPieces & (filledPieces -1);
+        }
+        
+        to_Ret[1][6] = 0;
+        // Group Connected Component Scores
+        for (i =0 ; i < size_cw ; i++){
+            to_Ret[1][6] += Popcount(WhiteComponents[i]);
+        }
+        to_Ret[0][6] = 0;
+        for (i =0 ; i < size_cb ; i++){
+            to_Ret[0][6]  += Popcount(BlackComponents[i]);
+        }
+
+
+        
+        return to_Ret;
         
     }
     
