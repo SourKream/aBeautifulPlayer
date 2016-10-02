@@ -374,7 +374,7 @@ int main(int argc, char** argv){
     //doReinforcementLearning(stoi(argv[1]));
     double WhiteScores[] = {6.95617, 7.00008, 5.747, 4.02971, 5.37742, 0.603293, 8.73715};
     double BlackScores[] = {10.9397, 4.44211 , 5.33239 ,4.93971 ,8.9536 ,2.06173,5.96226};
-     doReinforcementLearning(40,WhiteScores,BlackScores);
+    doReinforcementLearning(40,WhiteScores,BlackScores,true);
 
 //    int MaxDepth = 5;
 //    int p, n;
