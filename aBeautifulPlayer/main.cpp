@@ -82,9 +82,9 @@ vector<vector<vector<short> > > GenerateAllSlides(short K) {
 }
 
 vector<vector<vector<short> > > Slides;
-void PrintScores(double ScoresForPlayer1[], double ScoresForPlayer2[]){
+void PrintScores(double ScoresForPlayer1[], double ScoresForPlayer2[], bool print = false){
+    if (print){
     cout << endl;
-    cerr << endl;
     cout << "Playing Game(Scores)  White Black \n";
     cout << "FlatStone Score \t" <<   ScoresForPlayer1[0] << "\t" << ScoresForPlayer2[0] << endl;
     cout << "StandingStone Score \t" <<  ScoresForPlayer1[1] << "\t" << ScoresForPlayer2[1] << endl;
@@ -94,6 +94,7 @@ void PrintScores(double ScoresForPlayer1[], double ScoresForPlayer2[]){
     cout << "InfluenceScore Score \t" << ScoresForPlayer1[5] << "\t" << ScoresForPlayer2[5] << endl;
     cout << "GroupSizeScore Score \t" << ScoresForPlayer1[6] << "\t" << ScoresForPlayer2[6] << endl;
     
+    }
     cerr << endl;
     cerr << "Playing Game(Scores)  White Black \n";
     cerr << "FlatStone Score \t" <<   ScoresForPlayer1[0] << "\t" << ScoresForPlayer2[0] << endl;
@@ -221,6 +222,7 @@ void doReinforcementLearning( int trials){
     int* LoseAnalysis;
     int BlackWins = 0;
     int WhiteWins = 0;
+    PrintScores(Initial1, Initial2,true);
     vector<vector<int>> BoardAnalysis;
     for (int i =0 ; i < trials; i++){
             double LearningRate = 5.0;
@@ -259,16 +261,16 @@ void doReinforcementLearning( int trials){
         }
         for (int j =0 ;j < 7;j++){
             double grad = (WinAnalysis[j] - LoseAnalysis[j])*LearningRate + LearningRate;
-           // Win[j] += grad;
+            Win[j] += 0.1*grad;
             Lose[j] += grad;
-           // Win[j] =  max(0.0,min(10.0,Win[j]));
-            Lose[j] = max(0.0,min(10.0,Lose[j]));
+            Win[j] =  max(0.0,min(15.0,Win[j]));
+            Lose[j] = max(0.0,min(15.0,Lose[j]));
         }
     }
     cout << endl;
-    PrintScores(Initial1, Initial2);
+    PrintScores(Initial1, Initial2,true);
     cout << endl << "Black Wins " << BlackWins << " White Wins " << WhiteWins << endl;
-    PrintScores(ScoresForPlayer1, ScoresForPlayer2);
+    PrintScores(ScoresForPlayer1, ScoresForPlayer2,true);
 }
 
 int main(int argc, char** argv){
@@ -276,7 +278,7 @@ int main(int argc, char** argv){
     
     Slides = GenerateAllSlides(5);
     //doReinforcementLearning(stoi(argv[1]));
-    doReinforcementLearning(10);
+    doReinforcementLearning(20);
 //    Game myGame(5, 2);
 //    myGame.applyMove(myGame.makeMove("Fe4",true));
 //    myGame.applyMove(myGame.makeMove("Fe1",true));

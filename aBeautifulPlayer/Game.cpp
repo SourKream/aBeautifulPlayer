@@ -771,7 +771,7 @@ class Game{
         while (filledPieces != 0){
             bit_set = filledPieces & ~(filledPieces & (filledPieces -1));
             i = __builtin_ctzl(bit_set);
-            score += (Heights[i] - Popcount(Stacks[i]))*gameConfig->StackHeightScore;
+            score += (Heights[i] - Popcount(Stacks[i] & ((1 << Heights[i]) - 1)))*gameConfig->StackHeightScore;
             score += Popcount(WhitePieces & gameConfig->InfluenceMasks[i])*gameConfig->InfluenceScore;
             filledPieces = filledPieces & (filledPieces -1);
         }
@@ -781,7 +781,7 @@ class Game{
         while (filledPieces != 0){
             bit_set = filledPieces & ~(filledPieces & (filledPieces -1));
             i = __builtin_ctzl(bit_set);
-            score -= Popcount(Stacks[i])*gameConfig->StackHeightScore;
+            score -= Popcount((Stacks[i] & ((1 << Heights[i]) - 1)))*gameConfig->StackHeightScore;
             score -= Popcount(BlackPieces & gameConfig->InfluenceMasks[i])*gameConfig->InfluenceScore;
             filledPieces = filledPieces & (filledPieces -1);
         }
@@ -826,7 +826,7 @@ class Game{
         while (filledPieces != 0){
             bit_set = filledPieces & ~(filledPieces & (filledPieces -1));
             i = __builtin_ctzl(bit_set);
-            to_Ret[1][4] += (Heights[i] - Popcount(Stacks[i]));
+            to_Ret[1][4] += (Heights[i] - Popcount((Stacks[i] & ((1 << Heights[i]) - 1))));
             to_Ret[1][5] += Popcount(WhitePieces & gameConfig->InfluenceMasks[i]);
             filledPieces = filledPieces & (filledPieces -1);
         }
@@ -837,7 +837,7 @@ class Game{
         while (filledPieces != 0){
             bit_set = filledPieces & ~(filledPieces & (filledPieces -1));
             i = __builtin_ctzl(bit_set);
-            to_Ret[0][4] += Popcount(Stacks[i]);
+            to_Ret[0][4] += Popcount((Stacks[i] & ((1 << Heights[i]) - 1)));
             to_Ret[0][5] += Popcount(BlackPieces & gameConfig->InfluenceMasks[i]);
             filledPieces = filledPieces & (filledPieces -1);
         }
