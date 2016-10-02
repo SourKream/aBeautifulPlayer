@@ -82,13 +82,13 @@ class Config{
     uint64 Edge;
     uint64 BoardMask;
     uint64 InfluenceMasks[MAX_SIZE_SQUARE];
-    int FlatScore = 6;
-    int StandingStoneScore = 1;
-    int CapStoneScore = 2;
-    int CenterScore = 2;
-    int StackHeightScore = 2;
-    int InfluenceScore = 3;
-    int GroupSizeScore = 0;
+    double FlatScore = 6;
+    double StandingStoneScore = 1;
+    double CapStoneScore = 2;
+    double CenterScore = 2;
+    double StackHeightScore = 2;
+    double InfluenceScore = 3;
+    double GroupSizeScore = 0;
     
     inline uint64 Expand(uint64 current){
         uint64 next = current;
@@ -105,7 +105,7 @@ class Config{
     }
     
     
-    Config(int boardSize, int Scores[]){
+    Config(int boardSize, double Scores[]){
         BoardSize = boardSize;
         switch(BoardSize){
             case 5:
@@ -177,7 +177,7 @@ class Game{
     bool currentPlayer = 1;
     bool myPlayerNumber;
 
-    Game(int BoardSize, int playerNumber,int Scores []){
+    Game(int BoardSize, int playerNumber,double Scores []){
         WhitePieces = 0;
         BlackPieces = 0;
         CapStones = 0;
@@ -755,7 +755,7 @@ class Game{
             return -1000;
         }
         //Normal Scores
-        int score = Popcount(WhitePieces & ~(Standing|CapStones))*gameConfig->FlatScore;
+        double score = Popcount(WhitePieces & ~(Standing|CapStones))*gameConfig->FlatScore;
         score -= Popcount(BlackPieces & ~(Standing|CapStones))*gameConfig->FlatScore;
         score += Popcount(WhitePieces & (CapStones))*gameConfig->CapStoneScore;
         score -= Popcount(BlackPieces & (CapStones))*gameConfig->CapStoneScore;
@@ -787,16 +787,16 @@ class Game{
         }
         
         
-//        // Group Connected Component Scores
-//        for (i =0 ; i < size_cw ; i++){
-//            score += Popcount(WhiteComponents[i])*gameConfig->GroupSizeScore;
-//        }
-//        
-//        for (i =0 ; i < size_cb ; i++){
-//            score -= Popcount(BlackComponents[i])*gameConfig->GroupSizeScore;
-//        }
-
-        return (myPlayerNumber==1)?score:-score;
+        // Group Connected Component Scores
+        for (i =0 ; i < size_cw ; i++){
+            score += Popcount(WhiteComponents[i])*gameConfig->GroupSizeScore;
+        }
+        
+        for (i =0 ; i < size_cb ; i++){
+            score -= Popcount(BlackComponents[i])*gameConfig->GroupSizeScore;
+        }
+        int Integer_Score = (int) score;
+        return (myPlayerNumber==1)?Integer_Score:-Integer_Score;
         
     }
     

@@ -82,29 +82,54 @@ vector<vector<vector<short> > > GenerateAllSlides(short K) {
 }
 
 vector<vector<vector<short> > > Slides;
+void PrintScores(double ScoresForPlayer1[], double ScoresForPlayer2[]){
+    cout << endl;
+    cerr << endl;
+    cout << "Playing Game(Scores)  White Black \n";
+    cout << "FlatStone Score \t" <<   ScoresForPlayer1[0] << "\t" << ScoresForPlayer2[0] << endl;
+    cout << "StandingStone Score \t" <<  ScoresForPlayer1[1] << "\t" << ScoresForPlayer2[1] << endl;
+    cout << "CapStoneScore Score \t" << ScoresForPlayer1[2] << "\t" << ScoresForPlayer2[2] << endl;
+    cout << "CenterScore Score \t" << ScoresForPlayer1[3] << "\t" << ScoresForPlayer2[3] << endl;
+    cout << "StackHeightScore Score \t" << ScoresForPlayer1[4] << "\t" << ScoresForPlayer2[4] << endl;
+    cout << "InfluenceScore Score \t" << ScoresForPlayer1[5] << "\t" << ScoresForPlayer2[5] << endl;
+    cout << "GroupSizeScore Score \t" << ScoresForPlayer1[6] << "\t" << ScoresForPlayer2[6] << endl;
+    
+    cerr << endl;
+    cerr << "Playing Game(Scores)  White Black \n";
+    cerr << "FlatStone Score \t" <<   ScoresForPlayer1[0] << "\t" << ScoresForPlayer2[0] << endl;
+    cerr << "StandingStone Score \t" <<  ScoresForPlayer1[1] << "\t" << ScoresForPlayer2[1] << endl;
+    cerr << "CapStoneScore Score \t" << ScoresForPlayer1[2] << "\t" << ScoresForPlayer2[2] << endl;
+    cerr << "CenterScore Score \t" << ScoresForPlayer1[3] << "\t" << ScoresForPlayer2[3] << endl;
+    cerr << "StackHeightScore Score \t" << ScoresForPlayer1[4] << "\t" << ScoresForPlayer2[4] << endl;
+    cerr << "InfluenceScore Score \t" << ScoresForPlayer1[5] << "\t" << ScoresForPlayer2[5] << endl;
+    cerr << "GroupSizeScore Score \t" << ScoresForPlayer1[6] << "\t" << ScoresForPlayer2[6] << endl;
+    
+}
 
 class GameManager{
     public :
     Game* myGame;
     MiniMaxAgent * player1;
     MiniMaxAgent * player2;
+    
     int DepthBlack = 3;
     int DepthWhite = 3;
-    GameManager(){
-        int Scores[10];
+    GameManager(double ScoresForPlayer1[],int depthwhite, double ScoresForPlayer2[],int depthblack){
+        double Scores[10];
         myGame = new Game(5,2,Scores);
-        int ScoresForPlayer1[] = {6,1,2,2,2,3,0};
-        int ScoresForPlayer2[] = {7,1,2,1,2,3,0};
+
+        PrintScores(ScoresForPlayer1, ScoresForPlayer2);
+
         int n = 5;
         int t = 120;
         int p = 1;
-        DepthBlack = 2;
-        DepthWhite = 2;
+        DepthBlack = depthblack;
+        DepthWhite = depthwhite;
         player1 = new MiniMaxAgent(p, n, t, ScoresForPlayer1, DepthWhite);
         player2 = new MiniMaxAgent(p+1, n, t, ScoresForPlayer2, DepthBlack);
     }
     
-    void Play(){
+    int Play(){
         string move;
         move = player1->GiveFirstMove();
         myGame->applyMove(myGame->makeMove(move,true));
@@ -116,7 +141,7 @@ class GameManager{
         int moves = 2;
         bool currentPlayer = 1;
         int r;
-        while (true){
+        while (moves < 200){
             moves ++;
             if (currentPlayer) {
                 move = player1->PlayMove();
@@ -134,27 +159,77 @@ class GameManager{
                 printGameState(*myGame);
                 switch(r){
                     case 0:
+                        cout << "Black Wins (Depth = "  << DepthBlack;
                         cerr << "Black Wins (Depth = "  << DepthBlack;
                         break;
                     case 1:
+                        cout << "White Wins (Depth = " << DepthWhite;
                         cerr << "White Wins (Depth = " << DepthWhite;
                         break;
                     case 2:
+                        cout << "Both Win (DepthWhite = "  << DepthWhite << " DepthBlack = "<< DepthBlack;
                         cerr << "Both Win (DepthWhite = "  << DepthWhite << " DepthBlack = "<< DepthBlack;
+                    return r;
                 }
+                cout << ") in Total Moves : " << moves << endl;
                 cerr << ") in Total Moves : " << moves << endl;
-                break;
+                switch(r){
+                    case 0:
+                        return -moves;
+                    case 1:
+                        return moves;
+                    default :
+                        return 0;
+                }
             }
             currentPlayer ^= 1;
         }
+        return 0;
     }
 };
+
+
+void doReinforcementLearning( int trials){
+    double ScoresForPlayer2[] = {10,10,10,10,10,10,10};
+    double ScoresForPlayer1[] = {1,1,1,1,1,1,1};
+    int DepthWhite = 2;
+    int DepthBlack = 3;
+    double* Win;
+    double* Lose;
+    double LearningRate;
+    for (int i =0 ; i < trials; i++){
+        GameManager Player(ScoresForPlayer1,DepthWhite, ScoresForPlayer2, DepthBlack);
+        int ret = Player.Play();
+        if ( ret < 0){
+            LearningRate = 1.0/ret;
+            LearningRate = -LearningRate;
+            Win = ScoresForPlayer2;
+            Lose = ScoresForPlayer1;
+        }
+        else if ( ret > 0){
+            LearningRate = 1.0/ret;
+            Win = ScoresForPlayer2;
+            Lose = ScoresForPlayer1;
+        }
+        else{
+            return;
+        }
+        for (int j =0 ;j < 7;j++){
+            double grad = (Win[j] - Lose[j])*LearningRate + LearningRate;
+            Win[j] += grad;
+            Lose[j] -= grad;
+            Win[j] =  max(0.0,min(10.0,Win[j]));
+            Lose[j] = max(0.0,min(10.0,Lose[j]));
+        }
+    }
+    PrintScores(ScoresForPlayer1, ScoresForPlayer2);
+}
 
 int main(){
     
     Slides = GenerateAllSlides(5);
-    GameManager Player;
-    Player.Play();
+    doReinforcementLearning(2);
+
 //    Game myGame(5, 2);
 //    myGame.applyMove(myGame.makeMove("Fe4",true));
 //    myGame.applyMove(myGame.makeMove("Fe1",true));
@@ -251,7 +326,7 @@ int main(){
 //    int StackHeightScore = 2;
 //    int InfluenceScore = 3;
 //    int GroupSizeScore = 0;
-//    int Scores[] = {6,1,2,2,2,3,0};
+//    double Scores[] = {6,1,2,2,2,3,0};
 //    int MaxDepth = 5;
 //    int p, n, t;
 //    cin >> p >> n >> t;

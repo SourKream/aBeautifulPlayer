@@ -18,7 +18,7 @@ struct MiniMaxAgent{
     int timeLimit;
     int MaxDepth = 4;
     
-    MiniMaxAgent (int playerNum, int n, int t,int Scores [], int maxDepth){
+    MiniMaxAgent (int playerNum, int n, int t,double Scores [], int maxDepth){
         myPlayerNumber = playerNum;
         myPlayer = "Black";
         if (playerNum == 1)
