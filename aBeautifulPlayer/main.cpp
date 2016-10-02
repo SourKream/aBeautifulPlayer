@@ -192,6 +192,10 @@ class GameManager{
 void doReinforcementLearning( int trials){
     double ScoresForPlayer2[] = {10,10,10,10,10,10,10};
     double ScoresForPlayer1[] = {1,1,1,1,1,1,1};
+    for (int i =0 ; i < 7; i++){
+        ScoresForPlayer1[i] = rand()%11;
+        ScoresForPlayer2[i] = rand()%11;
+    }
     int DepthWhite = 2;
     int DepthBlack = 3;
     double* Win;
@@ -233,7 +237,7 @@ void doReinforcementLearning( int trials){
 }
 
 int main(){
-    
+     srand(time(NULL));
     Slides = GenerateAllSlides(5);
     doReinforcementLearning(2);
 
@@ -325,7 +329,7 @@ int main(){
     //    player.myGame = &myGame;
     //    cout << "My Move : " << player.getMiniMaxMove() << endl;
     
-   // srand(time(NULL));
+   //
     //    int FlatScore = 6;
 //    int StandingStoneScore = 1;
 //    int CapStoneScore = 2;
