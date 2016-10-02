@@ -116,13 +116,13 @@ class GameManager{
     vector<vector<double>> Player1AverageScores;//(2,vector<double>(7));
     vector<vector<double>> Player2AverageScores;//(2,vector<double>(7));
     
-    int DepthBlack = 3;
-    int DepthWhite = 3;
+    int DepthBlack = 4;
+    int DepthWhite = 4;
     GameManager(double ScoresForPlayer1[],int depthwhite, double ScoresForPlayer2[],int depthblack){
         double Scores[10];
         myGame = new Game(5,2,Scores);
         int n = 5;
-        int t = 120;
+        int t = 1200;
         int p = 1;
         Player1AverageScores.resize(2,vector<double>(7,0));
         Player2AverageScores.resize(2,vector<double>(7,0));
@@ -213,7 +213,7 @@ class GameManager{
 };
 
 
-void doReinforcementLearning( int trials,     double ScoresForPlayer1[] ,  double ScoresForPlayer2[] ){
+void doReinforcementLearning( int trials,     double ScoresForPlayer1[] ,  double ScoresForPlayer2[] , bool Randomize = false){
     
     
     //    double FlatScore = 6;
@@ -231,15 +231,16 @@ void doReinforcementLearning( int trials,     double ScoresForPlayer1[] ,  doubl
         //ScoresForPlayer2[i] = rand()%11;
         Initial2[i] = ScoresForPlayer2[i];
     }
-    
-//    for (int i =0 ; i < 7; i++){
-//        ScoresForPlayer1[i] = rand()%11;
-//        Initial1[i] = ScoresForPlayer1[i];
-//        ScoresForPlayer2[i] = rand()%11;
-//        Initial2[i] = ScoresForPlayer2[i];
-//    }
-    int DepthWhite = 3;
-    int DepthBlack = 3;
+    if (Randomize){
+        for (int i =0 ; i < 7; i++){
+            ScoresForPlayer1[i] = rand()%11;
+            Initial1[i] = ScoresForPlayer1[i];
+            ScoresForPlayer2[i] = rand()%11;
+            Initial2[i] = ScoresForPlayer2[i];
+        }
+    }
+    int DepthWhite = 4;
+    int DepthBlack = 4;
     double* Win;
     double* Lose;
     int* WinAnalysis;
@@ -251,6 +252,7 @@ void doReinforcementLearning( int trials,     double ScoresForPlayer1[] ,  doubl
     for (int i =0 ; i < trials; i++){
             double LearningRate = 5.0;
         cout << endl << "Iteration " << i + 1 << endl;
+        cerr << endl << "Iteration " << i + 1 << endl;
         PrintScores(ScoresForPlayer1, ScoresForPlayer2);
         GameManager Player(ScoresForPlayer1,DepthWhite, ScoresForPlayer2, DepthBlack);
         int ret = Player.Play();
@@ -372,26 +374,26 @@ int main(int argc, char** argv){
     //doReinforcementLearning(stoi(argv[1]));
     double WhiteScores[] = {6.95617, 7.00008, 5.747, 4.02971, 5.37742, 0.603293, 8.73715};
     double BlackScores[] = {10.9397, 4.44211 , 5.33239 ,4.93971 ,8.9536 ,2.06173,5.96226};
-    // doReinforcementLearning(6,WhiteScores,BlackScores);
+     doReinforcementLearning(40,WhiteScores,BlackScores);
 
-    int MaxDepth = 5;
-    int p, n;
-    double t;
-    cin >> p >> n >> t;
-    timeval currenttime;
-    gettimeofday(&currenttime, NULL);
-    if ( p == 1){
-        MiniMaxAgent player3(p, n, t,WhiteScores, MaxDepth, &currenttime);
-        cerr << "MiniMax Player With Bits" << endl;
-        player3.playFirstMove();
-        player3.play();
-    }
-    else{
-        MiniMaxAgent player3(p, n, t,BlackScores, MaxDepth, &currenttime);
-        cerr << "MiniMax Player With Bits" << endl;
-        player3.playFirstMove();
-        player3.play();
-    }
+//    int MaxDepth = 5;
+//    int p, n;
+//    double t;
+//    cin >> p >> n >> t;
+//    timeval currenttime;
+//    gettimeofday(&currenttime, NULL);
+//    if ( p == 1){
+//        MiniMaxAgent player3(p, n, t,WhiteScores, MaxDepth, &currenttime);
+//        cerr << "MiniMax Player With Bits" << endl;
+//        player3.playFirstMove();
+//        player3.play();
+//    }
+//    else{
+//        MiniMaxAgent player3(p, n, t,BlackScores, MaxDepth, &currenttime);
+//        cerr << "MiniMax Player With Bits" << endl;
+//        player3.playFirstMove();
+//        player3.play();
+//    }
     
     return 0;
 }

@@ -150,7 +150,7 @@ struct MiniMaxAgent{
         int maxStateValue = -INF;
         int alpha = -INF, beta = INF;
         Move bestMove;
-        cerr << "Minimax with Depth " << maxDepth << " At Move number" << moves << endl;
+        //cerr << "Minimax with Depth " << maxDepth << " At Move number" << moves << endl;
         for (int i=0; i<allMoves.size(); i++){
             Game nextState = *myGame;
             nextState.applyMove(allMoves[i]);
