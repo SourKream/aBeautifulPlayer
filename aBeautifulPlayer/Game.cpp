@@ -9,10 +9,12 @@
 #include <string.h>
 #include <iostream>
 #include <vector>
+
 #define BLACK 0
 #define WHITE 1
 #define MAX_SIZE 7
 #define MAX_SIZE_SQUARE MAX_SIZE*MAX_SIZE
+
 using namespace std;
 typedef unsigned long long uint64;
 
@@ -23,7 +25,6 @@ enum MoveType { Place = 0,
     SlideDown,
     SlideLeft,
     SlideRight
-    
 };
 
 
@@ -143,6 +144,7 @@ class Game{
     
     bool currentPlayer = 1;
     bool myPlayerNumber;
+
     
     Game(int BoardSize, int playerNumber){
         WhitePieces = 0;
@@ -186,6 +188,20 @@ class Game{
         memcpy(capstones, current.capstones, 2*sizeof(short int));
     }
     
+    inline int Popcount( unsigned long long x) {
+        // bit population count, see
+        // http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
+        if (x == 0) {
+            return 0;
+        }
+        x -= (x >> 1) & 0x5555555555555555;
+        x = ((x>>2)&0x3333333333333333 )+ (x&0x3333333333333333);
+        x += x >> 4;
+        x &= 0x0F0F0F0F0F0F0F0F;
+        x *= 0x0101010101010101;
+        return (x >> 56);
+    }
+    
     void printGameState(){
         for (int r=gameConfig->BoardSize-1; r>-1; r--){
             for (int c=0; c<gameConfig->BoardSize; c++){
@@ -226,7 +242,7 @@ class Game{
         }
     }
     
-    uint64 Expand(uint64 current, uint64 mask){
+    inline uint64 Expand(uint64 current, uint64 mask){
         uint64 next = current;
         do {
             current = next;
@@ -384,27 +400,27 @@ class Game{
             return move;
         }
         else{
-        
-        string move;
-        move = (moveIn.Drops[moveIn.dropLength]+'0');
-        move += (moveIn.column + 'a');
-        move += (moveIn.row + '1');
-        if (moveIn.Movetype == SlideUp)
-            move += '+';
-        else if ( moveIn.Movetype == SlideDown)
-             move += '-';
-        else if (moveIn.Movetype == SlideRight)
-            move += '>';
-        else if (moveIn.Movetype == SlideLeft)
-            move += '<';
-        else{
-            cerr << "SOMETHING HAPPENED" << endl;
-            exit(0);
-        }
-        for (int i=0; i<moveIn.dropLength; i++)
-            move += (moveIn.Drops[i] + '0');
-        
-        return move;
+            
+            string move;
+            move = (moveIn.Drops[moveIn.dropLength]+'0');
+            move += (moveIn.column + 'a');
+            move += (moveIn.row + '1');
+            if (moveIn.Movetype == SlideUp)
+                move += '+';
+            else if ( moveIn.Movetype == SlideDown)
+                move += '-';
+            else if (moveIn.Movetype == SlideRight)
+                move += '>';
+            else if (moveIn.Movetype == SlideLeft)
+                move += '<';
+            else{
+                cerr << "SOMETHING HAPPENED" << endl;
+                exit(0);
+            }
+            for (int i=0; i<moveIn.dropLength; i++)
+                move += (moveIn.Drops[i] + '0');
+            
+            return move;
         }
     }
     
@@ -413,9 +429,9 @@ class Game{
         int c = move.column;
         int i = r * gameConfig->BoardSize + c;
         uint64 pickupStack = Stacks[i];
-
+        
         int numPieces = move.Drops[move.dropLength];
-
+        
         
         if (numPieces == Heights[i]){
             WhitePieces &= ~(1ULL << i);
@@ -433,8 +449,8 @@ class Game{
         Stacks[i] >>= numPieces;
         Heights[i] -= numPieces;
         
-
-
+        
+        
         int dr = 0;
         int dc = 0;
         if (move.Movetype == SlideUp)
@@ -449,7 +465,7 @@ class Game{
             cerr << "SOMETHING HAPPENED 2" << endl;
             exit(0);
         }
-
+        
         int j = 0;
         int piecesToDropHere = 0;
         while (numPieces>0){
@@ -575,15 +591,15 @@ class Game{
             if (flats[currentPlayer]>0){
                 move.piece.type = FlatStone;
                 allMoves[K++] = move;
-               // allMoves.push_back(move);
+                // allMoves.push_back(move);
                 move.piece.type = StandingStone;
                 allMoves[K++] = move;
-               // allMoves.push_back(move);
+                // allMoves.push_back(move);
             }
             if (capstones[currentPlayer]>0){
                 move.piece.type = Capstone;
                 allMoves[K++] = move;
-               // allMoves.push_back(move);
+                // allMoves.push_back(move);
             }
             emptyPositions = bits;
         }
@@ -607,8 +623,8 @@ class Game{
                         move.dropLength = u;
                         move.Movetype = (MoveType)(1+dir);
                         memcpy(&move.Drops[0],&Slides[u][t][0], 8*sizeof(short) );
-                       // move.Drops = &Slides[u][t][0];
-                       // allMoves.push_back(move);
+                        // move.Drops = &Slides[u][t][0];
+                        // allMoves.push_back(move);
                         allMoves[K++] = move;
                     }
                 }
@@ -635,10 +651,10 @@ class Game{
                     case 1 : final_position = ((bit_set >> gameConfig->BoardSize * u) & Standing);
                         break;
                     case 2 : if (u<move.column)
-                                final_position = ((bit_set >> u) & Standing);
+                        final_position = ((bit_set >> u) & Standing);
                         break;
                     case 3 : if (u<gameConfig->BoardSize-move.column-1)
-                                final_position = ((bit_set << u) & Standing);
+                        final_position = ((bit_set << u) & Standing);
                         break;
                 }
                 
@@ -652,7 +668,7 @@ class Game{
                         move.dropLength = u;
                         move.Movetype = (MoveType)(1+dir);
                         memcpy(&move.Drops[0],&Slides[u][t][0], 8*sizeof(short) );
-                       // allMoves.push_back(move);
+                        // allMoves.push_back(move);
                         allMoves[K++] = move;
                     }
                 }
@@ -660,7 +676,7 @@ class Game{
             }
             filledPieces &= (filledPieces-1);
         }
-
+        
         
         return {allMoves.begin(),allMoves.begin() + K};
     }
@@ -671,10 +687,13 @@ class Game{
         piece.color = (Color)(!currentPlayer);
         piece.type = FlatStone;
         uint64 emptyPositions = ((~(WhitePieces | BlackPieces))&gameConfig->BoardMask);
+        uint64 mask = (1ULL) | (1ULL << (gameConfig->BoardSize -1)) | (1ULL << (gameConfig->BoardSize*(gameConfig->BoardSize -1))) | (1ULL << (gameConfig->BoardSize*(gameConfig->BoardSize) -1));
+        cerr << bitset<25> (mask) << endl;
+        emptyPositions &= mask;
         uint64 bits = 0;
         uint64 bit_set = 0;
         int i = 0;
-
+        
         while (emptyPositions != 0){
             bits = emptyPositions & (emptyPositions -1);
             bit_set = emptyPositions & ~bits;
@@ -683,7 +702,7 @@ class Game{
             moves.push_back(move);
             emptyPositions = bits;
         }
-
+        
         return moves;
     }
     
@@ -694,10 +713,10 @@ class Game{
         int winner = checkIfRoadExists();
         if (winner!=-1)
             return winner;
-
+        
         if ((flats[0]==0)||(flats[1]==0)){
-            int whiteFlats = __builtin_popcount(WhitePieces & ~(Standing | CapStones));
-            int blackFlats = __builtin_popcount(BlackPieces & ~(Standing | CapStones));
+            int whiteFlats = Popcount(WhitePieces & ~(Standing | CapStones));
+            int blackFlats = Popcount(BlackPieces & ~(Standing | CapStones));
             
             if (blackFlats > whiteFlats)
                 return 0;
@@ -711,19 +730,59 @@ class Game{
     }
     
     int getStateValue(){
+        int FlatScore = 6;
+        int StandingStoneScore = 2;
+        int CapStoneScore = 2;
+        int CenterScore = 2;
+        int StackHeightScore = 3;
+        int GroupSizeScore = 3;
         int winner = checkIfRoadExists();
         if (winner != -1){
             if (winner == myPlayerNumber)
-                return 100;
-            return -100;
+                return 1000;
+            return -1000;
+        }
+        //Normal Scores
+        int score = Popcount(WhitePieces & ~(Standing|CapStones))*FlatScore;
+        score -= Popcount(BlackPieces & ~(Standing|CapStones))*FlatScore;
+        score += Popcount(WhitePieces & (CapStones))*CapStoneScore;
+        score -= Popcount(BlackPieces & (CapStones))*CapStoneScore;
+        score += Popcount(WhitePieces & (Standing))*StandingStoneScore;
+        score -= Popcount(BlackPieces & (Standing))*StandingStoneScore;
+        score += Popcount(WhitePieces & ~(gameConfig->Edge))*CenterScore;
+        score -= Popcount(BlackPieces & ~(gameConfig->Edge))*CenterScore;
+        
+        uint64 filledPieces = WhitePieces;
+        uint64 bit_set;
+        // Captured Stack Scores
+        short i;
+        while (filledPieces != 0){
+            bit_set = filledPieces & ~(filledPieces & (filledPieces -1));
+            i = __builtin_ctzl(bit_set);
+            score += Heights[i]*StackHeightScore;
+            filledPieces = filledPieces & (filledPieces -1);
         }
         
-        int whiteFlats = __builtin_popcount(WhitePieces & ~(Standing));
-        int blackFlats = __builtin_popcount(BlackPieces & ~(Standing));
+        filledPieces = BlackPieces;
+            
+        while (filledPieces != 0){
+            bit_set = filledPieces & ~(filledPieces & (filledPieces -1));
+            i = __builtin_ctzl(bit_set);
+            score -= Heights[i]*StackHeightScore;
+            filledPieces = filledPieces & (filledPieces -1);
+        }
         
-        int score = whiteFlats - flats[1] - blackFlats + flats[0];
+        // Group Connected Component Scores
+        for (i =0 ; i < size_cw ; i++){
+            score += Popcount(WhiteComponents[i])*GroupSizeScore;
+        }
+        
+        for (i =0 ; i < size_cb ; i++){
+            score -= Popcount(BlackComponents[i])*GroupSizeScore;
+        }
+
         return (myPlayerNumber==1)?score:-score;
         
     }
-
+    
 };

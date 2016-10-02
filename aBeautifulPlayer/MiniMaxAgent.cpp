@@ -29,7 +29,7 @@ struct MiniMaxAgent{
     void playFirstMove(){
         string moveString;
         Move move;
-
+        
         if (myPlayerNumber == 2){
             cin >> moveString;
             myGame->applyMove(myGame->makeMove(moveString, true));
@@ -37,7 +37,7 @@ struct MiniMaxAgent{
             vector<Move> allMoves = myGame->generateFirstMove();
             move = allMoves[rand()%allMoves.size()];
             moveString = myGame->getMoveString(move);
-
+            
             myGame->applyMove(move);
             cerr << "My Move : " << moveString << endl;
             cout << moveString << endl;
@@ -49,7 +49,7 @@ struct MiniMaxAgent{
             vector<Move> allMoves = myGame->generateFirstMove();
             move = allMoves[rand()%allMoves.size()];
             moveString = myGame->getMoveString(move);
-
+            
             myGame->applyMove(move);
             cerr << "My Move : " << moveString << endl;
             cout << moveString << endl;
@@ -108,7 +108,7 @@ struct MiniMaxAgent{
     
     int MiniMaxSearch (Game &gameState, bool maximize, int depth, int alpha, int beta){
         //cout << depth<< endl;
-
+        
         int winner = gameState.isFinishState();
         if ((winner!=-1)||(depth>maxDepth))
             return gameState.getStateValue();
