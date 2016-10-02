@@ -196,20 +196,26 @@ void doReinforcementLearning( int trials){
     int DepthBlack = 3;
     double* Win;
     double* Lose;
+    int BlackWins = 0;
+    int WhiteWins = 0;
     double LearningRate;
     for (int i =0 ; i < trials; i++){
+        cout << "Iteration " << i + 1 << endl;
+        
         GameManager Player(ScoresForPlayer1,DepthWhite, ScoresForPlayer2, DepthBlack);
         int ret = Player.Play();
         if ( ret < 0){
+            BlackWins++;
             LearningRate = 1.0/ret;
             LearningRate = -LearningRate;
             Win = ScoresForPlayer2;
             Lose = ScoresForPlayer1;
         }
         else if ( ret > 0){
+            WhiteWins++;
             LearningRate = 1.0/ret;
-            Win = ScoresForPlayer2;
-            Lose = ScoresForPlayer1;
+            Win = ScoresForPlayer1;
+            Lose = ScoresForPlayer2;
         }
         else{
             return;
@@ -217,11 +223,12 @@ void doReinforcementLearning( int trials){
         for (int j =0 ;j < 7;j++){
             double grad = (Win[j] - Lose[j])*LearningRate + LearningRate;
             Win[j] += grad;
-            Lose[j] -= grad;
+            Lose[j] += grad;
             Win[j] =  max(0.0,min(10.0,Win[j]));
             Lose[j] = max(0.0,min(10.0,Lose[j]));
         }
     }
+    cout << "Black Wins " << BlackWins << " White Wins " << WhiteWins << endl;
     PrintScores(ScoresForPlayer1, ScoresForPlayer2);
 }
 
