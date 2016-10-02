@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include "Game.cpp"
 
+#define INF 5000
+
 struct MiniMaxAgent{
     
     Game* myGame;
@@ -16,16 +18,16 @@ struct MiniMaxAgent{
     string myPlayer;
     int boardSize;
     int timeLimit;
-    int MaxDepth = 4;
+    int maxDepth = 4;
     
-    MiniMaxAgent (int playerNum, int n, int t,double Scores [], int maxDepth){
+    MiniMaxAgent (int playerNum, int n, int t,double Scores [], int MaxDepthIn){
         myPlayerNumber = playerNum;
         myPlayer = "Black";
         if (playerNum == 1)
             myPlayer = "White";
         boardSize = n;
         timeLimit = t;
-        MaxDepth = maxDepth;
+        maxDepth = MaxDepthIn;
         myGame = new Game(boardSize, myPlayerNumber,Scores);
     }
     
@@ -110,8 +112,8 @@ struct MiniMaxAgent{
     string getMiniMaxMove(){
         
         vector<Move> allMoves = myGame->generateAllMoves();
-        int maxStateValue = -2000;
-        int alpha = -2000, beta = 2000;
+        int maxStateValue = -INF;
+        int alpha = -INF, beta = INF;
         Move bestMove;
         
         for (int i=0; i<allMoves.size(); i++){
@@ -137,16 +139,14 @@ struct MiniMaxAgent{
         //cout << depth<< endl;
         
         int winner = gameState.isFinishState();
-        if ((winner!=-1)||(depth>MaxDepth))
+        if ((winner!=-1)||(depth>maxDepth))
             return gameState.getStateValue();
         
         vector<Move> allMoves = gameState.generateAllMoves();
         // cout << allMoves.size() << endl;
-        int bestValue = 0;
+        int bestValue = INF;
         if (maximize)
-            bestValue = -2000;
-        else
-            bestValue = 2000;
+            bestValue = -INF;
         
         for (int i=0; i<allMoves.size(); i++){
             Game nextState(gameState);

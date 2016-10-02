@@ -274,101 +274,52 @@ void doReinforcementLearning( int trials){
 }
 
 int main(int argc, char** argv){
-    srand(time(NULL));
-    
+
+    srand(time(NULL));    
     Slides = GenerateAllSlides(5);
     //doReinforcementLearning(stoi(argv[1]));
-    doReinforcementLearning(20);
+//    doReinforcementLearning(20);
+
 //    Game myGame(5, 2);
-//    myGame.applyMove(myGame.makeMove("Fe4",true));
-//    myGame.applyMove(myGame.makeMove("Fe1",true));
-//    myGame.applyMove(myGame.makeMove("Fd4"));
-//    
-//    myGame.applyMove(myGame.makeMove("Fb2"));
-//    myGame.applyMove(myGame.makeMove("Fb1"));
-//    myGame.applyMove(myGame.makeMove("Fa2"));
-//    myGame.applyMove(myGame.makeMove("Fd2"));
-//    myGame.applyMove(myGame.makeMove("Fc2"));
-//    myGame.applyMove(myGame.makeMove("Cd1"));
+//    myGame.applyMove(myGame.makeMove("Fc2",true));
+//    myGame.applyMove(myGame.makeMove("Fd2",true));
 //    myGame.applyMove(myGame.makeMove("Fa1"));
 //    myGame.applyMove(myGame.makeMove("Fb1"));
+//    myGame.applyMove(myGame.makeMove("Fc1"));
+//    myGame.applyMove(myGame.makeMove("Fd1"));
+//    myGame.applyMove(myGame.makeMove("Fe1"));
+//    myGame.applyMove(myGame.makeMove("Fa2"));
+//    myGame.applyMove(myGame.makeMove("Fb2"));
+//    myGame.applyMove(myGame.makeMove("Fc2"));
+//    myGame.applyMove(myGame.makeMove("Fd2"));
+//    myGame.applyMove(myGame.makeMove("Fe2"));
+//    myGame.applyMove(myGame.makeMove("Fa3"));
+//    myGame.applyMove(myGame.makeMove("Fb3"));
+//    myGame.applyMove(myGame.makeMove("Fc3"));
+//    myGame.applyMove(myGame.makeMove("Fd3"));
+//    myGame.applyMove(myGame.makeMove("Fe3"));
+//    myGame.applyMove(myGame.makeMove("Fa4"));
+//    myGame.applyMove(myGame.makeMove("Fb4"));
+//    myGame.applyMove(myGame.makeMove("Fc4"));
+//    myGame.applyMove(myGame.makeMove("Fd4"));
+//    myGame.applyMove(myGame.makeMove("Fe4"));
+//    myGame.applyMove(myGame.makeMove("Fa5"));
+//    myGame.applyMove(myGame.makeMove("Fb5"));
+//    myGame.applyMove(myGame.makeMove("Fc5"));
+//    myGame.applyMove(myGame.makeMove("Fd5"));
+//    myGame.applyMove(myGame.makeMove("Fe5"));
+//    myGame.applyMove(myGame.makeMove("1b1+1"));
+//    myGame.applyMove(myGame.makeMove("1d2<1"));
+//
 
-    //    myGame.applyMove(myGame.makeMove("Fd3"));
-    //    myGame.applyMove(myGame.makeMove("Fe3"));
-    //    myGame.applyMove(myGame.makeMove("Fa4"));
-    //    myGame.applyMove(myGame.makeMove("Fb4"));
-    //    myGame.applyMove(myGame.makeMove("Fc4"));
-    //    myGame.applyMove(myGame.makeMove("Fd4"));
-    //    myGame.applyMove(myGame.makeMove("Fe4"));
-    //    myGame.applyMove(myGame.makeMove("Fa5"));
-    //
-    //    myGame.applyMove(myGame.makeMove("Fb5"));
-    //    myGame.applyMove(myGame.makeMove("Fc5"));
-    //    myGame.applyMove(myGame.makeMove("Fd5"));
-    //    myGame.applyMove(myGame.makeMove("Fe5"));
-    //    myGame.applyMove(myGame.makeMove("1b1+1"));
-    //    myGame.applyMove(myGame.makeMove("1d2<1"));
-    //
-//    printGameState(myGame);
-    //    Game State Test
-    //    myGame.printState(myGame.WhitePieces);
-    //    cout << endl;
-    //    myGame.printState(myGame.BlackPieces);
-    //    cout << endl;
-    //    myGame.printState(myGame.CapStones);
-    //    cout << endl;
-    //    myGame.printState(myGame.Standing);
-    //    cout << endl;
-    //
-    //    myGame.FindComponents();
-    //
-    
-    //    vector<Move> allMoves = myGame.generateAllMoves();
-    //    allMoves.size();
+//    vector<Move> allMoves = myGame.generateAllMoves();
+//    allMoves.size();
+
 //    MiniMaxAgent player(2,5,150);
 //    player.myGame = &myGame;
 //    cout << "My Move : " << player.getMiniMaxMove() << endl;
     
-    //    Move x = myGame.makeMove("1b1+1");
-    //        printGameState(myGame);
-    //        cerr << endl;
-    //    myGame.applyMove(x);
-    //    printGameState(myGame);
-    //    cerr << endl;
-    
-    //    myGame.applyMove(myGame.makeMove("1a1+1"));
-    //    myGame.applyMove(myGame.makeMove("1d1+1"));
-    //    myGame.applyMove(myGame.makeMove("1c1+1"));
-    //    myGame.applyMove(myGame.makeMove("1e2+1"));
-    //    myGame.applyMove(myGame.makeMove("1a3+1"));
-    //    myGame.applyMove(myGame.makeMove("1e4+1"));
-    //    myGame.applyMove(myGame.makeMove("Fd5"));
-    //    myGame.applyMove(myGame.makeMove("Fd4"));
-    //    myGame.applyMove(myGame.makeMove("Fe5"));
-    
-    //    printGameState(myGame);
-    //    myGame.FindComponents();
-    //    cout <<  myGame.checkIfRoadExists() << endl;
-    //    auto X = myGame.;
-    //    Game State Test
-    //    myGame.printState(myGame.WhitePieces);
-    //    cout << endl;
-    //    myGame.printState(myGame.BlackPieces);
-    //    cout << endl;
-    //    myGame.printState(myGame.CapStones);
-    //    cout << endl;
-    //    myGame.printState(myGame.Standing);
-    //    cout << endl;
-    //
-    //    myGame.FindComponents();
-    //
-    //
-    //    MiniMaxAgent player(1,5,200);
-    //    player.myGame = &myGame;
-    //    cout << "My Move : " << player.getMiniMaxMove() << endl;
-    
-   //
-    //    int FlatScore = 6;
+//    int FlatScore = 6;
 //    int StandingStoneScore = 1;
 //    int CapStoneScore = 2;
 //    int CenterScore = 2;
@@ -383,6 +334,16 @@ int main(int argc, char** argv){
 //    cerr << "MiniMax Player With Bits" << endl;
 //    player3.playFirstMove();
 //    player3.play();
+
+    double Scores[] = {6,1,2,2,2,3,0};
+    int MaxDepth = 5;
+
+    int p, n, t;
+    cin >> p >> n >> t;
+    MiniMaxAgent player3(p, n, t,Scores, MaxDepth);
+    cerr << "MiniMax Player With Bits" << endl;
+    player3.playFirstMove();
+    player3.play();
     
     return 0;
 }
