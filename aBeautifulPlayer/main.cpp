@@ -27,6 +27,20 @@ void printGameState(Game g){
     }
 }
 
+void printState(uint64 X){
+    for (int i = 4 ; i >=0  ; i--){
+        for (int j = 0 ; j < 5; j++){
+            int r = i*5 + j;
+            if (X & ( 1ULL << r))
+                cerr << "1 ";
+            else
+                cerr << "0 ";
+            
+        }
+        cerr << endl;
+    }
+}
+
 vector<vector<short> > getSplits (short num){
     vector<vector<short> > splits;
     
@@ -67,9 +81,12 @@ vector<vector<vector<short> > > GenerateAllSlides(short K) {
     return slides1;
 }
 
+
+
 vector<vector<vector<short> > > Slides;
 
 int main(){
+    
     Slides = GenerateAllSlides(5);
     
 //    Game myGame(5, 2);
@@ -160,7 +177,7 @@ int main(){
     //    player.myGame = &myGame;
     //    cout << "My Move : " << player.getMiniMaxMove() << endl;
     
-    srand(time(NULL));
+   // srand(time(NULL));
     int p, n, t;
     cin >> p >> n >> t;
     MiniMaxAgent player3(p, n, t);

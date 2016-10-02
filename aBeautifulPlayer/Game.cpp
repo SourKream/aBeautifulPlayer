@@ -27,7 +27,6 @@ enum MoveType { Place = 0,
     SlideRight
 };
 
-
 enum PieceType {    FlatStone = 0,
     StandingStone,
     Capstone
@@ -69,7 +68,6 @@ class Move{
     }
 };
 
-
 class Config{
     public :
     int BoardSize;
@@ -82,6 +80,22 @@ class Config{
     uint64 Bottom;
     uint64 Edge;
     uint64 BoardMask;
+    uint64 InfluenceMasks[MAX_SIZE_SQUARE];
+    
+    inline uint64 Expand(uint64 current){
+        uint64 next = current;
+        for (int i = 0 ; i < 2; i ++){
+            current = next;
+            next |= (current << 1) & ~(Left);
+            next |= (current >> 1) & ~(Right);
+            next |= (current >> BoardSize);
+            next |= (current << BoardSize);
+            next ^= current;
+        }
+        next &= BoardMask;
+        return next;
+    }
+    
     
     Config(int boardSize){
         BoardSize = boardSize;
@@ -120,6 +134,8 @@ class Config{
         
         BoardMask = (1ULL << (BoardSize*BoardSize)) - 1;
         
+        for (int i = 0 ; i < BoardSize; i++)
+            InfluenceMasks[i] = Expand(1ULL << i);
     }
 };
 
@@ -145,7 +161,6 @@ class Game{
     bool currentPlayer = 1;
     bool myPlayerNumber;
 
-    
     Game(int BoardSize, int playerNumber){
         WhitePieces = 0;
         BlackPieces = 0;
@@ -217,127 +232,7 @@ class Game{
         }
     }
     
-    void PlaceMove(Move move){
-        int i = move.row*gameConfig->BoardSize + move.column;
-        Heights[i] += 1;
-        Stacks[i] <<=1;
-        switch (move.piece.color){
-            case Black :
-                BlackPieces |= (1ULL << i);
-                break;
-            case White :
-                WhitePieces |= (1ULL << i);
-                Stacks[i] |= 1;
-                break;
-        }
-        switch (move.piece.type) {
-            case Capstone :
-                CapStones |= (1ULL << i);
-                break;
-            case StandingStone :
-                Standing |= (1ULL << i);
-                break;
-            case FlatStone :
-                break;
-        }
-    }
-    
-    inline uint64 Expand(uint64 current, uint64 mask){
-        uint64 next = current;
-        do {
-            current = next;
-            next |= (current << 1) & ~(gameConfig->Left);
-            next |= (current >> 1) & ~(gameConfig->Right);
-            next |= (current >> gameConfig->BoardSize);
-            next |= (current << gameConfig->BoardSize);
-            next &= mask;
-        } while (next !=current);
-        return next;
-    }
-    
-    void FindComponents(){
-        size_cw = 0;
-        uint64 whitePieces = WhitePieces&(~Standing);
-        uint64 seen = 0;
-        uint64 current;
-        uint64 bit;
-        
-        while ( whitePieces){
-            current = whitePieces & (whitePieces-1);
-            bit = whitePieces & ~current;
-            if ( (bit & seen) == 0){
-                uint64 comp = Expand(bit,WhitePieces&(~Standing));
-                if ( comp != bit){
-                    WhiteComponents[size_cw++] = comp;
-                }
-                seen |= comp;
-            }
-            whitePieces = current;
-        }
-        
-        size_cb = 0;
-        uint64 blackPieces = BlackPieces&(~Standing);
-        seen = 0;
-        
-        while ( blackPieces){
-            current = blackPieces & (blackPieces-1);
-            bit = blackPieces & ~current;
-            if ( (bit & seen) == 0){
-                uint64 comp = Expand(bit,BlackPieces&(~Standing));
-                if ( comp != bit){
-                    BlackComponents[size_cb++] = comp;
-                }
-                seen |= comp;
-            }
-            blackPieces = current;
-        }
-        return;
-    }
-    
-    int checkIfRoadExists(){
-        // -1 : False
-        // 0 : Black
-        // 1 : White
-        // 2 : Both
-        bool white = false;
-        
-        for (int i =0 ; i <size_cw; i++){
-            if ( ((WhiteComponents[i] & gameConfig->Left) != 0 && (WhiteComponents[i] & gameConfig->Right) != 0) || ((WhiteComponents[i] & gameConfig->Top) != 0 && (WhiteComponents[i] & gameConfig->Bottom) !=0)){
-                white = true;
-                break;
-            }
-        }
-        
-        bool black = false;
-        for (int i =0 ; i <size_cb; i++){
-            if ( ((BlackComponents[i] & gameConfig->Left) != 0 && (BlackComponents[i] & gameConfig->Right) != 0) || ((BlackComponents[i] & gameConfig->Top) != 0 && (BlackComponents[i] & gameConfig->Bottom) != 0) ){
-                black = true;
-                break;
-            }
-        }
-        if ( black && white)
-            return 2;
-        else if (black)
-            return 0;
-        else if (white)
-            return 1;
-        else
-            return -1;
-    }
-    
-    void printState(uint64 X){
-        for (int i = gameConfig->BoardSize -1 ; i >=0  ; i--){
-            for (int j = 0 ; j < gameConfig->BoardSize; j++){
-                int r = i*gameConfig->BoardSize + j;
-                if (X & ( 1ULL << r))
-                    cerr << "1 ";
-                else
-                    cerr << "0 ";
-                
-            }
-            cerr << endl;
-        }
-    }
+
     
     Move makeMove(string move, bool onOpponent = false){
         
@@ -382,7 +277,6 @@ class Game{
         
         return moveOut;
     }
-    
     
     string getMoveString (Move moveIn){
         if (moveIn.Movetype<1){
@@ -500,6 +394,31 @@ class Game{
         else if ((Standing & (1ULL << i_or)) != 0){
             Standing |= (1ULL << i);
             Standing &= ~(1ULL << i_or);
+        }
+    }
+    
+    void PlaceMove(Move move){
+        int i = move.row*gameConfig->BoardSize + move.column;
+        Heights[i] += 1;
+        Stacks[i] <<=1;
+        switch (move.piece.color){
+            case Black :
+                BlackPieces |= (1ULL << i);
+                break;
+            case White :
+                WhitePieces |= (1ULL << i);
+                Stacks[i] |= 1;
+                break;
+        }
+        switch (move.piece.type) {
+            case Capstone :
+                CapStones |= (1ULL << i);
+                break;
+            case StandingStone :
+                Standing |= (1ULL << i);
+                break;
+            case FlatStone :
+                break;
         }
     }
     
@@ -729,13 +648,97 @@ class Game{
         return -1;
     }
     
+    inline uint64 Expand(uint64 current, uint64 mask){
+        uint64 next = current;
+        do {
+            current = next;
+            next |= (current << 1) & ~(gameConfig->Left);
+            next |= (current >> 1) & ~(gameConfig->Right);
+            next |= (current >> gameConfig->BoardSize);
+            next |= (current << gameConfig->BoardSize);
+            next &= mask;
+        } while (next !=current);
+        return next;
+    }
+    
+    void FindComponents(){
+        size_cw = 0;
+        uint64 whitePieces = WhitePieces&(~Standing);
+        uint64 seen = 0;
+        uint64 current;
+        uint64 bit;
+        
+        while ( whitePieces){
+            current = whitePieces & (whitePieces-1);
+            bit = whitePieces & ~current;
+            if ( (bit & seen) == 0){
+                uint64 comp = Expand(bit,WhitePieces&(~Standing));
+                if ( comp != bit){
+                    WhiteComponents[size_cw++] = comp;
+                }
+                seen |= comp;
+            }
+            whitePieces = current;
+        }
+        
+        size_cb = 0;
+        uint64 blackPieces = BlackPieces&(~Standing);
+        seen = 0;
+        
+        while ( blackPieces){
+            current = blackPieces & (blackPieces-1);
+            bit = blackPieces & ~current;
+            if ( (bit & seen) == 0){
+                uint64 comp = Expand(bit,BlackPieces&(~Standing));
+                if ( comp != bit){
+                    BlackComponents[size_cb++] = comp;
+                }
+                seen |= comp;
+            }
+            blackPieces = current;
+        }
+        return;
+    }
+    
+    int checkIfRoadExists(){
+        // -1 : False
+        // 0 : Black
+        // 1 : White
+        // 2 : Both
+        bool white = false;
+        
+        for (int i =0 ; i <size_cw; i++){
+            if ( ((WhiteComponents[i] & gameConfig->Left) != 0 && (WhiteComponents[i] & gameConfig->Right) != 0) || ((WhiteComponents[i] & gameConfig->Top) != 0 && (WhiteComponents[i] & gameConfig->Bottom) !=0)){
+                white = true;
+                break;
+            }
+        }
+        
+        bool black = false;
+        for (int i =0 ; i <size_cb; i++){
+            if ( ((BlackComponents[i] & gameConfig->Left) != 0 && (BlackComponents[i] & gameConfig->Right) != 0) || ((BlackComponents[i] & gameConfig->Top) != 0 && (BlackComponents[i] & gameConfig->Bottom) != 0) ){
+                black = true;
+                break;
+            }
+        }
+        if ( black && white)
+            return 2;
+        else if (black)
+            return 0;
+        else if (white)
+            return 1;
+        else
+            return -1;
+    }
+    
     int getStateValue(){
         int FlatScore = 6;
-        int StandingStoneScore = 2;
+        int StandingStoneScore = 1;
         int CapStoneScore = 2;
         int CenterScore = 2;
-        int StackHeightScore = 3;
-        int GroupSizeScore = 3;
+        int StackHeightScore = 2;
+        int InfluenceScore = 3;
+        int GroupSizeScore = 0;
         int winner = checkIfRoadExists();
         if (winner != -1){
             if (winner == myPlayerNumber)
@@ -759,7 +762,8 @@ class Game{
         while (filledPieces != 0){
             bit_set = filledPieces & ~(filledPieces & (filledPieces -1));
             i = __builtin_ctzl(bit_set);
-            score += Heights[i]*StackHeightScore;
+            score += (Heights[i] - Popcount(Stacks[i]))*StackHeightScore;
+            score += Popcount(WhitePieces & gameConfig->InfluenceMasks[i])*InfluenceScore;
             filledPieces = filledPieces & (filledPieces -1);
         }
         
@@ -768,18 +772,20 @@ class Game{
         while (filledPieces != 0){
             bit_set = filledPieces & ~(filledPieces & (filledPieces -1));
             i = __builtin_ctzl(bit_set);
-            score -= Heights[i]*StackHeightScore;
+            score -= Popcount(Stacks[i])*StackHeightScore;
+            score -= Popcount(BlackPieces & gameConfig->InfluenceMasks[i])*InfluenceScore;
             filledPieces = filledPieces & (filledPieces -1);
         }
         
-        // Group Connected Component Scores
-        for (i =0 ; i < size_cw ; i++){
-            score += Popcount(WhiteComponents[i])*GroupSizeScore;
-        }
         
-        for (i =0 ; i < size_cb ; i++){
-            score -= Popcount(BlackComponents[i])*GroupSizeScore;
-        }
+//        // Group Connected Component Scores
+//        for (i =0 ; i < size_cw ; i++){
+//            score += Popcount(WhiteComponents[i])*GroupSizeScore;
+//        }
+//        
+//        for (i =0 ; i < size_cb ; i++){
+//            score -= Popcount(BlackComponents[i])*GroupSizeScore;
+//        }
 
         return (myPlayerNumber==1)?score:-score;
         

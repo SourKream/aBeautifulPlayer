@@ -95,7 +95,7 @@ struct MiniMaxAgent{
             }
             alpha = max(alpha, maxStateValue);
             
-            if (beta <= alpha)
+            if (beta < alpha)
                 break;
         }
         
@@ -125,7 +125,7 @@ struct MiniMaxAgent{
             if (maximize){
                 bestValue = max(bestValue, value);
                 alpha = max(alpha, bestValue);
-                if (beta <= alpha)
+                if (beta < alpha)
                     break;
             }
             else {
