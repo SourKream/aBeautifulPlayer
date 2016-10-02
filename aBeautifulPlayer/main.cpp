@@ -375,14 +375,14 @@ int main(int argc, char** argv){
 //    int StackHeightScore = 2;
 //    int InfluenceScore = 3;
 //    int GroupSizeScore = 0;
-    double Scores[] = {6,1,2,2,2,3,0};
-    int MaxDepth = 5;
-    int p, n, t;
-    cin >> p >> n >> t;
-    MiniMaxAgent player3(p, n, t,Scores, MaxDepth);
-    cerr << "MiniMax Player With Bits" << endl;
-    player3.playFirstMove();
-    player3.play();
+//    double Scores[] = {6,1,2,2,2,3,0};
+//    int MaxDepth = 5;
+//    int p, n, t;
+//    cin >> p >> n >> t;
+//    MiniMaxAgent player3(p, n, t,Scores, MaxDepth);
+//    cerr << "MiniMax Player With Bits" << endl;
+//    player3.playFirstMove();
+//    player3.play();
     
     return 0;
 }
