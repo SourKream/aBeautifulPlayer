@@ -9,7 +9,7 @@
 #include <string.h>
 #include <iostream>
 #include <vector>
-
+#include <algorithm>
 #define BLACK 0
 #define WHITE 1
 #define MAX_SIZE 7
