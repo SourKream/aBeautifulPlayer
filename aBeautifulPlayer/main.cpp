@@ -239,8 +239,8 @@ void doReinforcementLearning( int trials,     double ScoresForPlayer1[] ,  doubl
             Initial2[i] = ScoresForPlayer2[i];
         }
     }
-    int DepthWhite = 4;
-    int DepthBlack = 4;
+    int DepthWhite = 3;
+    int DepthBlack = 3;
     double* Win;
     double* Lose;
     int* WinAnalysis;
