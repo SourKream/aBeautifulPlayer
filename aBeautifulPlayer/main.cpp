@@ -88,6 +88,8 @@ class GameManager{
     Game* myGame;
     MiniMaxAgent * player1;
     MiniMaxAgent * player2;
+    int DepthBlack = 3;
+    int DepthWhite = 3;
     GameManager(){
         int Scores[10];
         myGame = new Game(5,2,Scores);
@@ -96,8 +98,10 @@ class GameManager{
         int n = 5;
         int t = 120;
         int p = 1;
-        player1 = new MiniMaxAgent(p, n, t, ScoresForPlayer1, 2);
-        player2 = new MiniMaxAgent(p+1, n, t, ScoresForPlayer2, 3);
+        DepthBlack = 2;
+        DepthWhite = 2;
+        player1 = new MiniMaxAgent(p, n, t, ScoresForPlayer1, DepthWhite);
+        player2 = new MiniMaxAgent(p+1, n, t, ScoresForPlayer2, DepthBlack);
     }
     
     void Play(){
@@ -109,10 +113,11 @@ class GameManager{
         move = player2->GiveFirstMove();
         myGame->applyMove(myGame->makeMove(move,true));
         player1->ApplyMove(move,true);
-
+        int moves = 2;
         bool currentPlayer = 1;
         int r;
         while (true){
+            moves ++;
             if (currentPlayer) {
                 move = player1->PlayMove();
                 player2->ApplyMove(move);
@@ -127,7 +132,17 @@ class GameManager{
 //            printGameState(*(player2->myGame));
             if ( (r = myGame->isFinishState()) != -1){
                 printGameState(*myGame);
-                cerr << r << endl;
+                switch(r){
+                    case 0:
+                        cerr << "Black Wins (Depth = "  << DepthBlack;
+                        break;
+                    case 1:
+                        cerr << "White Wins (Depth = " << DepthWhite;
+                        break;
+                    case 2:
+                        cerr << " Both Win (DepthWhite = "  << DepthWhite << " DepthBlack = "<< DepthBlack;
+                }
+                cerr << " )in Total Moves : " << moves << endl;
                 break;
             }
             currentPlayer ^= 1;
