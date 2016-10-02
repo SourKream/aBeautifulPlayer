@@ -20,14 +20,14 @@ struct MiniMaxAgent{
     int timeLimit;
     int maxDepth = 4;
     
-    MiniMaxAgent (int playerNum, int n, int t,double Scores [], int maxDepth){
+    MiniMaxAgent (int playerNum, int n, int t,double Scores [], int MaxDepthIn){
         myPlayerNumber = playerNum;
         myPlayer = "Black";
         if (playerNum == 1)
             myPlayer = "White";
         boardSize = n;
         timeLimit = t;
-        MaxDepth = maxDepth;
+        maxDepth = MaxDepthIn;
         myGame = new Game(boardSize, myPlayerNumber,Scores);
     }
     
