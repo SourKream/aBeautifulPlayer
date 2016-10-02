@@ -112,22 +112,36 @@ class GameManager{
     Game* myGame;
     MiniMaxAgent * player1;
     MiniMaxAgent * player2;
+    bool currentPlayer = 1;
+    vector<vector<double>> Player1AverageScores;//(2,vector<double>(7));
+    vector<vector<double>> Player2AverageScores;//(2,vector<double>(7));
     
     int DepthBlack = 3;
     int DepthWhite = 3;
     GameManager(double ScoresForPlayer1[],int depthwhite, double ScoresForPlayer2[],int depthblack){
         double Scores[10];
         myGame = new Game(5,2,Scores);
-
-        PrintScores(ScoresForPlayer1, ScoresForPlayer2);
-
         int n = 5;
         int t = 120;
         int p = 1;
+        Player1AverageScores.resize(2,vector<double>(7,0));
+        Player2AverageScores.resize(2,vector<double>(7,0));
         DepthBlack = depthblack;
         DepthWhite = depthwhite;
         player1 = new MiniMaxAgent(p, n, t, ScoresForPlayer1, DepthWhite);
         player2 = new MiniMaxAgent(p+1, n, t, ScoresForPlayer2, DepthBlack);
+    }
+    
+    void updateAverageBoard(){
+        vector<vector<int>> current = myGame->AnalyzeBoard();
+        if ( currentPlayer)
+            for (int i = 0 ; i < 2; i++)
+                for (int j = 0 ; j < 7 ;j++)
+                    Player1AverageScores[i][j] = current[i][j] + 0.9*Player1AverageScores[i][j];
+        else
+            for (int i = 0 ; i < 2; i++)
+                for (int j = 0 ; j < 7 ;j++)
+                    Player2AverageScores[i][j] = current[i][j] + 0.9*Player2AverageScores[i][j];
     }
     
     int Play(){
@@ -140,10 +154,10 @@ class GameManager{
         myGame->applyMove(myGame->makeMove(move,true));
         player1->ApplyMove(move,true);
         int moves = 2;
-        bool currentPlayer = 1;
         int r;
         while (moves < 400){
             moves ++;
+            updateAverageBoard();
             if (currentPlayer) {
                 move = player1->PlayMove();
                 player2->ApplyMove(move);
@@ -153,10 +167,15 @@ class GameManager{
                 player1->ApplyMove(move);
             }
             myGame->applyMove(myGame->makeMove(move));
+            currentPlayer ^= 1;
+            
 //            printGameState(*myGame);
 //            printGameState(*(player1->myGame));
 //            printGameState(*(player2->myGame));
             if ( (r = myGame->isFinishState()) != -1){
+                updateAverageBoard();
+                currentPlayer ^= 1;
+                updateAverageBoard();
                 printGameState(*myGame);
                 switch(r){
                     case 0:
@@ -183,7 +202,6 @@ class GameManager{
                         return 0;
                 }
             }
-            currentPlayer ^= 1;
         }
         return 0;
     }
@@ -195,7 +213,9 @@ class GameManager{
 };
 
 
-void doReinforcementLearning( int trials){
+void doReinforcementLearning( int trials,     double ScoresForPlayer1[] ,  double ScoresForPlayer2[] ){
+    
+    
     //    double FlatScore = 6;
     //    double StandingStoneScore = 1;
     //    double CapStoneScore = 2;
@@ -203,17 +223,21 @@ void doReinforcementLearning( int trials){
     //    double StackHeightScore = 2;
     //    double InfluenceScore = 3;
     //    double GroupSizeScore = 0;
-
-    double ScoresForPlayer2[] = {10,10,10,10,10,10,10};
-    double ScoresForPlayer1[] = {1,1,1,1,1,1,1};
     double Initial2[] = {10,10,10,10,10,10,10};
     double Initial1[] = {1,1,1,1,1,1,1};
     for (int i =0 ; i < 7; i++){
-        ScoresForPlayer1[i] = rand()%11;
+        //ScoresForPlayer1[i] = rand()%11;
         Initial1[i] = ScoresForPlayer1[i];
-        ScoresForPlayer2[i] = rand()%11;
+        //ScoresForPlayer2[i] = rand()%11;
         Initial2[i] = ScoresForPlayer2[i];
     }
+    
+//    for (int i =0 ; i < 7; i++){
+//        ScoresForPlayer1[i] = rand()%11;
+//        Initial1[i] = ScoresForPlayer1[i];
+//        ScoresForPlayer2[i] = rand()%11;
+//        Initial2[i] = ScoresForPlayer2[i];
+//    }
     int DepthWhite = 3;
     int DepthBlack = 3;
     double* Win;
@@ -227,7 +251,7 @@ void doReinforcementLearning( int trials){
     for (int i =0 ; i < trials; i++){
             double LearningRate = 5.0;
         cout << endl << "Iteration " << i + 1 << endl;
-        
+        PrintScores(ScoresForPlayer1, ScoresForPlayer2);
         GameManager Player(ScoresForPlayer1,DepthWhite, ScoresForPlayer2, DepthBlack);
         int ret = Player.Play();
         BoardAnalysis = Player.AnalyseBoard();
@@ -273,77 +297,101 @@ void doReinforcementLearning( int trials){
     PrintScores(ScoresForPlayer1, ScoresForPlayer2,true);
 }
 
-int main(int argc, char** argv){
+void debugGame(){
+    double scores[] = {1,1,1,1,1,1,1};
+    Game myGame(5, 2,scores);
+    myGame.applyMove(myGame.makeMove("Fe4",true));
+    myGame.applyMove(myGame.makeMove("Fe1",true));
+    myGame.applyMove(myGame.makeMove("Fd4"));
 
-    srand(time(NULL));    
-    Slides = GenerateAllSlides(5);
-    //doReinforcementLearning(stoi(argv[1]));
-//    doReinforcementLearning(20);
+    myGame.applyMove(myGame.makeMove("Fb2"));
+    myGame.applyMove(myGame.makeMove("Fb1"));
+    myGame.applyMove(myGame.makeMove("Fa2"));
+    myGame.applyMove(myGame.makeMove("Fd2"));
+    myGame.applyMove(myGame.makeMove("Fc2"));
+    myGame.applyMove(myGame.makeMove("Cd1"));
+    myGame.applyMove(myGame.makeMove("Fa1"));
+    myGame.applyMove(myGame.makeMove("Fb1"));
 
-//    Game myGame(5, 2);
-//    myGame.applyMove(myGame.makeMove("Fc2",true));
-//    myGame.applyMove(myGame.makeMove("Fd2",true));
-//    myGame.applyMove(myGame.makeMove("Fa1"));
-//    myGame.applyMove(myGame.makeMove("Fb1"));
-//    myGame.applyMove(myGame.makeMove("Fc1"));
-//    myGame.applyMove(myGame.makeMove("Fd1"));
-//    myGame.applyMove(myGame.makeMove("Fe1"));
-//    myGame.applyMove(myGame.makeMove("Fa2"));
-//    myGame.applyMove(myGame.makeMove("Fb2"));
-//    myGame.applyMove(myGame.makeMove("Fc2"));
-//    myGame.applyMove(myGame.makeMove("Fd2"));
-//    myGame.applyMove(myGame.makeMove("Fe2"));
-//    myGame.applyMove(myGame.makeMove("Fa3"));
-//    myGame.applyMove(myGame.makeMove("Fb3"));
-//    myGame.applyMove(myGame.makeMove("Fc3"));
-//    myGame.applyMove(myGame.makeMove("Fd3"));
-//    myGame.applyMove(myGame.makeMove("Fe3"));
-//    myGame.applyMove(myGame.makeMove("Fa4"));
-//    myGame.applyMove(myGame.makeMove("Fb4"));
-//    myGame.applyMove(myGame.makeMove("Fc4"));
-//    myGame.applyMove(myGame.makeMove("Fd4"));
-//    myGame.applyMove(myGame.makeMove("Fe4"));
-//    myGame.applyMove(myGame.makeMove("Fa5"));
-//    myGame.applyMove(myGame.makeMove("Fb5"));
-//    myGame.applyMove(myGame.makeMove("Fc5"));
-//    myGame.applyMove(myGame.makeMove("Fd5"));
-//    myGame.applyMove(myGame.makeMove("Fe5"));
-//    myGame.applyMove(myGame.makeMove("1b1+1"));
-//    myGame.applyMove(myGame.makeMove("1d2<1"));
-//
+    myGame.applyMove(myGame.makeMove("Fd3"));
+    myGame.applyMove(myGame.makeMove("Fe3"));
+    myGame.applyMove(myGame.makeMove("Fa4"));
+    myGame.applyMove(myGame.makeMove("Fb4"));
+    myGame.applyMove(myGame.makeMove("Fc4"));
+    myGame.applyMove(myGame.makeMove("Fd4"));
+    myGame.applyMove(myGame.makeMove("Fe4"));
+    myGame.applyMove(myGame.makeMove("Fa5"));
 
-//    vector<Move> allMoves = myGame.generateAllMoves();
+    myGame.applyMove(myGame.makeMove("Fb5"));
+    myGame.applyMove(myGame.makeMove("Fc5"));
+    myGame.applyMove(myGame.makeMove("Fd5"));
+    myGame.applyMove(myGame.makeMove("Fe5"));
+    myGame.applyMove(myGame.makeMove("1b1+1"));
+    myGame.applyMove(myGame.makeMove("1d2<1"));
+
+    printGameState(myGame);
+
+    myGame.FindComponents();
+
+
+    vector<Move> allMoves = myGame.generateAllMoves();
 //    allMoves.size();
-
 //    MiniMaxAgent player(2,5,150);
 //    player.myGame = &myGame;
 //    cout << "My Move : " << player.getMiniMaxMove() << endl;
+//
+//    Move x = myGame.makeMove("1b1+1");
+//        printGameState(myGame);
+//        cerr << endl;
+//    myGame.applyMove(x);
+//    printGameState(myGame);
+//    cerr << endl;
+//
+//    myGame.applyMove(myGame.makeMove("1a1+1"));
+//    myGame.applyMove(myGame.makeMove("1d1+1"));
+//    myGame.applyMove(myGame.makeMove("1c1+1"));
+//    myGame.applyMove(myGame.makeMove("1e2+1"));
+//    myGame.applyMove(myGame.makeMove("1a3+1"));
+//    myGame.applyMove(myGame.makeMove("1e4+1"));
+//    myGame.applyMove(myGame.makeMove("Fd5"));
+//    myGame.applyMove(myGame.makeMove("Fd4"));
+//    myGame.applyMove(myGame.makeMove("Fe5"));
+//
+//    printGameState(myGame);
+//    myGame.FindComponents();
+//    cout <<  myGame.checkIfRoadExists() << endl;
+//
+//    myGame.FindComponents();
+}
+
+int main(int argc, char** argv){
+
+    srand(time(NULL));
     
-//    int FlatScore = 6;
-//    int StandingStoneScore = 1;
-//    int CapStoneScore = 2;
-//    int CenterScore = 2;
-//    int StackHeightScore = 2;
-//    int InfluenceScore = 3;
-//    int GroupSizeScore = 0;
-//    double Scores[] = {6,1,2,2,2,3,0};
-//    int MaxDepth = 5;
-//    int p, n, t;
-//    cin >> p >> n >> t;
-//    MiniMaxAgent player3(p, n, t,Scores, MaxDepth);
-//    cerr << "MiniMax Player With Bits" << endl;
-//    player3.playFirstMove();
-//    player3.play();
+    Slides = GenerateAllSlides(5);
+    //doReinforcementLearning(stoi(argv[1]));
+    double WhiteScores[] = {6.95617, 7.00008, 5.747, 4.02971, 5.37742, 0.603293, 8.73715};
+    double BlackScores[] = {10.9397, 4.44211 , 5.33239 ,4.93971 ,8.9536 ,2.06173,5.96226};
+    // doReinforcementLearning(6,WhiteScores,BlackScores);
 
-    double Scores[] = {6,1,2,2,2,3,0};
     int MaxDepth = 5;
-
-    int p, n, t;
+    int p, n;
+    double t;
     cin >> p >> n >> t;
-    MiniMaxAgent player3(p, n, t,Scores, MaxDepth);
-    cerr << "MiniMax Player With Bits" << endl;
-    player3.playFirstMove();
-    player3.play();
+    timeval currenttime;
+    gettimeofday(&currenttime, NULL);
+    if ( p == 1){
+        MiniMaxAgent player3(p, n, t,WhiteScores, MaxDepth, &currenttime);
+        cerr << "MiniMax Player With Bits" << endl;
+        player3.playFirstMove();
+        player3.play();
+    }
+    else{
+        MiniMaxAgent player3(p, n, t,BlackScores, MaxDepth, &currenttime);
+        cerr << "MiniMax Player With Bits" << endl;
+        player3.playFirstMove();
+        player3.play();
+    }
     
     return 0;
 }

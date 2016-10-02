@@ -142,7 +142,7 @@ class Config{
         
         BoardMask = (1ULL << (BoardSize*BoardSize)) - 1;
         
-        for (int i = 0 ; i < BoardSize; i++)
+        for (int i = 0 ; i < BoardSize*BoardSize; i++)
             InfluenceMasks[i] = Expand(1ULL << i);
         
         FlatScore = Scores[0];
@@ -172,7 +172,6 @@ class Game{
     short int size_cw;
     short int size_cb;
     Config *gameConfig;
-    unsigned long moves;
     
     bool currentPlayer = 1;
     bool myPlayerNumber;
@@ -185,7 +184,6 @@ class Game{
         gameConfig = new Config(BoardSize, Scores);
         memset(Stacks, 0 , MAX_SIZE_SQUARE*sizeof(uint64));
         memset(Heights, 0 , MAX_SIZE_SQUARE*sizeof(uint64));
-        
         flats[0] = gameConfig->Pieces;
         flats[1] = gameConfig->Pieces;
         capstones[0] = gameConfig->Capstones;
@@ -208,8 +206,6 @@ class Game{
         
         gameConfig = current.gameConfig;
         currentPlayer = current.currentPlayer;
-        moves = current.moves;
-        
         size_cb = current.size_cb;
         size_cw = current.size_cw;
         
