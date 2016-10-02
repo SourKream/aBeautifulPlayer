@@ -98,10 +98,9 @@ struct MiniMaxAgent{
         
         while(true){
             move = getMiniMaxMove();
-            myGame->applyMove(myGame->makeMove(move));
             cerr << "My Move as " << myPlayer << "Player :" << move << endl;
             cout << move << endl;
-            
+            myGame->applyMove(myGame->makeMove(move));
             cin >> move;
             myGame->applyMove(myGame->makeMove(move));
         }
