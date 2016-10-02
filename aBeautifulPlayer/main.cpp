@@ -298,8 +298,21 @@ void doReinforcementLearning( int trials,     double ScoresForPlayer1[] ,  doubl
 }
 
 void debugGame(){
-    double scores[] = {1,1,1,1,1,1,1};
-    Game myGame(5, 2,scores);
+    double WhiteScores[] = {13.6703
+        ,7.56367
+        ,10.872
+        ,3.09076
+        ,6.78622
+        ,7.14189
+        ,12.7884};
+    double BlackScores[] = {7.74628
+        ,1.3
+        ,8.76585
+        ,1.76309
+        ,3.34846
+        ,7.32346
+        ,12.0513};
+    Game myGame(5, 2,WhiteScores);
     myGame.applyMove(myGame.makeMove("Fe4",true));
     myGame.applyMove(myGame.makeMove("Fe1",true));
     myGame.applyMove(myGame.makeMove("Fd4"));
@@ -335,10 +348,11 @@ void debugGame(){
 
 
     vector<Move> allMoves = myGame.generateAllMoves();
-//    allMoves.size();
-//    MiniMaxAgent player(2,5,150);
-//    player.myGame = &myGame;
-//    cout << "My Move : " << player.getMiniMaxMove() << endl;
+    allMoves.size();
+    int Depth = 4;
+    MiniMaxAgent player(2,5,150,WhiteScores,Depth);
+    player.myGame = &myGame;
+    cout << "My Move : " << player.getMiniMaxMove() << endl;
 //
 //    Move x = myGame.makeMove("1b1+1");
 //        printGameState(myGame);
@@ -370,8 +384,20 @@ int main(int argc, char** argv){
     
     Slides = GenerateAllSlides(5);
     //doReinforcementLearning(stoi(argv[1]));
-    double WhiteScores[] = {6.95617, 7.00008, 5.747, 4.02971, 5.37742, 0.603293, 8.73715};
-    double BlackScores[] = {10.9397, 4.44211 , 5.33239 ,4.93971 ,8.9536 ,2.06173,5.96226};
+    double WhiteScores[] = {13.6703
+        ,7.56367
+        ,10.872
+        ,3.09076
+        ,6.78622
+        ,7.14189
+        ,12.7884};
+    double BlackScores[] = {7.74628
+        ,1.3
+        ,8.76585
+        ,1.76309
+        ,3.34846
+        ,7.32346
+        ,12.0513};
     // doReinforcementLearning(6,WhiteScores,BlackScores);
 
     int MaxDepth = 5;

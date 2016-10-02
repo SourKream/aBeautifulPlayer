@@ -644,6 +644,18 @@ class Game{
         if (winner!=-1)
             return winner;
         
+        if ((WhitePieces | BlackPieces) == gameConfig->BoardMask){
+            int whiteFlats = Popcount(WhitePieces & ~(Standing | CapStones));
+            int blackFlats = Popcount(BlackPieces & ~(Standing | CapStones));
+            
+            if (whiteFlats > blackFlats)
+                return 1;
+            else if (whiteFlats < blackFlats)
+                return 0;
+            else
+                return currentPlayer; // CHECK THIS PART
+        }
+        
         if ((flats[0]==0)||(flats[1]==0)){
             int whiteFlats = Popcount(WhitePieces & ~(Standing | CapStones));
             int blackFlats = Popcount(BlackPieces & ~(Standing | CapStones));
