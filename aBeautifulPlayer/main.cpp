@@ -81,14 +81,65 @@ vector<vector<vector<short> > > GenerateAllSlides(short K) {
     return slides1;
 }
 
-
-
 vector<vector<vector<short> > > Slides;
+
+class GameManager{
+    public :
+    Game* myGame;
+    MiniMaxAgent * player1;
+    MiniMaxAgent * player2;
+    GameManager(){
+        int Scores[10];
+        myGame = new Game(5,2,Scores);
+        int ScoresForPlayer1[] = {6,1,2,2,2,3,0};
+        int ScoresForPlayer2[] = {7,1,2,1,2,3,0};
+        int n = 5;
+        int t = 120;
+        int p = 1;
+        player1 = new MiniMaxAgent(p, n, t, ScoresForPlayer1, 2);
+        player2 = new MiniMaxAgent(p+1, n, t, ScoresForPlayer2, 3);
+    }
+    
+    void Play(){
+        string move;
+        move = player1->GiveFirstMove();
+        myGame->applyMove(myGame->makeMove(move,true));
+        player2->ApplyMove(move,true);
+        
+        move = player2->GiveFirstMove();
+        myGame->applyMove(myGame->makeMove(move,true));
+        player1->ApplyMove(move,true);
+
+        bool currentPlayer = 1;
+        int r;
+        while (true){
+            if (currentPlayer) {
+                move = player1->PlayMove();
+                player2->ApplyMove(move);
+            }
+            else{
+                move = player2->PlayMove();
+                player1->ApplyMove(move);
+            }
+            myGame->applyMove(myGame->makeMove(move));
+//            printGameState(*myGame);
+//            printGameState(*(player1->myGame));
+//            printGameState(*(player2->myGame));
+            if ( (r = myGame->isFinishState()) != -1){
+                printGameState(*myGame);
+                cerr << r << endl;
+                break;
+            }
+            currentPlayer ^= 1;
+        }
+    }
+};
 
 int main(){
     
     Slides = GenerateAllSlides(5);
-    
+    GameManager Player;
+    Player.Play();
 //    Game myGame(5, 2);
 //    myGame.applyMove(myGame.makeMove("Fe4",true));
 //    myGame.applyMove(myGame.makeMove("Fe1",true));
@@ -178,12 +229,21 @@ int main(){
     //    cout << "My Move : " << player.getMiniMaxMove() << endl;
     
    // srand(time(NULL));
-    int p, n, t;
-    cin >> p >> n >> t;
-    MiniMaxAgent player3(p, n, t);
-    cerr << "MiniMax Player With Bits" << endl;
-    player3.playFirstMove();
-    player3.play();
+    //    int FlatScore = 6;
+//    int StandingStoneScore = 1;
+//    int CapStoneScore = 2;
+//    int CenterScore = 2;
+//    int StackHeightScore = 2;
+//    int InfluenceScore = 3;
+//    int GroupSizeScore = 0;
+//    int Scores[] = {6,1,2,2,2,3,0};
+//    int MaxDepth = 5;
+//    int p, n, t;
+//    cin >> p >> n >> t;
+//    MiniMaxAgent player3(p, n, t,Scores, MaxDepth);
+//    cerr << "MiniMax Player With Bits" << endl;
+//    player3.playFirstMove();
+//    player3.play();
     
     return 0;
 }

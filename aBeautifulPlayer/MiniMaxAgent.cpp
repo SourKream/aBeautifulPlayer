@@ -13,14 +13,35 @@ struct MiniMaxAgent{
     
     Game* myGame;
     int myPlayerNumber;
+    string myPlayer;
     int boardSize;
     int timeLimit;
+    int MaxDepth = 4;
     
-    MiniMaxAgent (int playerNum, int n, int t){
+    MiniMaxAgent (int playerNum, int n, int t,int Scores [], int maxDepth){
         myPlayerNumber = playerNum;
+        myPlayer = "Black";
+        if (playerNum == 1)
+            myPlayer = "White";
         boardSize = n;
         timeLimit = t;
-        myGame = new Game(boardSize, myPlayerNumber);
+        MaxDepth = maxDepth;
+        myGame = new Game(boardSize, myPlayerNumber,Scores);
+    }
+    
+    void ApplyMove(string moveString, bool opponent = false){
+        myGame->applyMove(myGame->makeMove(moveString, opponent));
+    }
+    
+    string GiveFirstMove(){
+        string moveString;
+        Move move;
+        vector<Move> allMoves = myGame->generateFirstMove();
+        move = allMoves[rand()%allMoves.size()];
+        moveString = myGame->getMoveString(move);
+        cerr << "My First Move as " << myPlayer << " Player:" << moveString << endl;
+        myGame->applyMove(move);
+        return moveString;
     }
     
     void playFirstMove(){
@@ -56,6 +77,16 @@ struct MiniMaxAgent{
         }
     }
     
+    string PlayMove(){
+        string move;
+
+        move = getMiniMaxMove();
+        myGame->applyMove(myGame->makeMove(move));
+
+        cerr << "My Move as " << myPlayer << " Player :" << move << endl;
+        return move;
+    }
+    
     void play(){
         string move;
         
@@ -68,7 +99,7 @@ struct MiniMaxAgent{
         while(true){
             move = getMiniMaxMove();
             myGame->applyMove(myGame->makeMove(move));
-            cerr << "My Move : " << move << endl;
+            cerr << "My Move as " << myPlayer << "Player :" << move << endl;
             cout << move << endl;
             
             cin >> move;
@@ -99,7 +130,7 @@ struct MiniMaxAgent{
                 break;
         }
         
-        cerr << "Max State Value was  : " << maxStateValue << endl;
+       // cerr << "Max State Value was  : " << maxStateValue << endl;
         return myGame->getMoveString(bestMove);
     }
     
@@ -107,7 +138,7 @@ struct MiniMaxAgent{
         //cout << depth<< endl;
         
         int winner = gameState.isFinishState();
-        if ((winner!=-1)||(depth>4))
+        if ((winner!=-1)||(depth>MaxDepth))
             return gameState.getStateValue();
         
         vector<Move> allMoves = gameState.generateAllMoves();
