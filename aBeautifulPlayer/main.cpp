@@ -140,9 +140,9 @@ class GameManager{
                         cerr << "White Wins (Depth = " << DepthWhite;
                         break;
                     case 2:
-                        cerr << " Both Win (DepthWhite = "  << DepthWhite << " DepthBlack = "<< DepthBlack;
+                        cerr << "Both Win (DepthWhite = "  << DepthWhite << " DepthBlack = "<< DepthBlack;
                 }
-                cerr << " )in Total Moves : " << moves << endl;
+                cerr << ") in Total Moves : " << moves << endl;
                 break;
             }
             currentPlayer ^= 1;
