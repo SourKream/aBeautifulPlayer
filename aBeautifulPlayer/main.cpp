@@ -204,7 +204,7 @@ void doReinforcementLearning( int trials){
     int WhiteWins = 0;
     double LearningRate;
     for (int i =0 ; i < trials; i++){
-        cout << "Iteration " << i + 1 << endl;
+        cout << endl << "Iteration " << i + 1 << endl;
         
         GameManager Player(ScoresForPlayer1,DepthWhite, ScoresForPlayer2, DepthBlack);
         int ret = Player.Play();
@@ -236,10 +236,11 @@ void doReinforcementLearning( int trials){
     PrintScores(ScoresForPlayer1, ScoresForPlayer2);
 }
 
-int main(){
-     srand(time(NULL));
+int main(int argc, char** argv){
+    srand(time(NULL));
     Slides = GenerateAllSlides(5);
-    doReinforcementLearning(2);
+    //doReinforcementLearning(stoi(argv[1]));
+    doReinforcementLearning(3);
 
 //    Game myGame(5, 2);
 //    myGame.applyMove(myGame.makeMove("Fe4",true));
