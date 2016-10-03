@@ -287,7 +287,7 @@ void doReinforcementLearning( int trials,     double ScoresForPlayer1[] ,  doubl
            // return;
         }
         for (int j =0 ;j < 7;j++){
-            double grad = ((WinAnalysis[j]*Win[j] - LoseAnalysis[j]*Lose[j])/(WinAnalysis[j]*Win[j]))*LearningRate + LearningRate;
+            double grad = ((WinAnalysis[j]*Win[j] - LoseAnalysis[j]*Lose[j])/(WinAnalysis[j]*Win[j] + 1))*LearningRate + LearningRate;
             double grad1 = (WinAnalysis[j] - LoseAnalysis[j])*LearningRate;
             Lose[j] += grad*Lose[j] + grad;
             Lose[j] = max(0.0,min(15.0,Lose[j]));
