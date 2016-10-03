@@ -240,7 +240,7 @@ void doReinforcementLearning( int trials,     double ScoresForPlayer1[] ,  doubl
         }
     }
     int DepthWhite = 3;
-    int DepthBlack = 3;
+    int DepthBlack = 4;
     double* Win;
     double* Lose;
     int* WinAnalysis;
@@ -300,47 +300,71 @@ void doReinforcementLearning( int trials,     double ScoresForPlayer1[] ,  doubl
 }
 
 void debugGame(){
-    double scores[] = {1,1,1,1,1,1,1};
-    Game myGame(5, 2,scores);
-    myGame.applyMove(myGame.makeMove("Fe4",true));
-    myGame.applyMove(myGame.makeMove("Fe1",true));
-    myGame.applyMove(myGame.makeMove("Fd4"));
-
-    myGame.applyMove(myGame.makeMove("Fb2"));
-    myGame.applyMove(myGame.makeMove("Fb1"));
-    myGame.applyMove(myGame.makeMove("Fa2"));
-    myGame.applyMove(myGame.makeMove("Fd2"));
-    myGame.applyMove(myGame.makeMove("Fc2"));
-    myGame.applyMove(myGame.makeMove("Cd1"));
-    myGame.applyMove(myGame.makeMove("Fa1"));
-    myGame.applyMove(myGame.makeMove("Fb1"));
-
-    myGame.applyMove(myGame.makeMove("Fd3"));
-    myGame.applyMove(myGame.makeMove("Fe3"));
-    myGame.applyMove(myGame.makeMove("Fa4"));
-    myGame.applyMove(myGame.makeMove("Fb4"));
-    myGame.applyMove(myGame.makeMove("Fc4"));
-    myGame.applyMove(myGame.makeMove("Fd4"));
+    double WhiteScores[] = {13.6703
+        ,1.56367
+        ,10.872
+        ,3.09076
+        ,6.78622
+        ,7.14189
+        ,12.7884};
+    Game myGame(5, 2,WhiteScores);
+    myGame.applyMove(myGame.makeMove("Fa5",true));
+    myGame.applyMove(myGame.makeMove("Fe5",true));
     myGame.applyMove(myGame.makeMove("Fe4"));
-    myGame.applyMove(myGame.makeMove("Fa5"));
-
-    myGame.applyMove(myGame.makeMove("Fb5"));
+    myGame.applyMove(myGame.makeMove("Fb4"));
+    myGame.applyMove(myGame.makeMove("Fd4"));
+    myGame.applyMove(myGame.makeMove("Cd3"));
+    myGame.applyMove(myGame.makeMove("Cc4"));
+    myGame.applyMove(myGame.makeMove("1d3+1"));
+    myGame.applyMove(myGame.makeMove("Fb3"));
+    myGame.applyMove(myGame.makeMove("1b4-1"));
     myGame.applyMove(myGame.makeMove("Fc5"));
+    myGame.applyMove(myGame.makeMove("2d4>2"));
+    myGame.applyMove(myGame.makeMove("Fc3"));
+    myGame.applyMove(myGame.makeMove("Fb2"));
+    myGame.applyMove(myGame.makeMove("Fc2"));
+    myGame.applyMove(myGame.makeMove("1b2>1"));
+    myGame.applyMove(myGame.makeMove("Fb5"));
+    myGame.applyMove(myGame.makeMove("Fb2"));
+    myGame.applyMove(myGame.makeMove("Sa3"));
+    myGame.applyMove(myGame.makeMove("Fd3"));
+    myGame.applyMove(myGame.makeMove("1a3>1"));
+    myGame.applyMove(myGame.makeMove("Fa3"));
+    myGame.applyMove(myGame.makeMove("Fb4"));
+    myGame.applyMove(myGame.makeMove("Fa4"));
     myGame.applyMove(myGame.makeMove("Fd5"));
-    myGame.applyMove(myGame.makeMove("Fe5"));
-    myGame.applyMove(myGame.makeMove("1b1+1"));
+    myGame.applyMove(myGame.makeMove("Fa2"));
+    myGame.applyMove(myGame.makeMove("2b3<2"));
+    myGame.applyMove(myGame.makeMove("Fd2"));
+    myGame.applyMove(myGame.makeMove("3a3-3"));
+    myGame.applyMove(myGame.makeMove("3e4+3"));
+    myGame.applyMove(myGame.makeMove("Fa3"));
+    myGame.applyMove(myGame.makeMove("1a5>1"));
+    myGame.applyMove(myGame.makeMove("Fd4"));
+    myGame.applyMove(myGame.makeMove("1a4-1"));
+    myGame.applyMove(myGame.makeMove("4a2>4"));
+    myGame.applyMove(myGame.makeMove("4e5<112"));
+    myGame.applyMove(myGame.makeMove("Fe4"));
+    myGame.applyMove(myGame.makeMove("4b5-22"));
+    myGame.applyMove(myGame.makeMove("2c5>2"));
+    myGame.applyMove(myGame.makeMove("Sa5"));
+    myGame.applyMove(myGame.makeMove("Fc5"));
+    myGame.applyMove(myGame.makeMove("3b3>12"));
+    myGame.applyMove(myGame.makeMove("1c3-1"));
     myGame.applyMove(myGame.makeMove("1d2<1"));
+    myGame.applyMove(myGame.makeMove("1b2>1"));
+    myGame.applyMove(myGame.makeMove("3b2+111"));
+    myGame.applyMove(myGame.makeMove("2c2<2"));
+    myGame.applyMove(myGame.makeMove("1b3>1"));
+    myGame.applyMove(myGame.makeMove("3c2+3"));
 
     printGameState(myGame);
 
-    myGame.FindComponents();
 
-
-    vector<Move> allMoves = myGame.generateAllMoves();
-//    allMoves.size();
-//    MiniMaxAgent player(2,5,150);
-//    player.myGame = &myGame;
-//    cout << "My Move : " << player.getMiniMaxMove() << endl;
+    int Depth = 4;
+    MiniMaxAgent player(2,5,150,WhiteScores,Depth);
+    player.myGame = &myGame;
+    cout << "My Move : " << player.getMiniMaxMove() << endl;
 //
 //    Move x = myGame.makeMove("1b1+1");
 //        printGameState(myGame);
@@ -364,6 +388,7 @@ void debugGame(){
 //    cout <<  myGame.checkIfRoadExists() << endl;
 //
 //    myGame.FindComponents();
+    exit(0);
 }
 
 int main(int argc, char** argv){
@@ -371,10 +396,12 @@ int main(int argc, char** argv){
     srand(time(NULL));
     
     Slides = GenerateAllSlides(5);
+    //debugGame();
     //doReinforcementLearning(stoi(argv[1]));
-    double WhiteScores[] = {6.95617, 7.00008, 5.747, 4.02971, 5.37742, 0.603293, 8.73715};
-    double BlackScores[] = {10.9397, 4.44211 , 5.33239 ,4.93971 ,8.9536 ,2.06173,5.96226};
-    doReinforcementLearning(40,WhiteScores,BlackScores,true);
+
+    double WhiteScores[] = {13.9983,7.70373,11.1121,3.32273,7.20039,6.28909,12.8683};
+    double BlackScores[] = {9.27457,1.05398,9.41521,2.98011,2.80278,8.2573,13.4092};
+     doReinforcementLearning(10,WhiteScores,BlackScores);
 
 //    int MaxDepth = 5;
 //    int p, n;
@@ -394,6 +421,5 @@ int main(int argc, char** argv){
 //        player3.playFirstMove();
 //        player3.play();
 //    }
-    
     return 0;
 }

@@ -135,7 +135,7 @@ struct MiniMaxAgent{
         gettimeofday(&currenttime, NULL);
         timeLeft -= currenttime.tv_sec - lasttimenoted.tv_sec;
         timeLeft -= (currenttime.tv_usec - lasttimenoted.tv_usec)/1000000.0;
-        if (moves < 16 || timeLeft < 10){
+        if (moves < 10 || timeLeft < 10){
             maxDepth = 3;
             if (timeLeft < 3)
                 maxDepth = 2;
@@ -145,13 +145,14 @@ struct MiniMaxAgent{
     }
     
     string getMiniMaxMove(){
-        
-        vector<Move> allMoves = myGame->generateAllMoves();
+        Move allMoves[1000];
+        int size_all_moves = myGame->generateAllMoves(allMoves);
+     //   cout << &allMoves << endl;
         int maxStateValue = -INF;
         int alpha = -INF, beta = INF;
         Move bestMove;
-        //cerr << "Minimax with Depth " << maxDepth << " At Move number" << moves << endl;
-        for (int i=0; i<allMoves.size(); i++){
+        cerr << "Minimax with Depth " << maxDepth << " At Move number" << moves << endl;
+        for (int i=0; i<size_all_moves; i++){
             Game nextState = *myGame;
             nextState.applyMove(allMoves[i]);
             
@@ -176,14 +177,13 @@ struct MiniMaxAgent{
         int winner = gameState.isFinishState();
         if ((winner!=-1)||(depth>maxDepth))
             return gameState.getStateValue();
-        
-        vector<Move> allMoves = gameState.generateAllMoves();
-        // cout << allMoves.size() << endl;
+        Move allMoves[1000];
+        int size_all_moves = gameState.generateAllMoves(allMoves);
         int bestValue = INF;
         if (maximize)
             bestValue = -INF;
         
-        for (int i=0; i<allMoves.size(); i++){
+        for (int i=0; i<size_all_moves; i++){
             Game nextState(gameState);
             nextState.applyMove(allMoves[i]);
             int value = MiniMaxSearch(nextState, !maximize, depth+1, alpha, beta);
