@@ -769,8 +769,8 @@ class Game{
         score -= Popcount(BlackPieces & ~(Standing|CapStones))*gameConfig->FlatScore;
         score += Popcount(WhitePieces & (CapStones))*gameConfig->CapStoneScore;
         score -= Popcount(BlackPieces & (CapStones))*gameConfig->CapStoneScore;
-        score += Popcount(WhitePieces & (Standing))*gameConfig->StandingStoneScore;
-        score -= Popcount(BlackPieces & (Standing))*gameConfig->StandingStoneScore;
+//        score += Popcount(WhitePieces & (Standing))*gameConfig->StandingStoneScore;
+//        score -= Popcount(BlackPieces & (Standing))*gameConfig->StandingStoneScore;
         score += Popcount(WhitePieces & ~(gameConfig->Edge))*gameConfig->CenterScore;
         score -= Popcount(BlackPieces & ~(gameConfig->Edge))*gameConfig->CenterScore;
         
@@ -781,7 +781,7 @@ class Game{
         while (filledPieces != 0){
             bit_set = filledPieces & ~(filledPieces & (filledPieces -1));
             i = __builtin_ctzl(bit_set);
-            score += (Heights[i] - Popcount(Stacks[i] & ((1 << Heights[i]) - 1)))*gameConfig->StackHeightScore;
+//            score += (Heights[i] - Popcount(Stacks[i] & ((1 << Heights[i]) - 1)))*gameConfig->StackHeightScore;
             score += Popcount(WhitePieces & gameConfig->InfluenceMasks[i])*gameConfig->InfluenceScore;
             filledPieces = filledPieces & (filledPieces -1);
         }
@@ -791,7 +791,7 @@ class Game{
         while (filledPieces != 0){
             bit_set = filledPieces & ~(filledPieces & (filledPieces -1));
             i = __builtin_ctzl(bit_set);
-            score -= Popcount((Stacks[i] & ((1 << Heights[i]) - 1)))*gameConfig->StackHeightScore;
+            //score -= Popcount((Stacks[i] & ((1 << Heights[i]) - 1)))*gameConfig->StackHeightScore;
             score -= Popcount(BlackPieces & gameConfig->InfluenceMasks[i])*gameConfig->InfluenceScore;
             filledPieces = filledPieces & (filledPieces -1);
         }

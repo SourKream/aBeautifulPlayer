@@ -401,25 +401,25 @@ int main(int argc, char** argv){
 
     double WhiteScores[] = {15,0.507648,12.0281,12.5767,0.602723,10.5355,14.2851};
     double BlackScores[] = {15,0.558291,11.6684,11.0022,0.58952,10.8724,15};
-     doReinforcementLearning(40,WhiteScores,BlackScores,true);
+    //doReinforcementLearning(40,WhiteScores,BlackScores,true);
 
-//    int MaxDepth = 5;
-//    int p, n;
-//    double t;
-//    cin >> p >> n >> t;
-//    timeval currenttime;
-//    gettimeofday(&currenttime, NULL);
-//    if ( p == 1){
-//        MiniMaxAgent player3(p, n, t,WhiteScores, MaxDepth, &currenttime);
-//        cerr << "MiniMax Player With Bits" << endl;
-//        player3.playFirstMove();
-//        player3.play();
-//    }
-//    else{
-//        MiniMaxAgent player3(p, n, t,BlackScores, MaxDepth, &currenttime);
-//        cerr << "MiniMax Player With Bits" << endl;
-//        player3.playFirstMove();
-//        player3.play();
-//    }
+    int MaxDepth = 5;
+    int p, n;
+    double t;
+    cin >> p >> n >> t;
+    timeval currenttime;
+    gettimeofday(&currenttime, NULL);
+    if ( p == 1){
+        MiniMaxAgent player3(p, n, t,WhiteScores, MaxDepth, &currenttime);
+        cerr << "MiniMax Player With Bits" << endl;
+        player3.playFirstMove();
+        player3.play();
+    }
+    else{
+        MiniMaxAgent player3(p, n, t,BlackScores, MaxDepth, &currenttime);
+        cerr << "MiniMax Player With Bits" << endl;
+        player3.playFirstMove();
+        player3.play();
+    }
     return 0;
 }
