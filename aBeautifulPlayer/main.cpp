@@ -449,7 +449,7 @@ int main(int argc, char** argv){
     cerr << "SRAND KEY : " << time(NULL) << endl;
     
     Slides = GenerateAllSlides(5);
-    debugGame();
+    //debugGame();
     //doReinforcementLearning(stoi(argv[1]));
 
     double WhiteScores[] = {15,0.507648,12.0281,12.5767,0.602723,10.5355,14.2851};
