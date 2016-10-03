@@ -31,7 +31,7 @@ enum MoveType { Place = 0,
 
 enum PieceType {    FlatStone = 0,
     StandingStone,
-    Capstone
+    CapStonePiece
 };
 
 enum Color {    Black = 0,
@@ -74,7 +74,7 @@ class Config{
     public :
     int BoardSize;
     int Pieces;
-    int Capstones;
+    int CapStonesAllowed;
     
     uint64 Left;
     uint64 Right;
@@ -111,15 +111,15 @@ class Config{
         switch(BoardSize){
             case 5:
                 Pieces = 21;
-                Capstones = 1;
+                CapStonesAllowed = 1;
                 break;
             case 6:
                 Pieces = 30;
-                Capstones = 1;
+                CapStonesAllowed = 1;
                 break;
             case 7:
                 Pieces = 40;
-                Capstones = 1;
+                CapStonesAllowed = 1;
                 break;
         }
         Left = 0;
@@ -143,7 +143,7 @@ class Config{
         
         BoardMask = (1ULL << (BoardSize*BoardSize)) - 1;
         
-        for (int i = 0 ; i < BoardSize; i++)
+        for (int i = 0 ; i < BoardSize*BoardSize; i++)
             InfluenceMasks[i] = Expand(1ULL << i);
         
         FlatScore = Scores[0];
@@ -173,7 +173,6 @@ class Game{
     short int size_cw;
     short int size_cb;
     Config *gameConfig;
-    unsigned long moves;
     
     bool currentPlayer = 1;
     bool myPlayerNumber;
@@ -186,11 +185,10 @@ class Game{
         gameConfig = new Config(BoardSize, Scores);
         memset(Stacks, 0 , MAX_SIZE_SQUARE*sizeof(uint64));
         memset(Heights, 0 , MAX_SIZE_SQUARE*sizeof(uint64));
-        
         flats[0] = gameConfig->Pieces;
         flats[1] = gameConfig->Pieces;
-        capstones[0] = gameConfig->Capstones;
-        capstones[1] = gameConfig->Capstones;
+        capstones[0] = gameConfig->CapStonesAllowed;
+        capstones[1] = gameConfig->CapStonesAllowed;
         
         myPlayerNumber = playerNumber % 2;
     }
@@ -209,8 +207,6 @@ class Game{
         
         gameConfig = current.gameConfig;
         currentPlayer = current.currentPlayer;
-        moves = current.moves;
-        
         size_cb = current.size_cb;
         size_cw = current.size_cw;
         
@@ -262,7 +258,7 @@ class Game{
                     break;
                 case 'S': moveOut.piece.type = StandingStone;
                     break;
-                case 'C': moveOut.piece.type = Capstone;
+                case 'C': moveOut.piece.type = CapStonePiece;
                     break;
             }
             moveOut.column = move[1]-'a';
@@ -303,7 +299,7 @@ class Game{
                     break;
                 case StandingStone: move = 'S';
                     break;
-                case Capstone: move = 'C';
+                case CapStonePiece: move = 'C';
                     break;
             }
             move += (moveIn.column + 'a');
@@ -428,7 +424,7 @@ class Game{
                 break;
         }
         switch (move.piece.type) {
-            case Capstone :
+            case CapStonePiece :
                 CapStones |= (1ULL << i);
                 break;
             case StandingStone :
@@ -442,7 +438,7 @@ class Game{
     void applyMove(Move move){
         if (move.Movetype < 1){
             PlaceMove(move);
-            if (move.piece.type != Capstone)
+            if (move.piece.type != CapStonePiece)
                 flats[move.piece.color]--;
             else
                 capstones[move.piece.color]--;
@@ -453,7 +449,7 @@ class Game{
         currentPlayer ^= 1;
     }
     
-    Move GetPossSteps(uint64 filledPieces,int array[]){
+    Move GetPossSteps(uint64 filledPieces,int* array){
         uint64 bit_set = filledPieces & ~(filledPieces & (filledPieces -1));
         short i = __builtin_ctzl(bit_set);
         int r = i/gameConfig->BoardSize;
@@ -508,38 +504,11 @@ class Game{
         return move;
     }
     
-    vector<Move> generateAllMoves(){
-        vector<Move> allMoves(1000);
+    int generateAllMoves(Move * allMoves){
+        //vector<Move> allMoves(1000);
         int K = 0;
         
-        // Place Moves
-        Piece piece;
-        piece.color = (Color)currentPlayer;
-        uint64 emptyPositions = ((~(WhitePieces | BlackPieces))&gameConfig->BoardMask);
-        uint64 bits = 0;
-        uint64 bit_set = 0;
-        int i = 0;
-        while (emptyPositions != 0){
-            bits = emptyPositions & (emptyPositions -1);
-            bit_set = emptyPositions & ~bits;
-            i = __builtin_ctzl(bit_set);
-            Move move(i/gameConfig->BoardSize, i%gameConfig->BoardSize, piece);
-            if (flats[currentPlayer]>0){
-                move.piece.type = FlatStone;
-                allMoves[K++] = move;
-                // allMoves.push_back(move);
-                move.piece.type = StandingStone;
-                allMoves[K++] = move;
-                // allMoves.push_back(move);
-            }
-            if (capstones[currentPlayer]>0){
-                move.piece.type = Capstone;
-                allMoves[K++] = move;
-                // allMoves.push_back(move);
-            }
-            emptyPositions = bits;
-        }
-        
+
         // Slide Moves
         uint64 filledPieces = BlackPieces;
         if (currentPlayer)
@@ -565,6 +534,34 @@ class Game{
                     }
                 }
             }
+        }
+        
+        // Place Moves
+        Piece piece;
+        piece.color = (Color)currentPlayer;
+        uint64 emptyPositions = ((~(WhitePieces | BlackPieces))&gameConfig->BoardMask);
+        uint64 bits = 0;
+        uint64 bit_set = 0;
+        int i = 0;
+        while (emptyPositions != 0){
+            bits = emptyPositions & (emptyPositions -1);
+            bit_set = emptyPositions & ~bits;
+            i = __builtin_ctzl(bit_set);
+            Move move(i/gameConfig->BoardSize, i%gameConfig->BoardSize, piece);
+            if (flats[currentPlayer]>0){
+                move.piece.type = FlatStone;
+                allMoves[K++] = move;
+                // allMoves.push_back(move);
+                move.piece.type = StandingStone;
+                allMoves[K++] = move;
+                // allMoves.push_back(move);
+            }
+            if (capstones[currentPlayer]>0){
+                move.piece.type = CapStonePiece;
+                allMoves[K++] = move;
+                // allMoves.push_back(move);
+            }
+            emptyPositions = bits;
         }
         
         // Capstone Moves
@@ -612,9 +609,10 @@ class Game{
             }
             filledPieces &= (filledPieces-1);
         }
-        
-        random_shuffle(allMoves.begin(),allMoves.begin() + K -1);
-        return {allMoves.begin(),allMoves.begin() + K - 1};
+        return K;
+        //random_shuffle(allMoves.begin(),allMoves.begin() + K -1);
+//        cout << &allMoves << endl;
+//        return {allMoves.begin(),allMoves.begin() + K - 1};
     }
     
     vector<Move> generateFirstMove(){
@@ -648,6 +646,18 @@ class Game{
         int winner = checkIfRoadExists();
         if (winner!=-1)
             return winner;
+        
+        if ((WhitePieces | BlackPieces) == gameConfig->BoardMask){
+            int whiteFlats = Popcount(WhitePieces & ~(Standing | CapStones));
+            int blackFlats = Popcount(BlackPieces & ~(Standing | CapStones));
+            
+            if (whiteFlats > blackFlats)
+                return 1;
+            else if (whiteFlats < blackFlats)
+                return 0;
+            else
+                return currentPlayer; // CHECK THIS PART
+        }
         
         if ((flats[0]==0)||(flats[1]==0)){
             int whiteFlats = Popcount(WhitePieces & ~(Standing | CapStones));

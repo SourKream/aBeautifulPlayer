@@ -1,2 +1,14 @@
 mainOld.cpp
 .DS_Store
+
+*.xcbkptlist
+
+aBeautifulPlayer.xcodeproj/project.xcworkspace/xcuserdata/akshaysingla.xcuserdatad/UserInterfaceState.xcuserstate
+
+aBeautifulPlayer.xcodeproj/xcuserdata/akshaysingla.xcuserdatad/xcschemes/xcschememanagement.plist
+
+aBeautifulPlayer/log.txt
+
+aBeautifulPlayer/a.out
+
+aBeautifulPlayer.xcodeproj/xcuserdata/akshaysingla.xcuserdatad/xcschemes/aBeautifulPlayer.xcscheme
