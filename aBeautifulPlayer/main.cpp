@@ -132,18 +132,6 @@ class GameManager{
         player2 = new MiniMaxAgent(p+1, n, t, ScoresForPlayer2, DepthBlack);
     }
     
-    void updateAverageBoard(){
-        vector<vector<int>> current = myGame->AnalyzeBoard();
-        if ( currentPlayer)
-            for (int i = 0 ; i < 2; i++)
-                for (int j = 0 ; j < 7 ;j++)
-                    Player1AverageScores[i][j] = current[i][j] + 0.9*Player1AverageScores[i][j];
-        else
-            for (int i = 0 ; i < 2; i++)
-                for (int j = 0 ; j < 7 ;j++)
-                    Player2AverageScores[i][j] = current[i][j] + 0.9*Player2AverageScores[i][j];
-    }
-    
     int Play(){
         string move;
         move = player1->GiveFirstMove();
@@ -205,10 +193,23 @@ class GameManager{
         }
         return 0;
     }
+    void updateAverageBoard(){
+        vector<vector<int>> current = myGame->AnalyzeBoard();
+        if ( currentPlayer)
+            for (int i = 0 ; i < 2; i++)
+                for (int j = 0 ; j < 7 ;j++)
+                    Player1AverageScores[i][j] = current[i][j] + 0.9*Player1AverageScores[i][j];
+        else
+            for (int i = 0 ; i < 2; i++)
+                for (int j = 0 ; j < 7 ;j++)
+                    Player2AverageScores[i][j] = current[i][j] + 0.9*Player2AverageScores[i][j];
+    }
     
-    vector<vector<int>> AnalyseBoard(){
-        auto x = myGame->AnalyzeBoard();
-        return x;
+    vector<vector<double>> AnalyseBoard(){
+        for (int i = 0 ; i < 7 ;i++)
+            Player1AverageScores[0][i] = Player2AverageScores[0][i];
+       
+        return Player1AverageScores;
     }
 };
 
@@ -233,27 +234,27 @@ void doReinforcementLearning( int trials,     double ScoresForPlayer1[] ,  doubl
     }
     if (Randomize){
         for (int i =0 ; i < 7; i++){
-            ScoresForPlayer1[i] = rand()%11;
+            ScoresForPlayer1[i] = rand()%10 + 1;
             Initial1[i] = ScoresForPlayer1[i];
-            ScoresForPlayer2[i] = rand()%11;
+            ScoresForPlayer2[i] = rand()%10 + 1;
             Initial2[i] = ScoresForPlayer2[i];
         }
     }
     int DepthWhite = 3;
-    int DepthBlack = 4;
+    int DepthBlack = 3;
     double* Win;
     double* Lose;
-    int* WinAnalysis;
-    int* LoseAnalysis;
+    double* WinAnalysis;
+    double* LoseAnalysis;
     int BlackWins = 0;
     int WhiteWins = 0;
     PrintScores(Initial1, Initial2,true);
-    vector<vector<int>> BoardAnalysis;
+    vector<vector<double>> BoardAnalysis;
     for (int i =0 ; i < trials; i++){
-            double LearningRate = 5.0;
+        double LearningRate = 5.0;
         cout << endl << "Iteration " << i + 1 << endl;
         cerr << endl << "Iteration " << i + 1 << endl;
-        PrintScores(ScoresForPlayer1, ScoresForPlayer2);
+        PrintScores(ScoresForPlayer1, ScoresForPlayer2,true);
         GameManager Player(ScoresForPlayer1,DepthWhite, ScoresForPlayer2, DepthBlack);
         int ret = Player.Play();
         BoardAnalysis = Player.AnalyseBoard();
@@ -286,10 +287,9 @@ void doReinforcementLearning( int trials,     double ScoresForPlayer1[] ,  doubl
            // return;
         }
         for (int j =0 ;j < 7;j++){
-            double grad = (WinAnalysis[j] - LoseAnalysis[j])*LearningRate + LearningRate;
-            Win[j] += 0.1*grad;
-            Lose[j] += grad;
-            Win[j] =  max(0.0,min(15.0,Win[j]));
+            double grad = ((WinAnalysis[j]*Win[j] - LoseAnalysis[j]*Lose[j])/(WinAnalysis[j]*Win[j]))*LearningRate + LearningRate;
+            double grad1 = (WinAnalysis[j] - LoseAnalysis[j])*LearningRate;
+            Lose[j] += grad*Lose[j] + grad;
             Lose[j] = max(0.0,min(15.0,Lose[j]));
         }
     }
@@ -401,7 +401,7 @@ int main(int argc, char** argv){
 
     double WhiteScores[] = {13.9983,7.70373,11.1121,3.32273,7.20039,6.28909,12.8683};
     double BlackScores[] = {9.27457,1.05398,9.41521,2.98011,2.80278,8.2573,13.4092};
-     doReinforcementLearning(10,WhiteScores,BlackScores,true);
+     doReinforcementLearning(20,WhiteScores,BlackScores,true);
 
 //    int MaxDepth = 5;
 //    int p, n;
