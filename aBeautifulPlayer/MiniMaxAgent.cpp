@@ -155,7 +155,6 @@ struct MiniMaxAgent{
         for (int i=0; i<size_all_moves; i++){
             Game nextState = *myGame;
             nextState.applyMove(allMoves[i]);
-            
             int value = MiniMaxSearch(nextState, false, 1, alpha, beta);
             if (value > maxStateValue){
                 maxStateValue = value;
