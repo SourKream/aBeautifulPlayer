@@ -288,9 +288,9 @@ void doReinforcementLearning( int trials,     double ScoresForPlayer1[] ,  doubl
         }
         for (int j =0 ;j < 7;j++){
             double grad = ((WinAnalysis[j]*Win[j] - LoseAnalysis[j]*Lose[j])/(WinAnalysis[j]*Win[j] + 1))*LearningRate + LearningRate;
-            double grad1 = (WinAnalysis[j] - LoseAnalysis[j])*LearningRate;
+         //   double grad1 = (WinAnalysis[j] - LoseAnalysis[j])*LearningRate;
             Lose[j] += grad*Lose[j] + grad;
-            Lose[j] = max(0.0,min(15.0,Lose[j]));
+            Lose[j] = max(0.0,min(30.0,Lose[j]));
         }
     }
     cout << endl;
@@ -399,9 +399,9 @@ int main(int argc, char** argv){
     //debugGame();
     //doReinforcementLearning(stoi(argv[1]));
 
-    double WhiteScores[] = {13.9983,7.70373,11.1121,3.32273,7.20039,6.28909,12.8683};
-    double BlackScores[] = {9.27457,1.05398,9.41521,2.98011,2.80278,8.2573,13.4092};
-     doReinforcementLearning(20,WhiteScores,BlackScores,true);
+    double WhiteScores[] = {15,0.507648,12.0281,12.5767,0.602723,10.5355,14.2851};
+    double BlackScores[] = {15,0.558291,11.6684,11.0022,0.58952,10.8724,15};
+     doReinforcementLearning(40,WhiteScores,BlackScores,true);
 
 //    int MaxDepth = 5;
 //    int p, n;
