@@ -275,9 +275,11 @@ void doReinforcementLearning( int trials){
 
 int main(int argc, char** argv){
 
+    cerr << "SRAND KEY : " << time(NULL) << endl;
     srand(time(NULL));    
+    cerr << "SRAND KEY : " << time(NULL) << endl;
     Slides = GenerateAllSlides(5);
-    //doReinforcementLearning(stoi(argv[1]));
+
 //    doReinforcementLearning(20);
 
 //    Game myGame(5, 2);
@@ -327,8 +329,11 @@ int main(int argc, char** argv){
 //    int InfluenceScore = 3;
 //    int GroupSizeScore = 0;
 
-    double Scores[] = {6,1,2,2,2,3,0};
-    int MaxDepth = 5;
+//// MAIN //////
+
+    // double Scores[] = {6,1,2,2,2,3,0};
+    double Scores[] = {9,3.5,6.5,7,2.5,5,9};
+    int MaxDepth = 4;
 
     int p, n, t;
     cin >> p >> n >> t;

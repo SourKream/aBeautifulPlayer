@@ -127,11 +127,11 @@ struct MiniMaxAgent{
             }
             alpha = max(alpha, maxStateValue);
             
-            if (beta < alpha)
+            if ((beta < alpha) || (maxStateValue == ROAD_REWARD))
                 break;
         }
         
-       // cerr << "Max State Value was  : " << maxStateValue << endl;
+        cerr << "Max State Value was  : " << maxStateValue << endl;
         return myGame->getMoveString(bestMove);
     }
     
@@ -155,13 +155,13 @@ struct MiniMaxAgent{
             if (maximize){
                 bestValue = max(bestValue, value);
                 alpha = max(alpha, bestValue);
-                if (beta < alpha)
+                if ((beta < alpha) || (bestValue == ROAD_REWARD))
                     break;
             }
             else {
                 bestValue = min(bestValue, value);
                 beta = min(beta, bestValue);
-                if (beta < alpha)
+                if ((beta < alpha) || ((bestValue == -ROAD_REWARD)))
                     break;
             }
         }

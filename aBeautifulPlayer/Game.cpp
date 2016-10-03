@@ -14,6 +14,7 @@
 #define WHITE 1
 #define MAX_SIZE 7
 #define MAX_SIZE_SQUARE MAX_SIZE*MAX_SIZE
+#define ROAD_REWARD 2000
 
 using namespace std;
 typedef unsigned long long uint64;
@@ -751,8 +752,8 @@ class Game{
         int winner = checkIfRoadExists();
         if (winner != -1){
             if (winner == myPlayerNumber)
-                return 1000;
-            return -1000;
+                return ROAD_REWARD;
+            return -ROAD_REWARD;
         }
         //Normal Scores
         double score = Popcount(WhitePieces & ~(Standing|CapStones))*gameConfig->FlatScore;
