@@ -448,7 +448,7 @@ class Game{
         currentPlayer ^= 1;
     }
     
-    Move GetPossSteps(uint64 filledPieces,int array[]){
+    Move GetPossSteps(uint64 filledPieces,int* array){
         uint64 bit_set = filledPieces & ~(filledPieces & (filledPieces -1));
         short i = __builtin_ctzl(bit_set);
         int r = i/gameConfig->BoardSize;
@@ -503,9 +503,37 @@ class Game{
         return move;
     }
     
-    vector<Move> generateAllMoves(){
-        vector<Move> allMoves(1000);
+    int generateAllMoves(Move * allMoves){
+        //vector<Move> allMoves(1000);
         int K = 0;
+        
+
+        // Slide Moves
+        uint64 filledPieces = BlackPieces;
+        if (currentPlayer)
+            filledPieces = WhitePieces;
+        
+        while (filledPieces != 0){
+            int PossStepsInDir[4];
+            Move move = GetPossSteps(filledPieces, PossStepsInDir);
+            int i = move.row * gameConfig->BoardSize + move.column;
+            filledPieces &= (filledPieces-1);
+            for (int dir = 0; dir < 4; dir++){
+                int PossSteps = PossStepsInDir[dir];
+                for (int u = 1 ; u <= PossSteps; u++){
+                    for (int t = 0 ; t < Slides[u].size(); t++){
+                        if ( Slides[u][t][u] > Heights[i])
+                            break;
+                        move.dropLength = u;
+                        move.Movetype = (MoveType)(1+dir);
+                        memcpy(&move.Drops[0],&Slides[u][t][0], 8*sizeof(short) );
+                        // move.Drops = &Slides[u][t][0];
+                        // allMoves.push_back(move);
+                        allMoves[K++] = move;
+                    }
+                }
+            }
+        }
         
         // Place Moves
         Piece piece;
@@ -533,33 +561,6 @@ class Game{
                 // allMoves.push_back(move);
             }
             emptyPositions = bits;
-        }
-        
-        // Slide Moves
-        uint64 filledPieces = BlackPieces;
-        if (currentPlayer)
-            filledPieces = WhitePieces;
-        
-        while (filledPieces != 0){
-            int PossStepsInDir[4];
-            Move move = GetPossSteps(filledPieces, PossStepsInDir);
-            int i = move.row * gameConfig->BoardSize + move.column;
-            filledPieces &= (filledPieces-1);
-            for (int dir = 0; dir < 4; dir++){
-                int PossSteps = PossStepsInDir[dir];
-                for (int u = 1 ; u <= PossSteps; u++){
-                    for (int t = 0 ; t < Slides[u].size(); t++){
-                        if ( Slides[u][t][u] > Heights[i])
-                            break;
-                        move.dropLength = u;
-                        move.Movetype = (MoveType)(1+dir);
-                        memcpy(&move.Drops[0],&Slides[u][t][0], 8*sizeof(short) );
-                        // move.Drops = &Slides[u][t][0];
-                        // allMoves.push_back(move);
-                        allMoves[K++] = move;
-                    }
-                }
-            }
         }
         
         // Capstone Moves
@@ -607,9 +608,10 @@ class Game{
             }
             filledPieces &= (filledPieces-1);
         }
-        
-        random_shuffle(allMoves.begin(),allMoves.begin() + K -1);
-        return {allMoves.begin(),allMoves.begin() + K - 1};
+        return K;
+        //random_shuffle(allMoves.begin(),allMoves.begin() + K -1);
+//        cout << &allMoves << endl;
+//        return {allMoves.begin(),allMoves.begin() + K - 1};
     }
     
     vector<Move> generateFirstMove(){
