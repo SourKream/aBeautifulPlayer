@@ -116,13 +116,13 @@ class GameManager{
     vector<vector<double>> Player1AverageScores;//(2,vector<double>(7));
     vector<vector<double>> Player2AverageScores;//(2,vector<double>(7));
     
-    int DepthBlack = 3;
-    int DepthWhite = 3;
+    int DepthBlack = 4;
+    int DepthWhite = 4;
     GameManager(double ScoresForPlayer1[],int depthwhite, double ScoresForPlayer2[],int depthblack){
         double Scores[10];
         myGame = new Game(5,2,Scores);
         int n = 5;
-        int t = 120;
+        int t = 1200;
         int p = 1;
         Player1AverageScores.resize(2,vector<double>(7,0));
         Player2AverageScores.resize(2,vector<double>(7,0));
@@ -130,18 +130,6 @@ class GameManager{
         DepthWhite = depthwhite;
         player1 = new MiniMaxAgent(p, n, t, ScoresForPlayer1, DepthWhite);
         player2 = new MiniMaxAgent(p+1, n, t, ScoresForPlayer2, DepthBlack);
-    }
-    
-    void updateAverageBoard(){
-        vector<vector<int>> current = myGame->AnalyzeBoard();
-        if ( currentPlayer)
-            for (int i = 0 ; i < 2; i++)
-                for (int j = 0 ; j < 7 ;j++)
-                    Player1AverageScores[i][j] = current[i][j] + 0.9*Player1AverageScores[i][j];
-        else
-            for (int i = 0 ; i < 2; i++)
-                for (int j = 0 ; j < 7 ;j++)
-                    Player2AverageScores[i][j] = current[i][j] + 0.9*Player2AverageScores[i][j];
     }
     
     int Play(){
@@ -205,15 +193,28 @@ class GameManager{
         }
         return 0;
     }
+    void updateAverageBoard(){
+        vector<vector<int>> current = myGame->AnalyzeBoard();
+        if ( currentPlayer)
+            for (int i = 0 ; i < 2; i++)
+                for (int j = 0 ; j < 7 ;j++)
+                    Player1AverageScores[i][j] = current[i][j] + 0.9*Player1AverageScores[i][j];
+        else
+            for (int i = 0 ; i < 2; i++)
+                for (int j = 0 ; j < 7 ;j++)
+                    Player2AverageScores[i][j] = current[i][j] + 0.9*Player2AverageScores[i][j];
+    }
     
-    vector<vector<int>> AnalyseBoard(){
-        auto x = myGame->AnalyzeBoard();
-        return x;
+    vector<vector<double>> AnalyseBoard(){
+        for (int i = 0 ; i < 7 ;i++)
+            Player1AverageScores[0][i] = Player2AverageScores[0][i];
+       
+        return Player1AverageScores;
     }
 };
 
 
-void doReinforcementLearning( int trials,     double ScoresForPlayer1[] ,  double ScoresForPlayer2[] ){
+void doReinforcementLearning( int trials,     double ScoresForPlayer1[] ,  double ScoresForPlayer2[] , bool Randomize = false){
     
     
     //    double FlatScore = 6;
@@ -231,27 +232,29 @@ void doReinforcementLearning( int trials,     double ScoresForPlayer1[] ,  doubl
         //ScoresForPlayer2[i] = rand()%11;
         Initial2[i] = ScoresForPlayer2[i];
     }
-    
-//    for (int i =0 ; i < 7; i++){
-//        ScoresForPlayer1[i] = rand()%11;
-//        Initial1[i] = ScoresForPlayer1[i];
-//        ScoresForPlayer2[i] = rand()%11;
-//        Initial2[i] = ScoresForPlayer2[i];
-//    }
+    if (Randomize){
+        for (int i =0 ; i < 7; i++){
+            ScoresForPlayer1[i] = rand()%10 + 1;
+            Initial1[i] = ScoresForPlayer1[i];
+            ScoresForPlayer2[i] = rand()%10 + 1;
+            Initial2[i] = ScoresForPlayer2[i];
+        }
+    }
     int DepthWhite = 3;
-    int DepthBlack = 4;
+    int DepthBlack = 3;
     double* Win;
     double* Lose;
-    int* WinAnalysis;
-    int* LoseAnalysis;
+    double* WinAnalysis;
+    double* LoseAnalysis;
     int BlackWins = 0;
     int WhiteWins = 0;
     PrintScores(Initial1, Initial2,true);
-    vector<vector<int>> BoardAnalysis;
+    vector<vector<double>> BoardAnalysis;
     for (int i =0 ; i < trials; i++){
-            double LearningRate = 5.0;
+        double LearningRate = 5.0;
         cout << endl << "Iteration " << i + 1 << endl;
-        PrintScores(ScoresForPlayer1, ScoresForPlayer2);
+        cerr << endl << "Iteration " << i + 1 << endl;
+        PrintScores(ScoresForPlayer1, ScoresForPlayer2,true);
         GameManager Player(ScoresForPlayer1,DepthWhite, ScoresForPlayer2, DepthBlack);
         int ret = Player.Play();
         BoardAnalysis = Player.AnalyseBoard();
@@ -284,11 +287,10 @@ void doReinforcementLearning( int trials,     double ScoresForPlayer1[] ,  doubl
            // return;
         }
         for (int j =0 ;j < 7;j++){
-            double grad = (WinAnalysis[j] - LoseAnalysis[j])*LearningRate + LearningRate;
-            Win[j] += 0.1*grad;
-            Lose[j] += grad;
-            Win[j] =  max(0.0,min(15.0,Win[j]));
-            Lose[j] = max(0.0,min(15.0,Lose[j]));
+            double grad = ((WinAnalysis[j]*Win[j] - LoseAnalysis[j]*Lose[j])/(WinAnalysis[j]*Win[j] + 1))*LearningRate + LearningRate;
+         //   double grad1 = (WinAnalysis[j] - LoseAnalysis[j])*LearningRate;
+            Lose[j] += grad*Lose[j] + grad;
+            Lose[j] = max(0.0,min(30.0,Lose[j]));
         }
     }
     cout << endl;
@@ -306,7 +308,58 @@ void debugGame(){
         ,7.14189
         ,12.7884};
     Game myGame(5, 2,WhiteScores);
-    myGame.applyMove(myGame.makeMove("Fa5",true));
+    myGame.applyMove(myGame.makeMove("Fe1",true));
+    myGame.applyMove(myGame.makeMove("Fe5",true));
+    myGame.applyMove(myGame.makeMove("Fd2"));
+    myGame.applyMove(myGame.makeMove("Fd1"));
+    myGame.applyMove(myGame.makeMove("Fd4"));
+    myGame.applyMove(myGame.makeMove("1d1+1"));
+    myGame.applyMove(myGame.makeMove("Fc2"));
+    myGame.applyMove(myGame.makeMove("Fd3"));
+    myGame.applyMove(myGame.makeMove("Fe3"));
+    myGame.applyMove(myGame.makeMove("1d3>1"));
+    myGame.applyMove(myGame.makeMove("Cd3"));
+    myGame.applyMove(myGame.makeMove("Cc4"));
+    myGame.applyMove(myGame.makeMove("Fc3"));
+    myGame.applyMove(myGame.makeMove("1c4>1"));
+    myGame.applyMove(myGame.makeMove("1d3>1"));
+    myGame.applyMove(myGame.makeMove("Fc1"));
+    myGame.applyMove(myGame.makeMove("3e3-12"));
+    myGame.applyMove(myGame.makeMove("1c1+1"));
+    myGame.applyMove(myGame.makeMove("Fe3"));
+    myGame.applyMove(myGame.makeMove("Fe4"));
+    myGame.applyMove(myGame.makeMove("1e5-1"));
+    myGame.applyMove(myGame.makeMove("2d4>2"));
+    myGame.applyMove(myGame.makeMove("1e2<1"));
+    myGame.applyMove(myGame.makeMove("2c2>2"));
+    myGame.applyMove(myGame.makeMove("Sc2"));
+    myGame.applyMove(myGame.makeMove("3d2>3"));
+    myGame.applyMove(myGame.makeMove("3e1+3"));
+    myGame.applyMove(myGame.makeMove("Fd4"));
+    myGame.applyMove(myGame.makeMove("Fc4"));
+    myGame.applyMove(myGame.makeMove("1d4<1"));
+    myGame.applyMove(myGame.makeMove("Fb2"));
+    myGame.applyMove(myGame.makeMove("Fd4"));
+    myGame.applyMove(myGame.makeMove("Fb3"));
+    myGame.applyMove(myGame.makeMove("Fb4"));
+    myGame.applyMove(myGame.makeMove("1c3+1"));
+    myGame.applyMove(myGame.makeMove("1b4>1"));
+    myGame.applyMove(myGame.makeMove("Sc3"));
+    myGame.applyMove(myGame.makeMove("4c4<22"));
+    myGame.applyMove(myGame.makeMove("Sc4"));
+    myGame.applyMove(myGame.makeMove("Fa3"));
+    myGame.applyMove(myGame.makeMove("1c4<1"));
+    myGame.applyMove(myGame.makeMove("Sc4"));
+    myGame.applyMove(myGame.makeMove("Fa2"));
+    myGame.applyMove(myGame.makeMove("Sd3"));
+    myGame.applyMove(myGame.makeMove("256"));
+    myGame.applyMove(myGame.makeMove("Fb1"));
+    myGame.applyMove(myGame.makeMove("Fd5"));
+    myGame.applyMove(myGame.makeMove("Fb5"));
+    myGame.applyMove(myGame.makeMove("1a3>1"));
+    myGame.applyMove(myGame.makeMove("4e2<31"));
+    myGame.applyMove(myGame.makeMove("1d2-1"));
+/*    myGame.applyMove(myGame.makeMove("Fa5",true));
     myGame.applyMove(myGame.makeMove("Fe5",true));
     myGame.applyMove(myGame.makeMove("Fe4"));
     myGame.applyMove(myGame.makeMove("Fb4"));
@@ -354,13 +407,14 @@ void debugGame(){
     myGame.applyMove(myGame.makeMove("3b2+111"));
     myGame.applyMove(myGame.makeMove("2c2<2"));
     myGame.applyMove(myGame.makeMove("1b3>1"));
-    myGame.applyMove(myGame.makeMove("3c2+3"));
+    myGame.applyMove(myGame.makeMove("3c2+3"));*/
 
     printGameState(myGame);
 
     int Depth = 4;
-    MiniMaxAgent player(2,5,150,WhiteScores,Depth);
+    MiniMaxAgent player(1,5,150,WhiteScores,Depth);
     player.myGame = &myGame;
+    player.myGame->currentPlayer = 1;
     cout << "My Move : " << player.getMiniMaxMove() << endl;
 //
 //    Move x = myGame.makeMove("1b1+1");
@@ -397,28 +451,28 @@ int main(int argc, char** argv){
     Slides = GenerateAllSlides(5);
     //debugGame();
     //doReinforcementLearning(stoi(argv[1]));
-    double WhiteScores[] = {13.9983,7.70373,11.1121,3.32273,7.20039,6.28909,12.8683};
-    double BlackScores[] = {9.27457,1.05398,9.41521,2.98011,2.80278,8.2573,13.4092};
-     doReinforcementLearning(10,WhiteScores,BlackScores);
 
-//    int MaxDepth = 5;
-//    int p, n;
-//    double t;
-//    cin >> p >> n >> t;
-//    timeval currenttime;
-//    gettimeofday(&currenttime, NULL);
-//    if ( p == 1){
-//        MiniMaxAgent player3(p, n, t,WhiteScores, MaxDepth, &currenttime);
-//        cerr << "MiniMax Player With Bits" << endl;
-//        player3.playFirstMove();
-//        player3.play();
-//    }
-//    else{
-//        MiniMaxAgent player3(p, n, t,BlackScores, MaxDepth, &currenttime);
-//        cerr << "MiniMax Player With Bits" << endl;
-//        player3.playFirstMove();
-//        player3.play();
-//    }
-//    
+    double WhiteScores[] = {15,0.507648,12.0281,12.5767,0.602723,10.5355,14.2851};
+    double BlackScores[] = {15,0.558291,11.6684,11.0022,0.58952,10.8724,15};
+    //doReinforcementLearning(40,WhiteScores,BlackScores,true);
+
+    int MaxDepth = 5;
+    int p, n;
+    double t;
+    cin >> p >> n >> t;
+    timeval currenttime;
+    gettimeofday(&currenttime, NULL);
+    if ( p == 1){
+        MiniMaxAgent player3(p, n, t,WhiteScores, MaxDepth, &currenttime);
+        cerr << "MiniMax Player With Bits" << endl;
+        player3.playFirstMove();
+        player3.play();
+    }
+    else{
+        MiniMaxAgent player3(p, n, t,BlackScores, MaxDepth, &currenttime);
+        cerr << "MiniMax Player With Bits" << endl;
+        player3.playFirstMove();
+        player3.play();
+    }
     return 0;
 }

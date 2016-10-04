@@ -155,7 +155,10 @@ struct MiniMaxAgent{
         for (int i=0; i<size_all_moves; i++){
             Game nextState = *myGame;
             nextState.applyMove(allMoves[i]);
-            
+            if (nextState.isFinishState() == myPlayerNumber){
+                cerr << "1 Move Win/Loss" << endl;
+                return myGame->getMoveString(allMoves[i]);
+            }
             int value = MiniMaxSearch(nextState, false, 1, alpha, beta);
             if (value > maxStateValue){
                 maxStateValue = value;
@@ -163,7 +166,7 @@ struct MiniMaxAgent{
             }
             alpha = max(alpha, maxStateValue);
             
-            if ((beta < alpha) || (maxStateValue == ROAD_REWARD))
+            if ((beta < alpha) )
                 break;
         }
         
