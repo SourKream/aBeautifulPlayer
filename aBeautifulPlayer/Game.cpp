@@ -655,8 +655,12 @@ class Game{
                 return 1;
             else if (whiteFlats < blackFlats)
                 return 0;
-            else
-                return currentPlayer; // CHECK THIS PART
+
+            else {
+                if (flats[0] == flats[1])
+                    return 2;
+                return (flats[0]>0)?0:1;
+            }
         }
         
         if ((flats[0]==0)||(flats[1]==0)){
