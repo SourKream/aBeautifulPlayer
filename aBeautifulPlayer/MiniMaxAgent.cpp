@@ -27,7 +27,7 @@ struct MiniMaxAgent{
     short int moves;
     
     MiniMaxAgent (int playerNum, int n, double t,double Scores [], int MaxDepthIn,timeval* starttime =NULL ){
-        myPlayerNumber = playerNum;
+        myPlayerNumber = playerNum % 2;
         if (starttime)
             lasttimenoted = *starttime;
         else
@@ -63,7 +63,7 @@ struct MiniMaxAgent{
         string moveString;
         Move move;
         moves++;
-        if (myPlayerNumber == 2){
+        if (myPlayerNumber == 0){
             cin >> moveString;
             gettimeofday(&lasttimenoted,NULL);
             myGame->applyMove(myGame->makeMove(moveString, true));
@@ -108,7 +108,7 @@ struct MiniMaxAgent{
     void play(){
         string move;
         
-        if (myPlayerNumber == 2){
+        if (myPlayerNumber == 0){
             cin >> move;
             gettimeofday(&lasttimenoted, NULL);
             myGame->applyMove(myGame->makeMove(move));
@@ -158,7 +158,7 @@ struct MiniMaxAgent{
             for (int i=0; i<size_all_moves; i++){
                 Game nextState = *myGame;
                 nextState.applyMove(allMoves[i]);
-                if (nextState.isFinishState() == (myPlayerNumber%2)){
+                if (nextState.isFinishState() == (myPlayerNumber)){
                     cerr << "1 Move Win/Loss" << endl;
                     return myGame->getMoveString(allMoves[i]);
                 }
@@ -192,8 +192,15 @@ struct MiniMaxAgent{
         //cout << depth<< endl;
         
         int winner = gameState.isFinishState();
-        if ((winner!=-1)||(depth>maxDepth))
+        if (winner != -1){
+            if (winner == myPlayerNumber)
+                return ROAD_REWARD;
+            return -ROAD_REWARD;
+        }
+        
+        if (depth>maxDepth)
             return gameState.getStateValue();
+        
         Move allMoves[1000];
         int size_all_moves = gameState.generateAllMoves(allMoves);
         int bestValue = INF;
