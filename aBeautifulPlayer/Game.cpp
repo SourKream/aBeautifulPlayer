@@ -83,19 +83,29 @@ class Config{
     uint64 Edge;
     uint64 BoardMask;
     uint64 InfluenceMasks[MAX_SIZE_SQUARE];
+    uint64 ThreatCount[MAX_SIZE_SQUARE];
     double FlatScore = 6;
     double StandingStoneScore = 1;
     double CapStoneScore = 2;
     double CenterScore = 2;
     double StackHeightScore = 2;
     double InfluenceScore = 3;
+
     double LibertyScore = 1;
     double GroupLibertyScore = 1;
     double GroupExpanseScore[5] = {0,0,0,10,30};
+
+    double SoftCaptiveFlat = -5;
+    double SoftCaptiveStand = -4;
+    double SoftCaptiveCap = -4.5;
+    double HardCaptiveStand = 7;
+    double HardCaptiveCap = 8;
+    double HardCaptiveFlat = 5;
+
     
-    inline uint64 Expand(uint64 current){
+    inline uint64 Expand(uint64 current,int k){
         uint64 next = current;
-        for (int i = 0 ; i < 2; i ++){
+        for (int i = 0 ; i < k; i ++){
             current = next;
             next |= (current << 1) & ~(Left);
             next |= (current >> 1) & ~(Right);
@@ -146,7 +156,10 @@ class Config{
         BoardMask = (1ULL << (BoardSize*BoardSize)) - 1;
         
         for (int i = 0 ; i < BoardSize*BoardSize; i++)
-            InfluenceMasks[i] = Expand(1ULL << i);
+            InfluenceMasks[i] = Expand(1ULL << i,2);
+        
+        for (int i = 0 ; i < BoardSize*BoardSize; i++)
+            ThreatCount[i] = Expand(1ULL << i,1);
         
         FlatScore = Scores[0];
         StandingStoneScore = Scores[1];
@@ -787,8 +800,8 @@ class Game{
         score -= Popcount(BlackPieces & ~(Standing|CapStones))*gameConfig->FlatScore;
         score += Popcount(WhitePieces & (CapStones))*gameConfig->CapStoneScore;
         score -= Popcount(BlackPieces & (CapStones))*gameConfig->CapStoneScore;
-//        score += Popcount(WhitePieces & (Standing))*gameConfig->StandingStoneScore;
-//        score -= Popcount(BlackPieces & (Standing))*gameConfig->StandingStoneScore;
+        score += Popcount(WhitePieces & (Standing))*gameConfig->StandingStoneScore;
+        score -= Popcount(BlackPieces & (Standing))*gameConfig->StandingStoneScore;
         score += Popcount(WhitePieces & ~(gameConfig->Edge))*gameConfig->CenterScore;
         score -= Popcount(BlackPieces & ~(gameConfig->Edge))*gameConfig->CenterScore;
         
@@ -796,21 +809,37 @@ class Game{
         uint64 bit_set;
         // Captured Stack Scores
         short i;
+        short SoftCaptives = 0 , HardCaptive = 0;
+        
         while (filledPieces != 0){
             bit_set = filledPieces & ~(filledPieces & (filledPieces -1));
             i = __builtin_ctzl(bit_set);
-//            score += (Heights[i] - Popcount(Stacks[i] & ((1 << Heights[i]) - 1)))*gameConfig->StackHeightScore;
+            HardCaptive = (Heights[i] - Popcount(Stacks[i] & ((1 << Heights[i]) - 1)));
+            SoftCaptives = Popcount((Stacks[i] & ((1 << Heights[i]) - 1)));
             score += Popcount(WhitePieces & gameConfig->InfluenceMasks[i])*gameConfig->InfluenceScore;
+            if (Standing & 1ULL<<i)
+                score +=  (gameConfig->HardCaptiveStand*HardCaptive + gameConfig->SoftCaptiveStand*SoftCaptives);
+            else if (CapStones & 1ULL<<i)
+                score +=  (gameConfig->HardCaptiveCap*HardCaptive + gameConfig->SoftCaptiveCap*SoftCaptives);
+            else
+                score +=  (gameConfig->HardCaptiveFlat*HardCaptive + gameConfig->SoftCaptiveFlat*SoftCaptives);
             filledPieces = filledPieces & (filledPieces -1);
         }
         
         filledPieces = BlackPieces;
-            
+
         while (filledPieces != 0){
             bit_set = filledPieces & ~(filledPieces & (filledPieces -1));
             i = __builtin_ctzl(bit_set);
-            //score -= Popcount((Stacks[i] & ((1 << Heights[i]) - 1)))*gameConfig->StackHeightScore;
+            SoftCaptives = (Heights[i] - Popcount(Stacks[i] & ((1 << Heights[i]) - 1)));
+            HardCaptive = Popcount((Stacks[i] & ((1 << Heights[i]) - 1)));
             score -= Popcount(BlackPieces & gameConfig->InfluenceMasks[i])*gameConfig->InfluenceScore;
+            if (Standing & 1ULL<<i)
+                score -=  (gameConfig->HardCaptiveStand*HardCaptive + gameConfig->SoftCaptiveStand*SoftCaptives);
+            else if (CapStones & 1ULL<<i)
+                score -=  (gameConfig->HardCaptiveCap*HardCaptive + gameConfig->SoftCaptiveCap*SoftCaptives);
+            else
+                score -=  (gameConfig->HardCaptiveFlat*HardCaptive + gameConfig->SoftCaptiveFlat*SoftCaptives);
             filledPieces = filledPieces & (filledPieces -1);
         }
         
