@@ -20,7 +20,8 @@ struct MiniMaxAgent{
     int myPlayerNumber;
     string myPlayer;
     int boardSize;
-    int maxDepth = 4;
+    int CurrentMaxDepth;
+    int maxDepthAllowed = 4;
     bool ONE_STEP_FLAG = false;
     
     double timeLeft;
@@ -37,27 +38,10 @@ struct MiniMaxAgent{
             myPlayer = "White";
         boardSize = n;
         timeLeft = t;
-        maxDepth = MaxDepthIn;
-        maxDepth = 2;
+        maxDepthAllowed = MaxDepthIn;
+        CurrentMaxDepth = 2;
         moves = 0;
         myGame = new Game(boardSize, myPlayerNumber,Scores);
-    }
-    
-    void ApplyMove(string moveString, bool opponent = false){
-        myGame->applyMove(myGame->makeMove(moveString, opponent));
-        moves++;
-    }
-    
-    string GiveFirstMove(){
-        string moveString;
-        Move move;
-        vector<Move> allMoves = myGame->generateFirstMove();
-        move = allMoves[rand()%allMoves.size()];
-        moveString = myGame->getMoveString(move);
-        cerr << "My First Move as " << myPlayer << " Player:" << moveString << endl;
-        myGame->applyMove(move);
-        moves++;
-        return moveString;
     }
     
     void playFirstMove(){
@@ -96,16 +80,6 @@ struct MiniMaxAgent{
         }
     }
     
-    string PlayMove(){
-        string move;
-        moves++;
-        move = getMiniMaxMove();
-        myGame->applyMove(myGame->makeMove(move));
-
-        cerr << "My Move as " << myPlayer << " Player :" << move << endl;
-        return move;
-    }
-    
     void play(){
         string move;
         
@@ -138,22 +112,22 @@ struct MiniMaxAgent{
         timeLeft -= currenttime.tv_sec - lasttimenoted.tv_sec;
         timeLeft -= (currenttime.tv_usec - lasttimenoted.tv_usec)/1000000.0;
         if (moves < 10 || timeLeft < 10){
-            maxDepth = 3;
+            CurrentMaxDepth = 3;
             if (timeLeft < 3)
-                maxDepth = 2;
+                CurrentMaxDepth = 2;
         }
         else
-            maxDepth = 4;
+            CurrentMaxDepth = maxDepthAllowed;
     }
     
     string getMiniMaxMove(){
         Move allMoves[1000];
         int size_all_moves = myGame->generateAllMoves(allMoves);
-     //   cout << &allMoves << endl;
+
         int maxStateValue = -INF;
         int alpha = -INF, beta = INF;
         Move bestMove;
-        cerr << "Minimax with Depth " << maxDepth << " At Move number" << moves << endl;
+        cerr << "Minimax with Depth " << CurrentMaxDepth << " At Move number" << moves << endl;
 
         if (ONE_STEP_FLAG)
             for (int i=0; i<size_all_moves; i++){
@@ -190,8 +164,7 @@ struct MiniMaxAgent{
     }
     
     int MiniMaxSearch (Game &gameState, bool maximize, int depth, int alpha, int beta){
-        //cout << depth<< endl;
-        
+
         int winner = gameState.isFinishState();
         if (winner != -1){
             if (winner == myPlayerNumber)
@@ -199,7 +172,7 @@ struct MiniMaxAgent{
             return -ROAD_REWARD;
         }
         
-        if (depth>maxDepth)
+        if (depth>CurrentMaxDepth)
             return gameState.getStateValue();
         
         Move allMoves[1000];
