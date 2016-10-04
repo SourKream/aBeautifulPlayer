@@ -95,12 +95,13 @@ class Config{
     double GroupLibertyScore = 1;
     double GroupExpanseScore[5] = {0,0,0,10,30};
 
-    double SoftCaptiveFlat = -10;
-    double SoftCaptiveStand = -7;
-    double SoftCaptiveCap = -8;
-    double HardCaptiveStand = 8;
-    double HardCaptiveCap = 9;
-    double HardCaptiveFlat = 7.6;
+
+    double SoftCaptiveFlat = 0;
+    double SoftCaptiveStand = 0;
+    double SoftCaptiveCap = 0;
+    double HardCaptiveStand = 0;
+    double HardCaptiveCap = 0;
+    double HardCaptiveFlat = 0;
 
     
     inline uint64 Expand(uint64 current,int k){
