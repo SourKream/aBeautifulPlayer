@@ -89,7 +89,9 @@ class Config{
     double CenterScore = 2;
     double StackHeightScore = 2;
     double InfluenceScore = 3;
-    double GroupSizeScore = 0;
+    double LibertyScore = 1;
+    double GroupLibertyScore = 1;
+    double GroupExpanseScore[5] = {0,0,0,10,30};
     
     inline uint64 Expand(uint64 current){
         uint64 next = current;
@@ -152,7 +154,8 @@ class Config{
         CenterScore = Scores[3];
         StackHeightScore = Scores[4];
         InfluenceScore = Scores[5];
-        GroupSizeScore = Scores[6];
+        LibertyScore = Scores[6];
+        GroupLibertyScore = Scores[7];
     }
 };
 
@@ -691,6 +694,15 @@ class Game{
         return next;
     }
     
+    inline uint64 ExpandOnce(uint64 current, uint64 mask){
+        uint64 next = current;
+        next |= (current << 1) & ~(gameConfig->Left);
+        next |= (current >> 1) & ~(gameConfig->Right);
+        next |= (current >> gameConfig->BoardSize);
+        next |= (current << gameConfig->BoardSize);
+        return next & mask;
+    }
+    
     void FindComponents(){
         size_cw = 0;
         uint64 whitePieces = WhitePieces&(~Standing);
@@ -802,18 +814,47 @@ class Game{
             filledPieces = filledPieces & (filledPieces -1);
         }
         
+        // Liberties
+        score += Popcount(ExpandOnce(WhitePieces & (~Standing), ~BlackPieces) & (~WhitePieces)) * gameConfig->LibertyScore;
+        score -= Popcount(ExpandOnce(BlackPieces & (~Standing), ~WhitePieces) & (~BlackPieces)) * gameConfig->LibertyScore;
         
-        // Group Connected Component Scores
-        for (i =0 ; i < size_cw ; i++){
-            score += Popcount(WhiteComponents[i])*gameConfig->GroupSizeScore;
-        }
-        
-        for (i =0 ; i < size_cb ; i++){
-            score -= Popcount(BlackComponents[i])*gameConfig->GroupSizeScore;
-        }
+        // Group Component Scores
+        score += getGroupsScore(WhiteComponents, size_cw, ~(BlackPieces|Standing));
+        score -= getGroupsScore(BlackComponents, size_cb, ~(WhitePieces|Standing));
+
         int Integer_Score = (int) score;
         return (myPlayerNumber==1)?Integer_Score:-Integer_Score;
         
+    }
+    
+    int getGroupsScore (uint64 Components[], int size_c, uint64 GroupMask){
+        int score = 0;
+        short w=0, h=0;
+        uint64 allGroups;
+        for (int i=0; i<size_c; i++){
+            w = 0; h = 0;
+            uint64 b = gameConfig->Left;
+            uint64 bits = Components[i];
+            while ((bits&b) == 0)
+                b <<= 1;
+            while( b != 0 && (bits&b) != 0) {
+                b <<= 1;
+                w++;
+            }
+            b = gameConfig->Top;
+            while ((bits&b) == 0)
+                b <<= gameConfig->BoardSize;
+            while( b != 0 && (bits&b) != 0) {
+                b <<= gameConfig->BoardSize;
+                h++;
+            }
+            
+            score += gameConfig->GroupExpanseScore[w];
+            score += gameConfig->GroupExpanseScore[h];
+            allGroups |= Components[i];
+        }
+        score += Popcount(ExpandOnce(allGroups, GroupMask) & (~allGroups)) * gameConfig->GroupLibertyScore;
+        return score;
     }
     
     vector<vector<int>> AnalyzeBoard(){

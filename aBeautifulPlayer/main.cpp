@@ -444,16 +444,25 @@ void debugGame(){
 
 int main(int argc, char** argv){
 
-    cerr << "SRAND KEY : " << time(NULL) << endl;
-    srand(time(NULL));
-    cerr << "SRAND KEY : " << time(NULL) << endl;
+//    if (argv[1][0] == 'W'){
+//        cerr << "FOUND W SEED\n";
+//        srand(1475564941);
+//    } else if (argv[1][0] == 'B') {
+//        cerr << "FOUND B SEED\n";
+//        srand(1475564951);        
+//    } else {
+//        cerr << "SEED NOT FOUND\n";
+        cerr << "SRAND KEY : " << time(NULL) << endl;
+        srand(time(NULL));        
+        cerr << "SRAND KEY : " << time(NULL) << endl;
+//    }
     
     Slides = GenerateAllSlides(5);
     //debugGame();
     //doReinforcementLearning(stoi(argv[1]));
 
-    double WhiteScores[] = {15,0.507648,12.0281,12.5767,0.602723,10.5355,14.2851};
-    double BlackScores[] = {15,0.558291,11.6684,11.0022,0.58952,10.8724,15};
+    double WhiteScores[] = {15,0.507648,12.0281,12.5767,0.602723,10.5355, 1.5, 2};
+    double BlackScores[] = {15,0.558291,11.6684,11.0022,0.58952,10.8724, 2, 2};
     //doReinforcementLearning(40,WhiteScores,BlackScores,true);
 
     int MaxDepth = 5;
