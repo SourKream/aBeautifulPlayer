@@ -21,6 +21,7 @@ struct MiniMaxAgent{
     string myPlayer;
     int boardSize;
     int maxDepth = 4;
+    bool ONE_STEP_FLAG = false;
     
     double timeLeft;
     short int moves;
@@ -136,7 +137,7 @@ struct MiniMaxAgent{
         timeLeft -= currenttime.tv_sec - lasttimenoted.tv_sec;
         timeLeft -= (currenttime.tv_usec - lasttimenoted.tv_usec)/1000000.0;
         if (moves < 10 || timeLeft < 10){
-            maxDepth = 3;
+            maxDepth = 4;
             if (timeLeft < 3)
                 maxDepth = 2;
         }
@@ -152,13 +153,21 @@ struct MiniMaxAgent{
         int alpha = -INF, beta = INF;
         Move bestMove;
         cerr << "Minimax with Depth " << maxDepth << " At Move number" << moves << endl;
+
+        if (ONE_STEP_FLAG)
+            for (int i=0; i<size_all_moves; i++){
+                Game nextState = *myGame;
+                nextState.applyMove(allMoves[i]);
+                if (nextState.isFinishState() == (myPlayerNumber%2)){
+                    cerr << "1 Move Win/Loss" << endl;
+                    return myGame->getMoveString(allMoves[i]);
+                }
+            }
+
         for (int i=0; i<size_all_moves; i++){
             Game nextState = *myGame;
             nextState.applyMove(allMoves[i]);
-            if (nextState.isFinishState() == myPlayerNumber){
-                cerr << "1 Move Win/Loss" << endl;
-                return myGame->getMoveString(allMoves[i]);
-            }
+
             int value = MiniMaxSearch(nextState, false, 1, alpha, beta);
             if (value > maxStateValue){
                 maxStateValue = value;
@@ -166,10 +175,15 @@ struct MiniMaxAgent{
             }
             alpha = max(alpha, maxStateValue);
             
-            if ((beta < alpha) )
+            if (beta < alpha) 
                 break;
+            if (maxStateValue == ROAD_REWARD){
+                ONE_STEP_FLAG = true;
+                break;
+            }
         }
         
+        cerr << "ONE_STEP_FLAG : " << ONE_STEP_FLAG << endl << endl;
         cerr << "Max State Value was  : " << maxStateValue << endl;
         return myGame->getMoveString(bestMove);
     }
