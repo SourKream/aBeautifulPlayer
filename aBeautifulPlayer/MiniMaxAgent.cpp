@@ -10,7 +10,7 @@
 #include <sys/time.h>
 #include "Game.cpp"
 
-#define INF 5000
+#define INF 50000
 
 struct MiniMaxAgent{
     

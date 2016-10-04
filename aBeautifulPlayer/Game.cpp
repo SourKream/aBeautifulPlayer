@@ -14,7 +14,7 @@
 #define WHITE 1
 #define MAX_SIZE 7
 #define MAX_SIZE_SQUARE MAX_SIZE*MAX_SIZE
-#define ROAD_REWARD 2000
+#define ROAD_REWARD 20000
 
 using namespace std;
 typedef unsigned long long uint64;
@@ -95,12 +95,12 @@ class Config{
     double GroupLibertyScore = 1;
     double GroupExpanseScore[5] = {0,0,0,10,30};
 
-    double SoftCaptiveFlat = -5;
-    double SoftCaptiveStand = -4;
-    double SoftCaptiveCap = -4.5;
-    double HardCaptiveStand = 7;
-    double HardCaptiveCap = 8;
-    double HardCaptiveFlat = 5;
+    double SoftCaptiveFlat = 0;
+    double SoftCaptiveStand = 0;
+    double SoftCaptiveCap = 0;
+    double HardCaptiveStand = 0;
+    double HardCaptiveCap = 0;
+    double HardCaptiveFlat = 0;
 
     
     inline uint64 Expand(uint64 current,int k){
@@ -599,10 +599,10 @@ class Game{
                         break;
                     case 1 : final_position = ((bit_set >> gameConfig->BoardSize * u) & Standing);
                         break;
-                    case 2 : if (u<move.column)
+                    case 2 : if (u<=move.column)
                         final_position = ((bit_set >> u) & Standing);
                         break;
-                    case 3 : if (u<gameConfig->BoardSize-move.column-1)
+                    case 3 : if (u<=gameConfig->BoardSize-move.column-1)
                         final_position = ((bit_set << u) & Standing);
                         break;
                 }
