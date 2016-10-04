@@ -127,7 +127,7 @@ struct MiniMaxAgent{
         int maxStateValue = -INF;
         int alpha = -INF, beta = INF;
         Move bestMove;
-        cerr << "Minimax with Depth " << CurrentMaxDepth << " At Move number" << moves << endl;
+     //   cerr << "Minimax with Depth " << CurrentMaxDepth << " At Move number" << moves << endl;
 
 
         for (int i=0; i<size_all_moves; i++){

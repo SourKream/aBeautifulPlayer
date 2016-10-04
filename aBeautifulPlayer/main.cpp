@@ -219,13 +219,28 @@ int main(int argc, char** argv){
     //debugGame();
 
  //   double WhiteScores[] = {30,-0.227125,30,15.6073,30,30,30,30,30,-1.3207,2.87015,14.3374,21.2475};
-   // double WhiteScores[] = {30,20.2591,21.2596,15.1804,30,21.7065,30,9.29319,30,-1.66427,20.5791,4.63779,8.09963};
-   //double BlackScores[] = {30,-0.227125,30,15.6073,30,30,30,30,30,-1.3207,2.87015,14.3374,21.2475};
+ 
+//    FlatScore = Scores[0];
+//    StandingStoneScore = Scores[1];
+//    CapStoneScore = Scores[2];
+//    CenterScore = Scores[3];
+//    InfluenceScore = Scores[4];
+//    LibertyScore = Scores[5];
+//    GroupLibertyScore = Scores[6];
+//    HardCaptiveFlat = Scores[7];
+//    SoftCaptiveFlat = Scores[8];
+//    HardCaptiveStand = Scores[9];
+//    SoftCaptiveStand = Scores[10];
+//    HardCaptiveCap = Scores[11];
+//    SoftCaptiveCap = Scores[12];
+//    double WhiteScores[] = {6,1,5,7,6,7,4,6,6,4,1,6,5};
+//    double BlackScores[] = {6,1,5,7,6,7,4,6,6,4,1,6,5};
     
-    double WhiteScores[] = {6,1,5,7,6,7,4,6,6,1,4,5,6};
-    double BlackScores[] = {6,1,5,7,6,7,4,6,6,1,4,5,6};
+     double WhiteScores[] = {30,2.2591,21.2596,15.1804,30,21.7065,30,9.29319,30,-1.66427,20.5791,4.63779,8.09963};
+    double BlackScores[] = {30,2.2591,21.2596,15.1804,30,21.7065,30,9.29319,30,-1.66427,20.5791,4.63779,8.09963};
+   // double BlackScores[] = {30,-0.227125,30,15.6073,30,30,30,30,30,-1.3207,2.87015,14.3374,21.2475};
 
-    int MaxDepth = 5;
+    int MaxDepth = 4;
     int p, n;
     double t;
     cin >> p >> n >> t;
