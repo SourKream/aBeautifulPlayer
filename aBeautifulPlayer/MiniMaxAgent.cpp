@@ -129,15 +129,6 @@ struct MiniMaxAgent{
         Move bestMove;
         cerr << "Minimax with Depth " << CurrentMaxDepth << " At Move number" << moves << endl;
 
-        if (ONE_STEP_FLAG)
-            for (int i=0; i<size_all_moves; i++){
-                Game nextState = *myGame;
-                nextState.applyMove(allMoves[i]);
-                if (nextState.isFinishState() == (myPlayerNumber)){
-                    cerr << "1 Move Win/Loss" << endl;
-                    return myGame->getMoveString(allMoves[i]);
-                }
-            }
 
         for (int i=0; i<size_all_moves; i++){
             Game nextState = *myGame;
@@ -157,6 +148,17 @@ struct MiniMaxAgent{
                 break;
             }
         }
+        
+        if (ONE_STEP_FLAG)
+            for (int i=0; i<size_all_moves; i++){
+                Game nextState = *myGame;
+                nextState.applyMove(allMoves[i]);
+                if (nextState.isFinishState() == (myPlayerNumber)){
+                    cerr << "1 Move Win/Loss" << endl;
+                    ONE_STEP_FLAG = false;
+                    return myGame->getMoveString(allMoves[i]);
+                }
+            }
         
         cerr << "ONE_STEP_FLAG : " << ONE_STEP_FLAG << endl << endl;
         cerr << "Max State Value was  : " << maxStateValue << endl;
