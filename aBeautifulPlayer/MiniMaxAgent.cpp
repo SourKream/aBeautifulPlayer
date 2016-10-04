@@ -10,7 +10,7 @@
 #include <sys/time.h>
 #include "Game.cpp"
 
-#define INF 5000
+#define INF 50000
 
 struct MiniMaxAgent{
     
@@ -38,6 +38,7 @@ struct MiniMaxAgent{
         boardSize = n;
         timeLeft = t;
         maxDepth = MaxDepthIn;
+        maxDepth = 2;
         moves = 0;
         myGame = new Game(boardSize, myPlayerNumber,Scores);
     }
@@ -137,7 +138,7 @@ struct MiniMaxAgent{
         timeLeft -= currenttime.tv_sec - lasttimenoted.tv_sec;
         timeLeft -= (currenttime.tv_usec - lasttimenoted.tv_usec)/1000000.0;
         if (moves < 10 || timeLeft < 10){
-            maxDepth = 4;
+            maxDepth = 3;
             if (timeLeft < 3)
                 maxDepth = 2;
         }

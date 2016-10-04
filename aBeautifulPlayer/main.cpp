@@ -84,26 +84,36 @@ vector<vector<vector<short> > > GenerateAllSlides(short K) {
 vector<vector<vector<short> > > Slides;
 void PrintScores(double ScoresForPlayer1[], double ScoresForPlayer2[], bool print = false){
     if (print){
-    cout << endl;
-    cout << "Playing Game(Scores)  White Black \n";
-    cout << "FlatStone Score \t" <<   ScoresForPlayer1[0] << "\t" << ScoresForPlayer2[0] << endl;
-    cout << "StandingStone Score \t" <<  ScoresForPlayer1[1] << "\t" << ScoresForPlayer2[1] << endl;
-    cout << "CapStoneScore Score \t" << ScoresForPlayer1[2] << "\t" << ScoresForPlayer2[2] << endl;
-    cout << "CenterScore Score \t" << ScoresForPlayer1[3] << "\t" << ScoresForPlayer2[3] << endl;
-    cout << "StackHeightScore Score \t" << ScoresForPlayer1[4] << "\t" << ScoresForPlayer2[4] << endl;
-    cout << "InfluenceScore Score \t" << ScoresForPlayer1[5] << "\t" << ScoresForPlayer2[5] << endl;
-    cout << "GroupSizeScore Score \t" << ScoresForPlayer1[6] << "\t" << ScoresForPlayer2[6] << endl;
-    
+        cout << endl;
+        cout << "FlatScore : \t" << ScoresForPlayer1[0] << "\t" << ScoresForPlayer2[0]<<endl;
+        cout << "StandingStoneScore : \t" << ScoresForPlayer1[1] << "\t" << ScoresForPlayer2[1]<<endl;
+        cout << "CapStoneScore : \t" << ScoresForPlayer1[2] << "\t" << ScoresForPlayer2[2]<<endl;
+        cout << "CenterScore : \t" << ScoresForPlayer1[3] << "\t" << ScoresForPlayer2[3]<<endl;
+        cout << "InfluenceScore : \t" << ScoresForPlayer1[4] << "\t" << ScoresForPlayer2[4]<<endl;
+        cout << "LibertyScore : \t" << ScoresForPlayer1[5] << "\t" << ScoresForPlayer2[5]<<endl;
+        cout << "GroupLibertyScore : \t" << ScoresForPlayer1[6] << "\t" << ScoresForPlayer2[6]<<endl;
+        cout << "HardCaptiveFlat : \t" << ScoresForPlayer1[7] << "\t" << ScoresForPlayer2[7]<<endl;
+        cout << "SoftCaptiveFlat : \t" << ScoresForPlayer1[8] << "\t" << ScoresForPlayer2[8]<<endl;
+        cout << "HardCaptiveStand : \t" << ScoresForPlayer1[9] << "\t" << ScoresForPlayer2[9]<<endl;
+        cout << "SoftCaptiveStand : \t" << ScoresForPlayer1[10] << "\t" << ScoresForPlayer2[10]<<endl;
+        cout << "HardCaptiveCap : \t" << ScoresForPlayer1[11] << "\t" << ScoresForPlayer2[11]<<endl;
+        cout << "SoftCaptiveCap : \t" << ScoresForPlayer1[12] << "\t" << ScoresForPlayer2[12]<<endl;
+        
     }
     cerr << endl;
-    cerr << "Playing Game(Scores)  White Black \n";
-    cerr << "FlatStone Score \t" <<   ScoresForPlayer1[0] << "\t" << ScoresForPlayer2[0] << endl;
-    cerr << "StandingStone Score \t" <<  ScoresForPlayer1[1] << "\t" << ScoresForPlayer2[1] << endl;
-    cerr << "CapStoneScore Score \t" << ScoresForPlayer1[2] << "\t" << ScoresForPlayer2[2] << endl;
-    cerr << "CenterScore Score \t" << ScoresForPlayer1[3] << "\t" << ScoresForPlayer2[3] << endl;
-    cerr << "StackHeightScore Score \t" << ScoresForPlayer1[4] << "\t" << ScoresForPlayer2[4] << endl;
-    cerr << "InfluenceScore Score \t" << ScoresForPlayer1[5] << "\t" << ScoresForPlayer2[5] << endl;
-    cerr << "GroupSizeScore Score \t" << ScoresForPlayer1[6] << "\t" << ScoresForPlayer2[6] << endl;
+    cerr << "FlatScore : \t" << ScoresForPlayer1[0] << "\t" << ScoresForPlayer2[0]<<endl;
+    cerr << "StandingStoneScore : \t" << ScoresForPlayer1[1] << "\t" << ScoresForPlayer2[1]<<endl;
+    cerr << "CapStoneScore : \t" << ScoresForPlayer1[2] << "\t" << ScoresForPlayer2[2]<<endl;
+    cerr << "CenterScore : \t" << ScoresForPlayer1[3] << "\t" << ScoresForPlayer2[3]<<endl;
+    cerr << "InfluenceScore : \t" << ScoresForPlayer1[4] << "\t" << ScoresForPlayer2[4]<<endl;
+    cerr << "LibertyScore : \t" << ScoresForPlayer1[5] << "\t" << ScoresForPlayer2[5]<<endl;
+    cerr << "GroupLibertyScore : \t" << ScoresForPlayer1[6] << "\t" << ScoresForPlayer2[6]<<endl;
+    cerr << "HardCaptiveFlat : \t" << ScoresForPlayer1[7] << "\t" << ScoresForPlayer2[7]<<endl;
+    cerr << "SoftCaptiveFlat : \t" << ScoresForPlayer1[8] << "\t" << ScoresForPlayer2[8]<<endl;
+    cerr << "HardCaptiveStand : \t" << ScoresForPlayer1[9] << "\t" << ScoresForPlayer2[9]<<endl;
+    cerr << "SoftCaptiveStand : \t" << ScoresForPlayer1[10] << "\t" << ScoresForPlayer2[10]<<endl;
+    cerr << "HardCaptiveCap : \t" << ScoresForPlayer1[11] << "\t" << ScoresForPlayer2[11]<<endl;
+    cerr << "SoftCaptiveCap : \t" << ScoresForPlayer1[12] << "\t" << ScoresForPlayer2[12]<<endl;
     
 }
 
@@ -124,8 +134,8 @@ class GameManager{
         int n = 5;
         int t = 1200;
         int p = 1;
-        Player1AverageScores.resize(2,vector<double>(7,0));
-        Player2AverageScores.resize(2,vector<double>(7,0));
+        Player1AverageScores.resize(2,vector<double>(13,0));
+        Player2AverageScores.resize(2,vector<double>(13,0));
         DepthBlack = depthblack;
         DepthWhite = depthwhite;
         player1 = new MiniMaxAgent(p, n, t, ScoresForPlayer1, DepthWhite);
@@ -197,16 +207,16 @@ class GameManager{
         vector<vector<int>> current = myGame->AnalyzeBoard();
         if ( currentPlayer)
             for (int i = 0 ; i < 2; i++)
-                for (int j = 0 ; j < 7 ;j++)
-                    Player1AverageScores[i][j] = current[i][j] + 0.9*Player1AverageScores[i][j];
+                for (int j = 0 ; j < 13 ;j++)
+                    Player1AverageScores[i][j] = current[i][j] + 0.7*Player1AverageScores[i][j];
         else
             for (int i = 0 ; i < 2; i++)
-                for (int j = 0 ; j < 7 ;j++)
-                    Player2AverageScores[i][j] = current[i][j] + 0.9*Player2AverageScores[i][j];
+                for (int j = 0 ; j < 13 ;j++)
+                    Player2AverageScores[i][j] = current[i][j] + 0.7*Player2AverageScores[i][j];
     }
     
     vector<vector<double>> AnalyseBoard(){
-        for (int i = 0 ; i < 7 ;i++)
+        for (int i = 0 ; i < 13 ;i++)
             Player1AverageScores[0][i] = Player2AverageScores[0][i];
        
         return Player1AverageScores;
@@ -224,16 +234,16 @@ void doReinforcementLearning( int trials,     double ScoresForPlayer1[] ,  doubl
     //    double StackHeightScore = 2;
     //    double InfluenceScore = 3;
     //    double GroupSizeScore = 0;
-    double Initial2[] = {10,10,10,10,10,10,10};
-    double Initial1[] = {1,1,1,1,1,1,1};
-    for (int i =0 ; i < 7; i++){
-        //ScoresForPlayer1[i] = rand()%11;
-        Initial1[i] = ScoresForPlayer1[i];
-        //ScoresForPlayer2[i] = rand()%11;
-        Initial2[i] = ScoresForPlayer2[i];
-    }
+    double Initial2[] = {10,10,10,10,10,10,10,10,10,10,10,10,10};
+    double Initial1[] = {10,10,10,10,10,10,10,10,10,10,10,10,10};
+//    for (int i =0 ; i < 7; i++){
+//        //ScoresForPlayer1[i] = rand()%11;
+//        Initial1[i] = ScoresForPlayer1[i];
+//        //ScoresForPlayer2[i] = rand()%11;
+//        Initial2[i] = ScoresForPlayer2[i];
+//    }
     if (Randomize){
-        for (int i =0 ; i < 7; i++){
+        for (int i =0 ; i < 13; i++){
             ScoresForPlayer1[i] = rand()%10 + 1;
             Initial1[i] = ScoresForPlayer1[i];
             ScoresForPlayer2[i] = rand()%10 + 1;
@@ -286,11 +296,13 @@ void doReinforcementLearning( int trials,     double ScoresForPlayer1[] ,  doubl
            // PrintScores(ScoresForPlayer1, ScoresForPlayer2);
            // return;
         }
-        for (int j =0 ;j < 7;j++){
-            double grad = ((WinAnalysis[j]*Win[j] - LoseAnalysis[j]*Lose[j])/(WinAnalysis[j]*Win[j] + 1))*LearningRate + LearningRate;
+        for (int j =0 ;j < 13;j++){
+            double grad = ((WinAnalysis[j] - LoseAnalysis[j])/(WinAnalysis[j] + 1))*LearningRate + LearningRate;
          //   double grad1 = (WinAnalysis[j] - LoseAnalysis[j])*LearningRate;
+            //cerr << Lose[j] << endl;
             Lose[j] += grad*Lose[j] + grad;
-            Lose[j] = max(0.0,min(30.0,Lose[j]));
+            Lose[j] = max(-10.0,min(30.0,Lose[j]));
+            //cerr << Lose[j] << endl;
         }
     }
     cout << endl;
@@ -461,9 +473,10 @@ int main(int argc, char** argv){
     //debugGame();
     //doReinforcementLearning(stoi(argv[1]));
 
-    double WhiteScores[] = {15,0.507648,12.0281,12.5767,0.602723,10.5355, 1.5, 2};
-    double BlackScores[] = {15,0.558291,11.6684,11.0022,0.58952,10.8724, 2, 2};
-    //doReinforcementLearning(40,WhiteScores,BlackScores,true);
+    double WhiteScores[] = {30,-0.227125,30,15.6073,30,30,30,30,30,-1.3207,2.87015,14.3374,21.2475};
+   // double WhiteScores[] = {30,20.2591,21.2596,15.1804,30,21.7065,30,9.29319,30,-1.66427,20.5791,4.63779,8.09963};
+    double BlackScores[] = {30,-0.227125,30,15.6073,30,30,30,30,30,-1.3207,2.87015,14.3374,21.2475};
+    //doReinforcementLearning(60,WhiteScores,BlackScores,true);
 
     int MaxDepth = 5;
     int p, n;

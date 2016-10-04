@@ -14,7 +14,7 @@
 #define WHITE 1
 #define MAX_SIZE 7
 #define MAX_SIZE_SQUARE MAX_SIZE*MAX_SIZE
-#define ROAD_REWARD 2000
+#define ROAD_REWARD 20000
 
 using namespace std;
 typedef unsigned long long uint64;
@@ -95,12 +95,12 @@ class Config{
     double GroupLibertyScore = 1;
     double GroupExpanseScore[5] = {0,0,0,10,30};
 
-    double SoftCaptiveFlat = -5;
-    double SoftCaptiveStand = -4;
-    double SoftCaptiveCap = -4.5;
-    double HardCaptiveStand = 7;
-    double HardCaptiveCap = 8;
-    double HardCaptiveFlat = 5;
+    double SoftCaptiveFlat = -10;
+    double SoftCaptiveStand = -7;
+    double SoftCaptiveCap = -8;
+    double HardCaptiveStand = 8;
+    double HardCaptiveCap = 9;
+    double HardCaptiveFlat = 7.6;
 
     
     inline uint64 Expand(uint64 current,int k){
@@ -161,14 +161,20 @@ class Config{
         for (int i = 0 ; i < BoardSize*BoardSize; i++)
             ThreatCount[i] = Expand(1ULL << i,1);
         
+        
         FlatScore = Scores[0];
         StandingStoneScore = Scores[1];
         CapStoneScore = Scores[2];
         CenterScore = Scores[3];
-        StackHeightScore = Scores[4];
-        InfluenceScore = Scores[5];
-        LibertyScore = Scores[6];
-        GroupLibertyScore = Scores[7];
+        InfluenceScore = Scores[4];
+        LibertyScore = Scores[5];
+        GroupLibertyScore = Scores[6];
+        HardCaptiveFlat = Scores[7];
+        SoftCaptiveFlat = Scores[8];
+        HardCaptiveStand = Scores[9];
+        SoftCaptiveStand = Scores[10];
+        HardCaptiveCap = Scores[11];
+        SoftCaptiveCap = Scores[12];
     }
 };
 
@@ -599,10 +605,10 @@ class Game{
                         break;
                     case 1 : final_position = ((bit_set >> gameConfig->BoardSize * u) & Standing);
                         break;
-                    case 2 : if (u<move.column)
+                    case 2 : if (u<=move.column)
                         final_position = ((bit_set >> u) & Standing);
                         break;
-                    case 3 : if (u<gameConfig->BoardSize-move.column-1)
+                    case 3 : if (u<=gameConfig->BoardSize-move.column-1)
                         final_position = ((bit_set << u) & Standing);
                         break;
                 }
@@ -886,9 +892,20 @@ class Game{
         return score;
     }
     
+    int getGroupsScoreAnalysis (uint64 Components[], int size_c, uint64 GroupMask){
+        int score = 0;
+
+        uint64 allGroups;
+        for (int i=0; i<size_c; i++)
+            allGroups |= Components[i];
+
+        score += Popcount(ExpandOnce(allGroups, GroupMask) & (~allGroups));
+        return score;
+    }
+    
     vector<vector<int>> AnalyzeBoard(){
         FindComponents();
-        vector<vector<int>> to_Ret(2,vector<int>(7));
+        vector<vector<int>> to_Ret(2,vector<int>(13,0));
 
 
         to_Ret[1][0] = Popcount(WhitePieces & ~(Standing|CapStones));
@@ -902,7 +919,7 @@ class Game{
 
         to_Ret[1][3] = Popcount(WhitePieces & ~(gameConfig->Edge));
         to_Ret[0][3] = Popcount(BlackPieces & ~(gameConfig->Edge));
-        
+
         uint64 filledPieces = WhitePieces;
         uint64 bit_set;
         // Captured Stack Scores
@@ -937,6 +954,64 @@ class Game{
         for (i =0 ; i < size_cb ; i++){
             to_Ret[0][6]  += Popcount(BlackComponents[i]);
         }
+
+
+        
+        filledPieces = WhitePieces;
+        // Captured Stack Scores
+        short SoftCaptives = 0 , HardCaptive = 0;
+        
+        while (filledPieces != 0){
+            bit_set = filledPieces & ~(filledPieces & (filledPieces -1));
+            i = __builtin_ctzl(bit_set);
+            HardCaptive = (Heights[i] - Popcount(Stacks[i] & ((1 << Heights[i]) - 1)));
+            SoftCaptives = Popcount((Stacks[i] & ((1 << Heights[i]) - 1)));
+            to_Ret[1][4] += Popcount(WhitePieces & gameConfig->InfluenceMasks[i]);
+            if (Standing & 1ULL<<i){
+                to_Ret[1][9] += HardCaptive;
+                to_Ret[1][10] += SoftCaptives;
+            }
+            else if (CapStones & 1ULL<<i){
+                to_Ret[1][11] += HardCaptive;
+                to_Ret[1][12] += SoftCaptives;
+            }
+            else{
+                to_Ret[1][7] += HardCaptive;
+                to_Ret[1][8] += SoftCaptives;
+            }
+            filledPieces = filledPieces & (filledPieces -1);
+        }
+        
+        filledPieces = BlackPieces;
+        
+        while (filledPieces != 0){
+            bit_set = filledPieces & ~(filledPieces & (filledPieces -1));
+            i = __builtin_ctzl(bit_set);
+            SoftCaptives = (Heights[i] - Popcount(Stacks[i] & ((1 << Heights[i]) - 1)));
+            HardCaptive = Popcount((Stacks[i] & ((1 << Heights[i]) - 1)));
+            to_Ret[0][4] += Popcount(BlackPieces & gameConfig->InfluenceMasks[i]);
+            if (Standing & 1ULL<<i){
+                to_Ret[0][9] += HardCaptive;
+                to_Ret[0][10] += SoftCaptives;
+            }
+            else if (CapStones & 1ULL<<i){
+                to_Ret[0][11] += HardCaptive;
+                to_Ret[0][12] += SoftCaptives;
+            }
+            else{
+                to_Ret[0][7] += HardCaptive;
+                to_Ret[0][8] += SoftCaptives;
+            }
+            filledPieces = filledPieces & (filledPieces -1);
+        }
+        
+        // Liberties
+        to_Ret[1][5] = Popcount(ExpandOnce(WhitePieces & (~Standing), ~BlackPieces) & (~WhitePieces));
+        to_Ret[0][5] = Popcount(ExpandOnce(BlackPieces & (~Standing), ~WhitePieces) & (~BlackPieces));
+        
+        // Group Component Scores
+        to_Ret[1][6] = getGroupsScoreAnalysis(WhiteComponents, size_cw, ~(BlackPieces|Standing));
+        to_Ret[0][6] = getGroupsScoreAnalysis(BlackComponents, size_cb, ~(WhitePieces|Standing));
         return to_Ret;
     }
     
