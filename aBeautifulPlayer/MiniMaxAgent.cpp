@@ -12,6 +12,10 @@
 
 #define INF 50000
 
+
+#define LOSE_DEPTH 2
+#define MID_DEPTH 3
+#define MAX_DEPTH 4
 struct MiniMaxAgent{
     
     Game* myGame;
@@ -22,9 +26,13 @@ struct MiniMaxAgent{
     int boardSize;
     int CurrentMaxDepth;
     int maxDepthAllowed = 4;
-    bool ONE_STEP_FLAG = false;
+    bool ROAD_WIN = false;
     bool FLAT_WIN = false;
-    
+    bool LOST_FLAG = false;
+    bool WIN_FLAG = false;
+    bool ONE_STEP_FLAG = false;
+    bool GO_TO_LOWEST_DEPTH = false;
+    short Iterations = 0;
     double timeLeft;
     short int moves;
     
@@ -60,7 +68,7 @@ struct MiniMaxAgent{
             
             myGame->applyMove(move);
             cout << moveString << endl;
-            // cerr << "My Move : " << moveString << endl;
+            // // cerr << "My Move : " << moveString << endl;
             TimeandDepth();
         }
         
@@ -71,10 +79,10 @@ struct MiniMaxAgent{
             moveString = myGame->getMoveString(move);
             
             myGame->applyMove(move);
-            // cerr << "My Move : " << moveString << endl;
+            // // cerr << "My Move : " << moveString << endl;
             cout << moveString << endl;
             TimeandDepth();
-            // cerr << "Time left : " << timeLeft << endl;
+            // // cerr << "Time left : " << timeLeft << endl;
             cin >> moveString;
             gettimeofday(&lasttimenoted,NULL);
             myGame->applyMove(myGame->makeMove(moveString, true));
@@ -94,13 +102,13 @@ struct MiniMaxAgent{
         
         while(true){
             move = getMiniMaxMove();
-            // cerr << "My Move as " << myPlayer << "Player :" << move << endl;
+            // // cerr << "My Move as " << myPlayer << "Player :" << move << endl;
             cout << move << endl;
             moves++;
             TimeandDepth();
             myGame->applyMove(myGame->makeMove(move));
             cin >> move;
-            // cerr << timeLeft << endl;
+            // // cerr << timeLeft << endl;
             gettimeofday(&lasttimenoted, NULL);
             myGame->applyMove(myGame->makeMove(move));
             moves++;
@@ -112,13 +120,16 @@ struct MiniMaxAgent{
         gettimeofday(&currenttime, NULL);
         timeLeft -= currenttime.tv_sec - lasttimenoted.tv_sec;
         timeLeft -= (currenttime.tv_usec - lasttimenoted.tv_usec)/1000000.0;
-        if (moves < 10 || timeLeft < 30){
-            CurrentMaxDepth = 3;
-            if (timeLeft < 5)
-                CurrentMaxDepth = 2;
+        if (GO_TO_LOWEST_DEPTH){
+            CurrentMaxDepth = 1;
+            GO_TO_LOWEST_DEPTH = false;
         }
+        else if ( LOST_FLAG || timeLeft < 10)
+            CurrentMaxDepth = LOSE_DEPTH;
+        else if (WIN_FLAG || moves < 7 || timeLeft < 45)
+            CurrentMaxDepth = MID_DEPTH;
         else
-            CurrentMaxDepth = maxDepthAllowed;
+            CurrentMaxDepth = MAX_DEPTH;
     }
     
     string getMiniMaxMove(){
@@ -127,8 +138,8 @@ struct MiniMaxAgent{
 
         int maxStateValue = -INF;
         int alpha = -INF, beta = INF;
-        Move* bestMove;
-     //   // cerr << "Minimax with Depth " << CurrentMaxDepth << " At Move number" << moves << endl;
+        Move* bestMove = &allMoves[0];
+     //   // // cerr << "Minimax with Depth " << CurrentMaxDepth << " At Move number" << moves << endl;
 
 
         for (int i=0; i<size_all_moves; i++){
@@ -141,19 +152,28 @@ struct MiniMaxAgent{
                 bestMove = &allMoves[i];
             }
             alpha = max(alpha, maxStateValue);
-            
-            if (beta < alpha) 
-                break;
             if (maxStateValue == ROAD_REWARD ){
-                ONE_STEP_FLAG = true;
+                ROAD_WIN = true;
                 break;
             }
             if (maxStateValue == ROAD_REWARD/2 ){
                 FLAT_WIN = true;
             }
+            if (beta < alpha)
+                break;
         }
         
-        if (ONE_STEP_FLAG || FLAT_WIN){
+        if (maxStateValue < -ROAD_REWARD/2 + 1){
+            LOST_FLAG = 1;
+            if (Iterations++ >= 5){
+                GO_TO_LOWEST_DEPTH = true;
+                LOST_FLAG = 0;
+                Iterations = 0;
+            }
+        }
+        
+        if (ROAD_WIN || FLAT_WIN){
+            WIN_FLAG = true;
             for (int i=0; i<size_all_moves; i++){
                 Game nextState = *myGame;
                 nextState.applyMove(allMoves[i]);
@@ -163,16 +183,24 @@ struct MiniMaxAgent{
                     bestMove = &allMoves[i];
                     break;
                 }
-                if ( FLAT_WIN && r == myPlayerNumber + 4){
-                    // cerr << "direct flat win" << endl;
+                if (!ROAD_WIN && FLAT_WIN && r == myPlayerNumber + 4 ){
+                     // cerr << "direct flat win" << endl;
                     bestMove = &allMoves[i];
+                    break;
                 }
             }
-            ONE_STEP_FLAG = false;
-            FLAT_WIN = false;
         }
         
-        //// cerr << "ONE_STEP_FLAG : " << ONE_STEP_FLAG << endl << endl;
+        if (WIN_FLAG && Iterations++ >= 5){
+            // cerr << "GOING TO LOWEST DEPTH" << endl;
+            GO_TO_LOWEST_DEPTH = true;
+            WIN_FLAG = false;
+            Iterations = 0;
+        }
+        
+        ROAD_WIN =false;
+        FLAT_WIN = false;
+        //// // cerr << "ONE_STEP_FLAG : " << ONE_STEP_FLAG << endl << endl;
         // cerr << "Max State Value was  : " << maxStateValue << endl;
         return myGame->getMoveString(*bestMove);
     }

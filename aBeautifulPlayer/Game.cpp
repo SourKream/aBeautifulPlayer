@@ -330,7 +330,6 @@ class Game{
             return move;
         }
         else{
-            
             string move;
             move = (moveIn.Drops[moveIn.dropLength]+'0');
             move += (moveIn.column + 'a');
@@ -532,33 +531,6 @@ class Game{
         int K = 0;
         
 
-        // Slide Moves
-        uint64 filledPieces = BlackPieces;
-        if (currentPlayer)
-            filledPieces = WhitePieces;
-        
-        while (filledPieces != 0){
-            int PossStepsInDir[4];
-            Move move = GetPossSteps(filledPieces, PossStepsInDir);
-            int i = move.row * gameConfig->BoardSize + move.column;
-            filledPieces &= (filledPieces-1);
-            for (int dir = 0; dir < 4; dir++){
-                int PossSteps = PossStepsInDir[dir];
-                for (int u = 1 ; u <= PossSteps; u++){
-                    for (int t = 0 ; t < Slides[u].size(); t++){
-                        if ( Slides[u][t][u] > Heights[i])
-                            break;
-                        move.dropLength = u;
-                        move.Movetype = (MoveType)(1+dir);
-                        memcpy(&move.Drops[0],&Slides[u][t][0], 8*sizeof(short) );
-                        // move.Drops = &Slides[u][t][0];
-                        // allMoves.push_back(move);
-                        allMoves[K++] = move;
-                    }
-                }
-            }
-        }
-        
         // Place Moves
         Piece piece;
         piece.color = (Color)currentPlayer;
@@ -585,6 +557,33 @@ class Game{
                 // allMoves.push_back(move);
             }
             emptyPositions = bits;
+        }
+        
+        // Slide Moves
+        uint64 filledPieces = BlackPieces;
+        if (currentPlayer)
+            filledPieces = WhitePieces;
+        
+        while (filledPieces != 0){
+            int PossStepsInDir[4];
+            Move move = GetPossSteps(filledPieces, PossStepsInDir);
+            int i = move.row * gameConfig->BoardSize + move.column;
+            filledPieces &= (filledPieces-1);
+            for (int dir = 0; dir < 4; dir++){
+                int PossSteps = PossStepsInDir[dir];
+                for (int u = 1 ; u <= PossSteps; u++){
+                    for (int t = 0 ; t < Slides[u].size(); t++){
+                        if ( Slides[u][t][u] > Heights[i])
+                            break;
+                        move.dropLength = u;
+                        move.Movetype = (MoveType)(1+dir);
+                        memcpy(&move.Drops[0],&Slides[u][t][0], 8*sizeof(short) );
+                        // move.Drops = &Slides[u][t][0];
+                        // allMoves.push_back(move);
+                        allMoves[K++] = move;
+                    }
+                }
+            }
         }
         
         // Capstone Moves
@@ -674,15 +673,15 @@ class Game{
             int whiteFlats = Popcount(WhitePieces & ~(Standing | CapStones));
             int blackFlats = Popcount(BlackPieces & ~(Standing | CapStones));
             
-            if (whiteFlats > blackFlats)
-                return 1;
-            else if (whiteFlats < blackFlats)
-                return 0;
+            if (blackFlats > whiteFlats)
+                return -4;
+            else if (blackFlats < whiteFlats)
+                return -3;
 
             else {
                 if (flats[0] == flats[1])
                     return 2;
-                return (flats[0]>0)?0:1;
+                return (flats[0]>0)?-4:-3;
             }
         }
         

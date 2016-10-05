@@ -210,11 +210,11 @@ void debugGame(){
 
 int main(int argc, char** argv){
 
-        cerr << "SRAND KEY : " << time(NULL) << endl;
-        srand(time(NULL));        
-        cerr << "SRAND KEY : " << time(NULL) << endl;
+     //   cerr << "SRAND KEY : " << time(NULL) << endl;
+     //   srand((1475664597));
+      //  cerr << "SRAND KEY : " << time(NULL) << endl;
 //    }
-    
+    srand(time(NULL));
     Slides = GenerateAllSlides(5);
     //debugGame();
 
