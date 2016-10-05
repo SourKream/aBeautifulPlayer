@@ -665,7 +665,7 @@ class Game{
     int isFinishState(){
         // Return winner player number if finish state
         // Return -1 if not finish state
-        
+        // -4 if Black Flat Win, -3 is White Flat Win
         int winner = checkIfRoadExists();
         if (winner!=-1)
             return winner;
@@ -691,11 +691,11 @@ class Game{
             int blackFlats = Popcount(BlackPieces & ~(Standing | CapStones));
             
             if (blackFlats > whiteFlats)
-                return 0;
+                return -4;
             else if (blackFlats < whiteFlats)
-                return 1;
+                return -3;
             else
-                return (flats[0]>0)?0:1;
+                return (flats[0]>0)?-4:-3;
         }
         
         return -1;
@@ -783,8 +783,9 @@ class Game{
                 break;
             }
         }
+        
         if ( black && white)
-            return 2;
+            return currentPlayer;
         else if (black)
             return 0;
         else if (white)

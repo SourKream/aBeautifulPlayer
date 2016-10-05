@@ -248,13 +248,13 @@ int main(int argc, char** argv){
     gettimeofday(&currenttime, NULL);
     if ( p == 1){
         MiniMaxAgent player3(p, n, t,WhiteScores, MaxDepth, &currenttime);
-        cerr << "MiniMax Player With Bits" << endl;
+       // cerr << "MiniMax Player With Bits" << endl;
         player3.playFirstMove();
         player3.play();
     }
     else{
         MiniMaxAgent player3(p, n, t,BlackScores, MaxDepth, &currenttime);
-        cerr << "MiniMax Player With Bits" << endl;
+       // cerr << "MiniMax Player With Bits" << endl;
         player3.playFirstMove();
         player3.play();
     }
