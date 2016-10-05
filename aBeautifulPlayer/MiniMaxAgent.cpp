@@ -32,7 +32,8 @@ struct MiniMaxAgent{
     bool WIN_FLAG = false;
     bool ONE_STEP_FLAG = false;
     bool GO_TO_LOWEST_DEPTH = false;
-    short Iterations = 0;
+    short Win_Iterations = 0;
+    short Lost_Iterations = 0;
     double timeLeft;
     short int moves;
     
@@ -124,9 +125,11 @@ struct MiniMaxAgent{
             CurrentMaxDepth = 1;
             GO_TO_LOWEST_DEPTH = false;
         }
-        else if ( LOST_FLAG || timeLeft < 10)
+        else if ( LOST_FLAG || timeLeft < 10){
             CurrentMaxDepth = LOSE_DEPTH;
-        else if (WIN_FLAG || moves < 7 || timeLeft < 45)
+            LOST_FLAG = false;
+        }
+        else if (WIN_FLAG || timeLeft < 45)
             CurrentMaxDepth = MID_DEPTH;
         else
             CurrentMaxDepth = MAX_DEPTH;
@@ -165,11 +168,14 @@ struct MiniMaxAgent{
         
         if (maxStateValue < -ROAD_REWARD/2 + 1){
             LOST_FLAG = 1;
-            if (Iterations++ >= 5){
+            if (Lost_Iterations++ >= 5){
                 GO_TO_LOWEST_DEPTH = true;
                 LOST_FLAG = 0;
-                Iterations = 0;
+                Lost_Iterations = 0;
             }
+        }
+        else{
+            Lost_Iterations = 0;
         }
         
         if (ROAD_WIN || FLAT_WIN){
@@ -191,11 +197,14 @@ struct MiniMaxAgent{
             }
         }
         
-        if (WIN_FLAG && Iterations++ >= 5){
+        if (WIN_FLAG && Win_Iterations++ >= 5){
             // cerr << "GOING TO LOWEST DEPTH" << endl;
             GO_TO_LOWEST_DEPTH = true;
             WIN_FLAG = false;
-            Iterations = 0;
+            Win_Iterations = 0;
+        }
+        else{
+            Win_Iterations = 0;
         }
         
         ROAD_WIN =false;
