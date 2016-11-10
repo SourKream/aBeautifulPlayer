@@ -85,15 +85,11 @@ vector<vector<vector<short> > > Slides;
 
 
 void debugGame(){
-    double WhiteScores[] = {13.6703
-        ,1.56367
-        ,10.872
-        ,3.09076
-        ,6.78622
-        ,7.14189
-        ,12.7884};
-    Game myGame(5, 2,WhiteScores);
- /*   myGame.applyMove(myGame.makeMove("Fe1",true));
+    double WhiteScores[] = {6,1,5,7,6,7,4,6,6,4,1,6,5};
+    Game myGame(7, 2,WhiteScores);
+
+    /*
+    myGame.applyMove(myGame.makeMove("Fe1",true));
     myGame.applyMove(myGame.makeMove("Fe5",true));
     myGame.applyMove(myGame.makeMove("Fd2"));
     myGame.applyMove(myGame.makeMove("Fd1"));
@@ -143,18 +139,19 @@ void debugGame(){
     myGame.applyMove(myGame.makeMove("Fb5"));
     myGame.applyMove(myGame.makeMove("1a3>1"));
     myGame.applyMove(myGame.makeMove("4e2<31"));
-    myGame.applyMove(myGame.makeMove("1d2-1")); */
+    myGame.applyMove(myGame.makeMove("1d2-1"));
+    
+    */
     
     
-    
-    
-  /*  myGame.applyMove(myGame.makeMove("Fa5",true));
+    myGame.applyMove(myGame.makeMove("Fa5",true));
     myGame.applyMove(myGame.makeMove("Fe5",true));
     myGame.applyMove(myGame.makeMove("Fe4"));
     myGame.applyMove(myGame.makeMove("Fb4"));
     myGame.applyMove(myGame.makeMove("Fd4"));
     myGame.applyMove(myGame.makeMove("Cd3"));
     myGame.applyMove(myGame.makeMove("Cc4"));
+    
     myGame.applyMove(myGame.makeMove("1d3+1"));
     myGame.applyMove(myGame.makeMove("Fb3"));
     myGame.applyMove(myGame.makeMove("1b4-1"));
@@ -196,11 +193,11 @@ void debugGame(){
     myGame.applyMove(myGame.makeMove("3b2+111"));
     myGame.applyMove(myGame.makeMove("2c2<2"));
     myGame.applyMove(myGame.makeMove("1b3>1"));
-    myGame.applyMove(myGame.makeMove("3c2+3")); */
+    myGame.applyMove(myGame.makeMove("3c2+3"));
 
     printGameState(myGame);
 
-    int Depth = 4;
+    int Depth = 5;
     MiniMaxAgent player(1,5,150,WhiteScores,Depth);
     player.myGame = &myGame;
     player.myGame->currentPlayer = 1;
@@ -211,12 +208,12 @@ void debugGame(){
 int main(int argc, char** argv){
 
      //   cerr << "SRAND KEY : " << time(NULL) << endl;
-     //   srand((1475664597));
+        srand((1475664597));
       //  cerr << "SRAND KEY : " << time(NULL) << endl;
 //    }
-    srand(time(NULL));
+//    srand(time(NULL));
     Slides = GenerateAllSlides(5);
-    //debugGame();
+//    debugGame();
 
  //   double WhiteScores[] = {30,-0.227125,30,15.6073,30,30,30,30,30,-1.3207,2.87015,14.3374,21.2475};
  

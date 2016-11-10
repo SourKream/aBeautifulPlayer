@@ -199,6 +199,7 @@ class Game{
     
     bool currentPlayer = 1;
     bool myPlayerNumber;
+    int CurrentScore = 0;
 
     Game(int BoardSize, int playerNumber,double Scores []){
         WhitePieces = 0;
@@ -212,7 +213,7 @@ class Game{
         flats[1] = gameConfig->Pieces;
         capstones[0] = gameConfig->CapStonesAllowed;
         capstones[1] = gameConfig->CapStonesAllowed;
-        
+        CurrentScore = 0;
         myPlayerNumber = playerNumber % 2;
     }
     
@@ -222,7 +223,7 @@ class Game{
         BlackPieces = current.BlackPieces;
         CapStones = current.CapStones;
         Standing = current.Standing;
-        
+        CurrentScore = current.CurrentScore;
         memcpy(Stacks, current.Stacks, MAX_SIZE_SQUARE*sizeof(uint64));
         memcpy(Heights, current.Heights, MAX_SIZE_SQUARE*sizeof(int));
         memcpy(WhiteComponents, current.WhiteComponents, MAX_SIZE_SQUARE*sizeof(uint64));
@@ -240,17 +241,18 @@ class Game{
     }
     
     inline int Popcount( unsigned long long x) {
-        // bit population count, see
-        // http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
-        if (x == 0) {
-            return 0;
-        }
-        x -= (x >> 1) & 0x5555555555555555;
-        x = ((x>>2)&0x3333333333333333 )+ (x&0x3333333333333333);
-        x += x >> 4;
-        x &= 0x0F0F0F0F0F0F0F0F;
-        x *= 0x0101010101010101;
-        return (x >> 56);
+        return __builtin_popcountll(x);
+//        // bit population count, see
+//        // http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
+//        if (x == 0) {
+//            return 0;
+//        }
+//        x -= (x >> 1) & 0x5555555555555555;
+//        x = ((x>>2)&0x3333333333333333 )+ (x&0x3333333333333333);
+//        x += x >> 4;
+//        x &= 0x0F0F0F0F0F0F0F0F;
+//        x *= 0x0101010101010101;
+//        return (x >> 56);
     }
     
     void printGameState(){
@@ -353,7 +355,118 @@ class Game{
         }
     }
     
+    uint64 GetStackScore(int i){
+        uint64 SoftCaptives, HardCaptive;
+        uint64 score = 0;
+        uint64 PositionMask  = 1ULL << i;
+        if (WhitePieces & PositionMask){
+            HardCaptive = (Heights[i] - Popcount(Stacks[i] & ((1 << Heights[i]) - 1)));
+            SoftCaptives = Popcount((Stacks[i] & ((1 << Heights[i]) - 1)));
+            if (Standing & PositionMask)
+                score +=  (gameConfig->HardCaptiveStand*HardCaptive + gameConfig->SoftCaptiveStand*SoftCaptives);
+            else if (CapStones & PositionMask)
+                score +=  (gameConfig->HardCaptiveCap*HardCaptive + gameConfig->SoftCaptiveCap*SoftCaptives);
+            else
+                score +=  (gameConfig->HardCaptiveFlat*HardCaptive + gameConfig->SoftCaptiveFlat*SoftCaptives);
+        }
+        else{
+            SoftCaptives = (Heights[i] - Popcount(Stacks[i] & ((1 << Heights[i]) - 1)));
+            HardCaptive = Popcount((Stacks[i] & ((1 << Heights[i]) - 1)));
+            if (Standing & PositionMask)
+                score -=  (gameConfig->HardCaptiveStand*HardCaptive + gameConfig->SoftCaptiveStand*SoftCaptives);
+            else if (CapStones & PositionMask)
+                score -=  (gameConfig->HardCaptiveCap*HardCaptive + gameConfig->SoftCaptiveCap*SoftCaptives);
+            else
+                score -=  (gameConfig->HardCaptiveFlat*HardCaptive + gameConfig->SoftCaptiveFlat*SoftCaptives);
+        }
+        return score;
+    }
+    
     void slideMove(Move move){
+        int r = move.row;
+        int c = move.column;
+        int i = r * gameConfig->BoardSize + c;
+        uint64 pickupStack = Stacks[i];
+        
+        int numPieces = move.Drops[move.dropLength];
+        uint64 PositionMask  = 1ULL << i;
+        
+        
+        CurrentScore -= GetStackScore(i);
+        
+        if (numPieces == Heights[i]){
+            WhitePieces &= ~(PositionMask);
+            BlackPieces &= ~(PositionMask);
+        } else {
+            if ((pickupStack & (1ULL << numPieces)) != 0){
+                WhitePieces |= (PositionMask);
+                BlackPieces &= ~(PositionMask);
+            } else {
+                BlackPieces |= (PositionMask);
+                WhitePieces &= ~(PositionMask);
+            }
+        }
+        Stacks[i] >>= numPieces;
+        Heights[i] -= numPieces;
+        
+        
+        int dr = 0;
+        int dc = 0;
+        if (move.Movetype == SlideUp)
+            dr = 1;
+        else if ( move.Movetype == SlideDown)
+            dr = -1;
+        else if (move.Movetype == SlideRight)
+            dc = 1;
+        else if (move.Movetype == SlideLeft)
+            dc = -1;
+        else{
+            cerr << "SOMETHING HAPPENED 2" << endl;
+            exit(0);
+        }
+        
+        int j = 0;
+        int piecesToDropHere = 0;
+        while (numPieces>0){
+            r += dr;
+            c += dc;
+            i = r * gameConfig->BoardSize + c;
+            piecesToDropHere = move.Drops[j++];
+            CurrentScore -= GetStackScore(i);
+            
+            Standing &= ~(1ULL << i);
+            
+            uint64 drop = (pickupStack >> (numPieces - piecesToDropHere)) & ((1ULL << piecesToDropHere) - 1);
+            Stacks[i] = (Stacks[i] << piecesToDropHere) | drop;
+            Heights[i] += piecesToDropHere;
+            
+            if ((Stacks[i] & 1) != 0){
+                WhitePieces |= (1ULL << i);
+                BlackPieces &= ~(1ULL << i);
+            } else {
+                WhitePieces &= ~(1ULL << i);
+                BlackPieces |= (1ULL << i);
+            }
+            numPieces -= piecesToDropHere;
+            if (numPieces > 0)
+                CurrentScore += GetStackScore(i);
+        }
+        
+        int i_or = move.row * gameConfig->BoardSize + move.column;
+        if ((CapStones & (1ULL << i_or)) != 0){
+            CapStones |= (1ULL << i);
+            CapStones &= ~(1ULL << i_or);
+        }
+        else if ((Standing & (1ULL << i_or)) != 0){
+            Standing |= (1ULL << i);
+            
+            Standing &= ~(1ULL << i_or);
+        }
+        CurrentScore += GetStackScore(i);
+        CurrentScore += GetStackScore(i_or);
+    }
+    
+    void slideMoveOld(Move move){
         int r = move.row;
         int c = move.column;
         int i = r * gameConfig->BoardSize + c;
@@ -455,6 +568,7 @@ class Game{
             case FlatStone :
                 break;
         }
+        CurrentScore += GetStackScore(i);
     }
     
     void applyMove(Move move){
@@ -794,16 +908,16 @@ class Game{
     }
     
     int getStateValue(){
-
-//        int winner = checkIfRoadExists();
-//        if (winner != -1){
-//            if (winner == myPlayerNumber)
-//                return ROAD_REWARD;
-//            return -ROAD_REWARD;
-//        }
+        
+        //        int winner = checkIfRoadExists();
+        //        if (winner != -1){
+        //            if (winner == myPlayerNumber)
+        //                return ROAD_REWARD;
+        //            return -ROAD_REWARD;
+        //        }
         
         //Normal Scores
-        double score = Popcount(WhitePieces & ~(Standing|CapStones))*gameConfig->FlatScore;
+        double score = CurrentScore  + Popcount(WhitePieces & ~(Standing|CapStones))*gameConfig->FlatScore;
         score -= Popcount(BlackPieces & ~(Standing|CapStones))*gameConfig->FlatScore;
         score += Popcount(WhitePieces & (CapStones))*gameConfig->CapStoneScore;
         score -= Popcount(BlackPieces & (CapStones))*gameConfig->CapStoneScore;
@@ -812,53 +926,33 @@ class Game{
         score += Popcount(WhitePieces & ~(gameConfig->Edge))*gameConfig->CenterScore;
         score -= Popcount(BlackPieces & ~(gameConfig->Edge))*gameConfig->CenterScore;
         
-        uint64 filledPieces = WhitePieces;
+        uint64 filledPieces = WhitePieces | BlackPieces;
         uint64 bit_set;
         // Captured Stack Scores
         short i;
-        short SoftCaptives = 0 , HardCaptive = 0;
         
         while (filledPieces != 0){
             bit_set = filledPieces & ~(filledPieces & (filledPieces -1));
             i = __builtin_ctzl(bit_set);
-            HardCaptive = (Heights[i] - Popcount(Stacks[i] & ((1 << Heights[i]) - 1)));
-            SoftCaptives = Popcount((Stacks[i] & ((1 << Heights[i]) - 1)));
-            score += Popcount(WhitePieces & gameConfig->InfluenceMasks[i])*gameConfig->InfluenceScore;
-            if (Standing & 1ULL<<i)
-                score +=  (gameConfig->HardCaptiveStand*HardCaptive + gameConfig->SoftCaptiveStand*SoftCaptives);
-            else if (CapStones & 1ULL<<i)
-                score +=  (gameConfig->HardCaptiveCap*HardCaptive + gameConfig->SoftCaptiveCap*SoftCaptives);
+            if (bit_set & WhitePieces)
+                score += Popcount(WhitePieces & gameConfig->InfluenceMasks[i])*gameConfig->InfluenceScore;
             else
-                score +=  (gameConfig->HardCaptiveFlat*HardCaptive + gameConfig->SoftCaptiveFlat*SoftCaptives);
+                score -= Popcount(BlackPieces & gameConfig->InfluenceMasks[i])*gameConfig->InfluenceScore;
             filledPieces = filledPieces & (filledPieces -1);
         }
         
-        filledPieces = BlackPieces;
-
-        while (filledPieces != 0){
-            bit_set = filledPieces & ~(filledPieces & (filledPieces -1));
-            i = __builtin_ctzl(bit_set);
-            SoftCaptives = (Heights[i] - Popcount(Stacks[i] & ((1 << Heights[i]) - 1)));
-            HardCaptive = Popcount((Stacks[i] & ((1 << Heights[i]) - 1)));
-            score -= Popcount(BlackPieces & gameConfig->InfluenceMasks[i])*gameConfig->InfluenceScore;
-            if (Standing & 1ULL<<i)
-                score -=  (gameConfig->HardCaptiveStand*HardCaptive + gameConfig->SoftCaptiveStand*SoftCaptives);
-            else if (CapStones & 1ULL<<i)
-                score -=  (gameConfig->HardCaptiveCap*HardCaptive + gameConfig->SoftCaptiveCap*SoftCaptives);
-            else
-                score -=  (gameConfig->HardCaptiveFlat*HardCaptive + gameConfig->SoftCaptiveFlat*SoftCaptives);
-            filledPieces = filledPieces & (filledPieces -1);
-        }
         
-        // Liberties
+        //Liberties
         score += Popcount(ExpandOnce(WhitePieces & (~Standing), ~BlackPieces) & (~WhitePieces)) * gameConfig->LibertyScore;
         score -= Popcount(ExpandOnce(BlackPieces & (~Standing), ~WhitePieces) & (~BlackPieces)) * gameConfig->LibertyScore;
         
-        // Group Component Scores
+         //Group Component Scores
         score += getGroupsScore(WhiteComponents, size_cw, ~(BlackPieces|Standing));
         score -= getGroupsScore(BlackComponents, size_cb, ~(WhitePieces|Standing));
-
+        
+        
         int Integer_Score = (int) score;
+    
         return (myPlayerNumber==1)?Integer_Score:-Integer_Score;
         
     }

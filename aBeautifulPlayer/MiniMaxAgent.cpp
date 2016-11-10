@@ -210,7 +210,7 @@ struct MiniMaxAgent{
         ROAD_WIN =false;
         FLAT_WIN = false;
         //// // cerr << "ONE_STEP_FLAG : " << ONE_STEP_FLAG << endl << endl;
-        // cerr << "Max State Value was  : " << maxStateValue << endl;
+         cerr << "Max State Value was  : " << maxStateValue << endl;
         return myGame->getMoveString(*bestMove);
     }
     
