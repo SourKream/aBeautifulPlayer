@@ -13,9 +13,9 @@
 #define INF 50000
 
 
-#define LOSE_DEPTH 2
-#define MID_DEPTH 3
-#define MAX_DEPTH 4
+#define LOSE_DEPTH 1
+#define MID_DEPTH 2
+#define MAX_DEPTH 3
 struct MiniMaxAgent{
     
     Game* myGame;
@@ -125,11 +125,11 @@ struct MiniMaxAgent{
             CurrentMaxDepth = 1;
             GO_TO_LOWEST_DEPTH = false;
         }
-        else if ( LOST_FLAG || timeLeft < 10){
+        else if ( LOST_FLAG || timeLeft < 15){
             CurrentMaxDepth = LOSE_DEPTH;
             LOST_FLAG = false;
         }
-        else if (WIN_FLAG || timeLeft < 45)
+        else if (WIN_FLAG || timeLeft < 75)
             CurrentMaxDepth = MID_DEPTH;
         else
             CurrentMaxDepth = MAX_DEPTH;

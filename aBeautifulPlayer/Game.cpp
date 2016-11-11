@@ -909,12 +909,12 @@ class Game{
     
     int getStateValue(){
         
-        //        int winner = checkIfRoadExists();
-        //        if (winner != -1){
-        //            if (winner == myPlayerNumber)
-        //                return ROAD_REWARD;
-        //            return -ROAD_REWARD;
-        //        }
+		//	int winner = checkIfRoadExists();
+		//	if (winner != -1){
+		//		if (winner == myPlayerNumber)
+		//			return ROAD_REWARD;
+		//		return -ROAD_REWARD;
+		//	}
         
         //Normal Scores
         double score = CurrentScore  + Popcount(WhitePieces & ~(Standing|CapStones))*gameConfig->FlatScore;
@@ -950,7 +950,7 @@ class Game{
         score += getGroupsScore(WhiteComponents, size_cw, ~(BlackPieces|Standing));
         score -= getGroupsScore(BlackComponents, size_cb, ~(WhitePieces|Standing));
         
-        
+
         int Integer_Score = (int) score;
     
         return (myPlayerNumber==1)?Integer_Score:-Integer_Score;
