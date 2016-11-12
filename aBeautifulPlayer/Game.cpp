@@ -206,7 +206,7 @@ class Game{
 	short int size_cb;
 	Config *gameConfig;
 	Config* gameConfig2;
-	int Short_Val;
+	int NodeReorderValue;
 	
 	bool currentPlayer = 1;
 	bool myPlayerNumber;
@@ -284,8 +284,6 @@ class Game{
 			cerr << endl;
 		}
 	}
-	
-	
 	
 	Move makeMove(string move, bool onOpponent = false){
 		
@@ -613,9 +611,8 @@ class Game{
 	}
 	
 	int generateAllMoves(Move * allMoves){
-			//vector<Move> allMoves(1000);
+		//	vector<Move> allMoves(1000);
 		int K = 0;
-		
 		
 			// Place Moves
 		Piece piece;
@@ -902,6 +899,7 @@ class Game{
 		
 		uint64 filledPieces = WhitePieces | BlackPieces;
 		uint64 bit_set;
+		
 			// Captured Stack Scores
 		short i;
 		
@@ -915,12 +913,11 @@ class Game{
 			filledPieces = filledPieces & (filledPieces -1);
 		}
 		
-		
-			//Liberties
+		//Liberties
 		score += Popcount(ExpandOnce(WhitePieces & (~Standing), ~BlackPieces) & (~WhitePieces)) * gameConfig2->LibertyScore;
 		score -= Popcount(ExpandOnce(BlackPieces & (~Standing), ~WhitePieces) & (~BlackPieces)) * gameConfig2->LibertyScore;
 		
-			//Group Component Scores
+		//Group Component Scores
 		score += getGroupsScore(WhiteComponents, size_cw, ~(BlackPieces|Standing));
 		score -= getGroupsScore(BlackComponents, size_cb, ~(WhitePieces|Standing));
 		
@@ -931,9 +928,9 @@ class Game{
 		
 	}
 	
-	void short_val(){
+	void ReorderValue(){
 		int score = Popcount(WhitePieces & ~(Standing)) -  Popcount(BlackPieces & ~(Standing));
-		Short_Val = (myPlayerNumber==1)?-score:score;
+		NodeReorderValue = (myPlayerNumber==1)? score:-score;
 	}
 	
 	
@@ -985,8 +982,8 @@ class Game{
 		
 		
 		//Liberties
-		score += Popcount(ExpandOnce(WhitePieces & (~Standing), ~BlackPieces) & (~WhitePieces)) * gameConfig2->LibertyScore;
-		score -= Popcount(ExpandOnce(BlackPieces & (~Standing), ~WhitePieces) & (~BlackPieces)) * gameConfig2->LibertyScore;
+		score += Popcount(ExpandOnce(WhitePieces & (~Standing), ~BlackPieces) & (~WhitePieces)) * gameConfig->LibertyScore;
+		score -= Popcount(ExpandOnce(BlackPieces & (~Standing), ~WhitePieces) & (~BlackPieces)) * gameConfig->LibertyScore;
 		
 		//Group Component Scores
 		score += getGroupsScore(WhiteComponents, size_cw, ~(BlackPieces|Standing));

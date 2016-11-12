@@ -33,16 +33,16 @@ struct Container{
 };
 struct MiniMaxAgent{
 	int StatesExplored;
-	int SIZE_ALL_MOVES;
-	bool QUIT = false;
-	int ALPHA;
-	int BETA;
-	int MAXSTATEVALUE;
-	Move ALLMOVES[1000];
-	Move* BESTMOVE;
-	pthread_t threads[4];
-	pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
-	pthread_mutex_t mutex2 = PTHREAD_MUTEX_INITIALIZER;
+//	int SIZE_ALL_MOVES;
+//	bool QUIT = false;
+//	int ALPHA;
+//	int BETA;
+//	int MAXSTATEVALUE;
+//	Move ALLMOVES[1000];
+//	Move* BESTMOVE;
+//	pthread_t threads[4];
+//	pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
+//	pthread_mutex_t mutex2 = PTHREAD_MUTEX_INITIALIZER;
 	
 	Game* myGame;
 	timeval lasttimenoted;
@@ -162,7 +162,6 @@ struct MiniMaxAgent{
 	
 	inline void TimeandDepth(){
 		
-			//myGame->gameConfig->FlatScoreOffset = myGame->gameConfig->Pieces - min(myGame->flats[0], myGame->flats[1]);
 		gettimeofday(&currenttime, NULL);
 		timeLeft -= currenttime.tv_sec - lasttimenoted.tv_sec;
 		timeLeft -= (currenttime.tv_usec - lasttimenoted.tv_usec)/1000000.0;
@@ -180,124 +179,125 @@ struct MiniMaxAgent{
 			CurrentMaxDepth = MAX_DEPTH;
 	}
 	
-	
-	static void * InternalRunHelper(void * This) {
-		struct Helper curr = *(Helper *) This;
-		curr.x->ParallelSearch(curr.z);
-		return NULL;
-	}
-	
-	void * ParallelSearch(int I){
-		int left = (SIZE_ALL_MOVES/4)*I;
-		int Right = min((SIZE_ALL_MOVES/4)*(I+1), SIZE_ALL_MOVES );
-		for (int i=left; i<Right; i++){
-			Game nextState = *myGame;
-			nextState.applyMove(ALLMOVES[i]);
-			
-			int value = MiniMaxSearch(nextState, false, 1, ALPHA, BETA);
-			if (!QUIT && value > MAXSTATEVALUE){
-				pthread_mutex_lock(&mutex1);
-				if (!QUIT && value > MAXSTATEVALUE){
-					MAXSTATEVALUE = value;
-					BESTMOVE = &ALLMOVES[i];
-				}
-				pthread_mutex_unlock(&mutex1);
-			}
-			pthread_mutex_lock(&mutex2);
-			ALPHA = max(ALPHA, MAXSTATEVALUE);
-			pthread_mutex_unlock(&mutex2);
-			if (!QUIT && MAXSTATEVALUE == ROAD_REWARD ){
-				ROAD_WIN = true;
-				QUIT= true;
-				break;
-			}
-			if (!QUIT && MAXSTATEVALUE == ROAD_REWARD/2 ){
-				QUIT= true;
-				FLAT_WIN = true;
-			}
-			if (BETA < ALPHA)
-				break;
-		}
-		pthread_exit(NULL);
-	}
-	
-	string getMiniMaxMoveParallel(){
-		QUIT = false;
-		SIZE_ALL_MOVES = myGame->generateAllMoves(ALLMOVES);
-		
-		MAXSTATEVALUE = -INF;
-		ALPHA = -INF;
-		BETA = INF;
-		BESTMOVE = &ALLMOVES[0];
-		
-		for (int i = 0; i < 4; i ++){
-			struct Helper help;
-			help.x = this;
-			help.z = i;
-			pthread_create( &threads[i], NULL, InternalRunHelper, (void *)&help );
-		}
-		
-		for (int i = 0; i < 4; i++)
-			pthread_join(threads[i],NULL);
-		
-		QUIT  = false;
-		if (MAXSTATEVALUE < -ROAD_REWARD/2 + 1){
-			LOST_FLAG = 1;
-			if (Lost_Iterations++ >= 5){
-				GO_TO_LOWEST_DEPTH = true;
-				LOST_FLAG = 0;
-				Lost_Iterations = 0;
-			}
-		}
-		else{
-			Lost_Iterations = 0;
-		}
-		
-		if (ROAD_WIN || FLAT_WIN){
-			WIN_FLAG = true;
-			for (int i=0; i<SIZE_ALL_MOVES; i++){
-				Game nextState = *myGame;
-				nextState.applyMove(ALLMOVES[i]);
-				int r = nextState.isFinishState();
-				if (r == (myPlayerNumber)){
-						// cerr << "1 Move Win/Loss" << endl;
-					BESTMOVE = &ALLMOVES[i];
-					break;
-				}
-				if (!ROAD_WIN && FLAT_WIN && r == myPlayerNumber + 4 ){
-						// cerr << "direct flat win" << endl;
-					BESTMOVE = &ALLMOVES[i];
-					break;
-				}
-			}
-		}
-		
-		if (WIN_FLAG && Win_Iterations++ >= 5){
-				// cerr << "GOING TO LOWEST DEPTH" << endl;
-			GO_TO_LOWEST_DEPTH = true;
-			WIN_FLAG = false;
-			Win_Iterations = 0;
-		}
-		else{
-			Win_Iterations = 0;
-		}
-		
-		ROAD_WIN =false;
-		FLAT_WIN = false;
-			//// // cerr << "ONE_STEP_FLAG : " << ONE_STEP_FLAG << endl << endl;
-		cerr << "Max State Value was  : " << MAXSTATEVALUE << endl;
-		return myGame->getMoveString(*BESTMOVE);
-	}
+	/*
+//	static void * InternalRunHelper(void * This) {
+//		struct Helper curr = *(Helper *) This;
+//		curr.x->ParallelSearch(curr.z);
+//		return NULL;
+//	}
+//	
+//	void * ParallelSearch(int I){
+//		int left = (SIZE_ALL_MOVES/4)*I;
+//		int Right = min((SIZE_ALL_MOVES/4)*(I+1), SIZE_ALL_MOVES );
+//		for (int i=left; i<Right; i++){
+//			Game nextState = *myGame;
+//			nextState.applyMove(ALLMOVES[i]);
+//			
+//			int value = MiniMaxSearch(nextState, false, 1, ALPHA, BETA);
+//			if (!QUIT && value > MAXSTATEVALUE){
+//				pthread_mutex_lock(&mutex1);
+//				if (!QUIT && value > MAXSTATEVALUE){
+//					MAXSTATEVALUE = value;
+//					BESTMOVE = &ALLMOVES[i];
+//				}
+//				pthread_mutex_unlock(&mutex1);
+//			}
+//			pthread_mutex_lock(&mutex2);
+//			ALPHA = max(ALPHA, MAXSTATEVALUE);
+//			pthread_mutex_unlock(&mutex2);
+//			if (!QUIT && MAXSTATEVALUE == ROAD_REWARD ){
+//				ROAD_WIN = true;
+//				QUIT= true;
+//				break;
+//			}
+//			if (!QUIT && MAXSTATEVALUE == ROAD_REWARD/2 ){
+//				QUIT= true;
+//				FLAT_WIN = true;
+//			}
+//			if (BETA < ALPHA)
+//				break;
+//		}
+//		pthread_exit(NULL);
+//	}
+//	
+//	string getMiniMaxMoveParallel(){
+//		QUIT = false;
+//		SIZE_ALL_MOVES = myGame->generateAllMoves(ALLMOVES);
+//		
+//		MAXSTATEVALUE = -INF;
+//		ALPHA = -INF;
+//		BETA = INF;
+//		BESTMOVE = &ALLMOVES[0];
+//		
+//		for (int i = 0; i < 4; i ++){
+//			struct Helper help;
+//			help.x = this;
+//			help.z = i;
+//			pthread_create( &threads[i], NULL, InternalRunHelper, (void *)&help );
+//		}
+//		
+//		for (int i = 0; i < 4; i++)
+//			pthread_join(threads[i],NULL);
+//		
+//		QUIT  = false;
+//		if (MAXSTATEVALUE < -ROAD_REWARD/2 + 1){
+//			LOST_FLAG = 1;
+//			if (Lost_Iterations++ >= 5){
+//				GO_TO_LOWEST_DEPTH = true;
+//				LOST_FLAG = 0;
+//				Lost_Iterations = 0;
+//			}
+//		}
+//		else{
+//			Lost_Iterations = 0;
+//		}
+//		
+//		if (ROAD_WIN || FLAT_WIN){
+//			WIN_FLAG = true;
+//			for (int i=0; i<SIZE_ALL_MOVES; i++){
+//				Game nextState = *myGame;
+//				nextState.applyMove(ALLMOVES[i]);
+//				int r = nextState.isFinishState();
+//				if (r == (myPlayerNumber)){
+//						// cerr << "1 Move Win/Loss" << endl;
+//					BESTMOVE = &ALLMOVES[i];
+//					break;
+//				}
+//				if (!ROAD_WIN && FLAT_WIN && r == myPlayerNumber + 4 ){
+//						// cerr << "direct flat win" << endl;
+//					BESTMOVE = &ALLMOVES[i];
+//					break;
+//				}
+//			}
+//		}
+//		
+//		if (WIN_FLAG && Win_Iterations++ >= 5){
+//				// cerr << "GOING TO LOWEST DEPTH" << endl;
+//			GO_TO_LOWEST_DEPTH = true;
+//			WIN_FLAG = false;
+//			Win_Iterations = 0;
+//		}
+//		else{
+//			Win_Iterations = 0;
+//		}
+//		
+//		ROAD_WIN =false;
+//		FLAT_WIN = false;
+//			//// // cerr << "ONE_STEP_FLAG : " << ONE_STEP_FLAG << endl << endl;
+//		cerr << "Max State Value was  : " << MAXSTATEVALUE << endl;
+//		return myGame->getMoveString(*BESTMOVE);
+//	}
+	*/
 	
 	vector<Container> reorder_nodes(Move * allMoves, int K, bool Max){
 		vector<Container> to_ret;
 		for (int i = 0 ; i < K; i++){
 			Game nextState = *myGame;
 			nextState.applyMove(allMoves[i]);
-			nextState.short_val();
-			to_ret.push_back({nextState.Short_Val,allMoves[i]});
+			nextState.ReorderValue();
+			to_ret.push_back({nextState.NodeReorderValue,allMoves[i]});
 		}
-		if (!Max){
+		if (Max){
 		sort(to_ret.begin(), to_ret.end(),
 			 [](const Container& a, const Container& b)
 			 {
