@@ -617,7 +617,7 @@ class Game{
 		int K = 0;
 		
 		
-		// Place Moves
+			// Place Moves
 		Piece piece;
 		piece.color = (Color)currentPlayer;
 		uint64 emptyPositions = ((~(WhitePieces | BlackPieces))&gameConfig->BoardMask);
@@ -645,7 +645,7 @@ class Game{
 			emptyPositions = bits;
 		}
 		
-		// Slide Moves
+			// Slide Moves
 		uint64 filledPieces = BlackPieces;
 		if (currentPlayer)
 			filledPieces = WhitePieces;
@@ -674,7 +674,7 @@ class Game{
 			}
 		}
 		
-		// Capstone Moves
+			// Capstone Moves
 		filledPieces = BlackPieces;
 		if (currentPlayer)
 			filledPieces = WhitePieces;
@@ -935,11 +935,11 @@ class Game{
 		int score = Popcount(WhitePieces & ~(Standing)) -  Popcount(BlackPieces & ~(Standing));
 		Short_Val = (myPlayerNumber==1)?-score:score;
 	}
-
+	
 	
 	int getStateValueAttack(){
 		
-		//Normal Scores
+			//Normal Scores
 		double score = CurrentStackScores;
 		score += (1 - capstones[1])*gameConfig->CapStoneScore;
 		score -= (1 - capstones[0])*gameConfig->CapStoneScore;
@@ -967,11 +967,10 @@ class Game{
 		
 		score += (countThreats(WhiteComponents, size_cw, BlackPieces | WhitePieces))*gameConfig->ThreatScore;
 		score -= (countThreats(BlackComponents, size_cb, BlackPieces | WhitePieces))*gameConfig->ThreatScore;
-
+		
 		uint64 filledPieces = WhitePieces | BlackPieces;
 		uint64 bit_set;
 		
-		// Captured Stack Scores
 		short i;
 		
 		while (filledPieces != 0){
@@ -992,7 +991,7 @@ class Game{
 		//Group Component Scores
 		score += getGroupsScore(WhiteComponents, size_cw, ~(BlackPieces|Standing));
 		score -= getGroupsScore(BlackComponents, size_cb, ~(WhitePieces|Standing));
-
+		
 		
 		int Integer_Score = (int) score;
 		

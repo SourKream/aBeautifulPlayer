@@ -87,55 +87,54 @@ vector<vector<vector<short> > > Slides;
 void debugGame(){
 	double WhiteScores[] = {40, 80, 20, 5, 3, 2, 20, 2, 12.5, -7.5, 12.5, -5, 15, -2.5};
 	double WhiteScores2[] = {60,  120, 20, 30, 4, 2, 4, 2, 10, 10, 20, 10, 15, 10};
-	double BlackScores2[] = {60, 120, 20, 30, 4, 2, 4, 2, 10, 10, 20, 10, 15, 10};
 	Game myGame(6, 2,WhiteScores,WhiteScores);
 	myGame.applyMove(myGame.makeMove("Fe1",true));
 	myGame.applyMove(myGame.makeMove("Fe5",true));
-//	myGame.applyMove(myGame.makeMove("Fc5"));
-//	myGame.applyMove(myGame.makeMove("Fc4"));
-//	myGame.applyMove(myGame.makeMove("Fe4"));
-//	myGame.applyMove(myGame.makeMove("Fc2"));
-//	myGame.applyMove(myGame.makeMove("Fb5"));
-//	myGame.applyMove(myGame.makeMove("Fc3"));
-//	myGame.applyMove(myGame.makeMove("Fd5"));
-//	myGame.applyMove(myGame.makeMove("Fa5"));
-
-
-    printGameState(myGame);
-    int Depth = 4;
-    MiniMaxAgent player(2,5,150,WhiteScores,WhiteScores2,Depth);
-    player.myGame = &myGame;
-    player.myGame->currentPlayer = 1;
-    cout << "My Move : " << player.getMiniMaxMoveParallel() << endl;
-    exit(0);
+	//	myGame.applyMove(myGame.makeMove("Fc5"));
+	//	myGame.applyMove(myGame.makeMove("Fc4"));
+	//	myGame.applyMove(myGame.makeMove("Fe4"));
+	//	myGame.applyMove(myGame.makeMove("Fc2"));
+	//	myGame.applyMove(myGame.makeMove("Fb5"));
+	//	myGame.applyMove(myGame.makeMove("Fc3"));
+	//	myGame.applyMove(myGame.makeMove("Fd5"));
+	//	myGame.applyMove(myGame.makeMove("Fa5"));
+	
+	
+	printGameState(myGame);
+	int Depth = 4;
+	MiniMaxAgent player(2,5,150,WhiteScores,WhiteScores2,Depth);
+	player.myGame = &myGame;
+	player.myGame->currentPlayer = 1;
+	cout << "My Move : " << player.getMiniMaxMoveParallel() << endl;
+	exit(0);
 }
 
 int main(int argc, char** argv){
 	
-	//	cerr << "SRAND KEY : " << time(NULL) << endl;
-	//	srand((1475664597));
-	//	cerr << "SRAND KEY : " << time(NULL) << endl;
-
+		//	cerr << "SRAND KEY : " << time(NULL) << endl;
+		//	srand((1475664597));
+		//	cerr << "SRAND KEY : " << time(NULL) << endl;
+	
 	srand(time(NULL));
 	Slides = GenerateAllSlides(7);
 		//debugGame();
-		/*
-	//	double WhiteScores[] = {30,-0.227125,30,15.6073,30,30,30,30,30,-1.3207,2.87015,14.3374,21.2475};
-	//
-	//	FlatScore = Scores[0];
-	//	StandingStoneScore = Scores[1];
-	//	CapStoneScore = Scores[2];
-	//	CenterScore = Scores[3];
-	//	InfluenceScore = Scores[4];
-	//	LibertyScore = Scores[5];
-	//	GroupLibertyScore = Scores[6];
-	//	HardCaptiveFlat = Scores[7];
-	//	SoftCaptiveFlat = Scores[8];
-	//	HardCaptiveStand = Scores[9];
-	//	SoftCaptiveStand = Scores[10];
-	//	HardCaptiveCap = Scores[11];
-	//	SoftCaptiveCap = Scores[12];
-	*/
+	/*
+	 //	double WhiteScores[] = {30,-0.227125,30,15.6073,30,30,30,30,30,-1.3207,2.87015,14.3374,21.2475};
+	 //
+	 //	FlatScore = Scores[0];
+	 //	StandingStoneScore = Scores[1];
+	 //	CapStoneScore = Scores[2];
+	 //	CenterScore = Scores[3];
+	 //	InfluenceScore = Scores[4];
+	 //	LibertyScore = Scores[5];
+	 //	GroupLibertyScore = Scores[6];
+	 //	HardCaptiveFlat = Scores[7];
+	 //	SoftCaptiveFlat = Scores[8];
+	 //	HardCaptiveStand = Scores[9];
+	 //	SoftCaptiveStand = Scores[10];
+	 //	HardCaptiveCap = Scores[11];
+	 //	SoftCaptiveCap = Scores[12];
+	 */
 	double WhiteScores[] = {40, 80, 20, 5, 3, 2, 20, 2, 12.5, -7.5, 12.5, -5, 15, -2.5};
 	double BlackScores[] = {40, 80, 20, 5, 3, 2, 20, 2, 12.5, -7.5, 12.5, -5, 15, -2.5};
 	double WhiteScores2[] = {60,  120, 20, 30, 4, 2, 4, 2, 10, 10, 20, 10, 15, 10};
@@ -149,13 +148,13 @@ int main(int argc, char** argv){
 	gettimeofday(&currenttime, NULL);
 	if ( p == 1){
 		MiniMaxAgent player3(p, n, t,WhiteScores,WhiteScores2, MaxDepth, &currenttime);
-		//	cerr << "MiniMax Player With Bits" << endl;
+			//	cerr << "MiniMax Player With Bits" << endl;
 		player3.playFirstMove();
 		player3.play();
 	}
 	else{
 		MiniMaxAgent player3(p, n, t,BlackScores,BlackScores2, MaxDepth, &currenttime);
-		//	cerr << "MiniMax Player With Bits" << endl;
+			//	cerr << "MiniMax Player With Bits" << endl;
 		player3.playFirstMove();
 		player3.play();
 	}
