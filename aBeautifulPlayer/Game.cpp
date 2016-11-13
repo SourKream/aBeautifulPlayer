@@ -654,8 +654,6 @@ class Game{
 			filledPieces &= (filledPieces-1);
 			for (int dir = 0; dir < 4; dir++){
 				int PossSteps = PossStepsInDir[dir];
-				if (PossSteps > 5)
-					PossSteps = 5;
 				for (int u = 1 ; u <= PossSteps; u++){
 					for (int t = 0 ; t < Slides[u].size(); t++){
 						if ( Slides[u][t][u] > min(Heights[i],gameConfig->BoardSize))
@@ -900,7 +898,7 @@ class Game{
 		uint64 filledPieces = WhitePieces | BlackPieces;
 		uint64 bit_set;
 		
-			// Captured Stack Scores
+		// Captured Stack Scores
 		short i;
 		
 		while (filledPieces != 0){
@@ -935,7 +933,7 @@ class Game{
 	
 	
 	int getStateValueAttack(){
-		
+
 			//Normal Scores
 		double score = CurrentStackScores;
 		score += (1 - capstones[1])*gameConfig->CapStoneScore;

@@ -14,8 +14,8 @@
 
 
 #define LOSE_DEPTH 2
-#define MID_DEPTH 3
-#define MAX_DEPTH 4
+#define MID_DEPTH 2
+#define MAX_DEPTH 2
 
 
 
@@ -326,7 +326,9 @@ struct MiniMaxAgent{
 			// cerr << "Minimax with Depth " << CurrentMaxDepth << " At Move number" << moves << endl;
 		
 		vector<Container> AllGames = reorder_nodes(allMoves, size_all_moves,1);
-		for (int i=0; i<size_all_moves; i++){
+//		Container x ={1,myGame->makeMove("Fb4")};
+//vector<Container> AllGames = {x};
+		for (int i=0; i<AllGames.size(); i++){
 			Game nextState = *myGame;
 			nextState.applyMove(AllGames[i].movex);
 			StatesExplored++;
@@ -430,13 +432,13 @@ struct MiniMaxAgent{
 			if (maximize){
 				bestValue = max(bestValue, value);
 				alpha = max(alpha, bestValue);
-				if ((beta < alpha) || (bestValue == ROAD_REWARD))
+				if ((beta < alpha) )
 					break;
 			}
 			else {
 				bestValue = min(bestValue, value);
 				beta = min(beta, bestValue);
-				if ((beta < alpha) || ((bestValue == -ROAD_REWARD)))
+				if (beta < alpha )
 					break;
 			}
 		}

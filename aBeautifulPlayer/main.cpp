@@ -84,16 +84,48 @@ vector<vector<vector<short> > > GenerateAllSlides(short K) {
 vector<vector<vector<short> > > Slides;
 
 
+
 void debugGame(){
-	double WhiteScores[] = {40, 80, 20, 5, 3, 2, 20, 2, 12.5, -7.5, 12.5, -5, 15, -2.5};
-	double WhiteScores2[] = {60,  120, 20, 30, 4, 2, 4, 2, 10, 10, 20, 10, 15, 10};
-	Game myGame(5, 2,WhiteScores,WhiteScores);
 	
-	myGame.applyMove(myGame.makeMove("Fa1",true));
-	myGame.applyMove(myGame.makeMove("Fe1",true));
+	double WhiteScores[] = { 40,  80, 20,  25, 3, 2, 4, 2, 12.5, -7.5, 12.5, -5, 15, -2.5};
+ double WhiteScores2[] = {60, 120, 20, 30, 4, 2, 4, 2, 10,   10,   20,   10, 15, 10};
+//	double WhiteScores[] = {40, 80, 20, 5, 3, 2, 20, 2, 12.5, -7.5, 12.5, -5, 15, -2.5};
+//	double WhiteScores2[] = {60,  120, 20, 30, 4, 2, 4, 2, 10, 10, 20, 10, 15, 10};
+	Game myGame(7, 2,WhiteScores,WhiteScores);
+	myGame.applyMove(myGame.makeMove("Fa5",true));
+	myGame.applyMove(myGame.makeMove("Fe5",true));
+	myGame.applyMove(myGame.makeMove("Fb2"));
+	myGame.applyMove(myGame.makeMove("Fc3"));
+	myGame.applyMove(myGame.makeMove("Fc2"));
+	myGame.applyMove(myGame.makeMove("Fb3"));
+	myGame.applyMove(myGame.makeMove("Fd2"));
+	myGame.applyMove(myGame.makeMove("Fd3"));
+	myGame.applyMove(myGame.makeMove("Fa2"));
+	myGame.applyMove(myGame.makeMove("1b3-1"));
+	myGame.applyMove(myGame.makeMove("1c2+1"));
+	myGame.applyMove(myGame.makeMove("Fb3"));
+	myGame.applyMove(myGame.makeMove("2c3<2"));
+	myGame.applyMove(myGame.makeMove("Fd4"));
+	myGame.applyMove(myGame.makeMove("Fd5"));
+	myGame.applyMove(myGame.makeMove("Fc4"));
+	myGame.applyMove(myGame.makeMove("Fc5"));
+	myGame.applyMove(myGame.makeMove("Fe3"));
+	myGame.applyMove(myGame.makeMove("Fb5"));
+	myGame.applyMove(myGame.makeMove("Fb4"));
+	myGame.applyMove(myGame.makeMove("3b3+3"));
+	myGame.applyMove(myGame.makeMove("2b2+11"));
+	myGame.applyMove(myGame.makeMove("1b3+1"));
+	myGame.applyMove(myGame.makeMove("1a5>1"));
+	myGame.applyMove(myGame.makeMove("2b4+2"));
+	myGame.applyMove(myGame.makeMove("1c4+1"));
+	myGame.applyMove(myGame.makeMove("3b5>3"));
+	myGame.applyMove(myGame.makeMove("1d4+1"));
+	myGame.applyMove(myGame.makeMove("4c5>4"));
+	myGame.applyMove(myGame.makeMove("Fc3"));
+		//myGame.applyMove(myGame.makeMove("Fa4"));
 	printGameState(myGame);
-	int Depth = 4;
-	MiniMaxAgent player(2,5,150,WhiteScores,WhiteScores2,Depth);
+	int Depth = 1;
+	MiniMaxAgent player(1,7,150,WhiteScores,WhiteScores2,Depth);
 	player.myGame = &myGame;
 	player.myGame->currentPlayer = 1;
 	cout << "My Move : " << player.getMiniMaxMove() << endl;
@@ -109,7 +141,7 @@ int main(int argc, char** argv){
 	Slides = GenerateAllSlides(7);
 		//debugGame();
 
-	double WhiteScores[] = { 40,  80, 20,  5, 3, 2, 4, 2, 12.5, -7.5, 12.5, -5, 15, -2.5};
+	double WhiteScores[] = { 40,  80, 20,  5, 3, 2, 4, 2, 12.5, -7.5, 17.5, -5, 15, -2.5};
 	double WhiteScores2[] = {60, 120, 20, 30, 4, 2, 4, 2, 10,   10,   20,   10, 15, 10};
 	double BlackScores[] = {40, 80, 20, 5, 3, 2, 4, 2, 12.5, -7.5, 12.5, -5, 15, -2.5};
 	double BlackScores2[] = {60, 120, 20, 30, 4, 2, 4, 2, 10, 10, 20, 10, 15, 10};
