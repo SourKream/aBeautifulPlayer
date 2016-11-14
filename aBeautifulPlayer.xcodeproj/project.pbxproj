@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		9FF763091DA0290B0036AD6A /* MiniMaxAgent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9FF763081DA0290B0036AD6A /* MiniMaxAgent.cpp */; settings = {COMPILER_FLAGS = "-O3"; }; };
-		9FF79FEF1D9F8A49000DF66D /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9FF79FEE1D9F8A49000DF66D /* main.cpp */; };
+		9FF79FEF1D9F8A49000DF66D /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9FF79FEE1D9F8A49000DF66D /* main.cpp */; settings = {COMPILER_FLAGS = "-pthread"; }; };
 		9FF79FF51D9F8AFF000DF66D /* Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9FF79FF31D9F8AFF000DF66D /* Game.cpp */; settings = {COMPILER_FLAGS = "-O3"; }; };
 /* End PBXBuildFile section */
 
