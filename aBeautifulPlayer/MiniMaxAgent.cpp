@@ -13,9 +13,9 @@
 #define INF 50000
 
 
-#define LOSE_DEPTH 2
+#define LOSE_DEPTH 1
 #define MID_DEPTH 2
-#define MAX_DEPTH 2
+#define MAX_DEPTH 3
 
 
 
@@ -139,6 +139,7 @@ struct MiniMaxAgent{
 			cerr << "Sent Move String" <<  endl;
 			moves++;
 			TimeandDepth();
+            //chooseDefOrAttack();
 			myGame->applyMove(myGame->makeMove(move));
 			cin >> move;
 			cerr << "Received Move String" << endl;
@@ -151,13 +152,11 @@ struct MiniMaxAgent{
 	}
 	
 	void chooseDefOrAttack(){
-		double Z =120 +  myGame->getStateValue();
-		if (Z  < 0)
-			myGame->ToAttack ^= 1;
+        myGame->ToAttack ^= 1;
 		if (myGame->ToAttack)
-			cerr << Z <<"\t Attack" << endl;
+			cerr <<"Attack" << endl;
 		else
-			cerr << Z << "\t Defense" << endl;
+			cerr << "Defense" << endl;
 	}
 	
 	inline void TimeandDepth(){
@@ -169,7 +168,7 @@ struct MiniMaxAgent{
 			CurrentMaxDepth = 1;
 			GO_TO_LOWEST_DEPTH = false;
 		}
-		else if ( LOST_FLAG || timeLeft < 30){
+		else if ( LOST_FLAG || timeLeft < 15){
 			CurrentMaxDepth = LOSE_DEPTH;
 			LOST_FLAG = false;
 		}
@@ -331,8 +330,11 @@ struct MiniMaxAgent{
 		for (int i=0; i<AllGames.size(); i++){
 			Game nextState = *myGame;
 			nextState.applyMove(AllGames[i].movex);
-			StatesExplored++;
-			
+            StatesExplored++;
+            if (currenttime.tv_sec - lasttimenoted.tv_sec > 30){
+                cerr <<"Too much time" << endl;
+                break;
+            }
 			int value = MiniMaxSearch(nextState, false, 1, alpha, beta);
 			if (value > maxStateValue){
 				maxStateValue = value;
