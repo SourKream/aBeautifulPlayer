@@ -141,7 +141,7 @@ int main(int argc, char** argv){
 	Slides = GenerateAllSlides(7);
 		//debugGame();
 
-	double WhiteScores[] = { 40,  80, 20,  5, 3, 2, 4, 2, 12.5, -7.5, 17.5, -5, 15, -2.5};
+	double WhiteScores[] = { 40,  80, 20,  15, 3, 2, 4, 2, 12.5, -7.5, 17.5, -5, 15, -2.5};
 	double WhiteScores2[] = {60, 120, 20, 30, 4, 2, 4, 2, 10,   10,   20,   10, 15, 10};
 	double BlackScores[] = {50, 90, 30, 15, 10, 3, 4, 2, 12.5, -7.5, 12.5, -5, 15, -2.5};
 	double BlackScores2[] = {60, 120, 20, 30, 4, 2, 4, 2, 10, 10, 20, 10, 15, 10};
@@ -159,7 +159,7 @@ int main(int argc, char** argv){
 		player3.play();
 	}
 	else{
-		MiniMaxAgent player3(p, n, t,BlackScores,BlackScores2, MaxDepth, &currenttime);
+		MiniMaxAgent player3(p, n, t,WhiteScores,BlackScores2, MaxDepth, &currenttime);
 		//	cerr << "MiniMax Player With Bits" << endl;
 		player3.playFirstMove();
 		player3.play();

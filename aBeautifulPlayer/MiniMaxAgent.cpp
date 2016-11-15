@@ -13,9 +13,9 @@
 #define INF 50000
 
 
-#define LOSE_DEPTH 1
-#define MID_DEPTH 2
-#define MAX_DEPTH 3
+#define LOSE_DEPTH 2
+#define MID_DEPTH 3
+#define MAX_DEPTH 4
 
 
 
@@ -318,7 +318,7 @@ struct MiniMaxAgent{
 		StatesExplored = 0;
 		Move allMoves[1000];
 		int size_all_moves = myGame->generateAllMoves(allMoves);
-		
+        cerr << "States generated : \t" << size_all_moves << endl;
 		int maxStateValue = -INF;
 		int alpha = -INF, beta = INF;
 		Move* bestMove = &allMoves[0];
